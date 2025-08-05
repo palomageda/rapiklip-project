@@ -220,15 +220,17 @@ ${textToFormat}
                 if (!textToSummarize) { showError("Tidak ada teks di editor untuk diringkas."); return; }
                 showLoader();
                 try {
-                    // --- REVISED SUMMARY PROMPT ---
-                    const prompt = `Anda adalah seorang editor ahli yang bertugas menulis ulang sebuah teks agar lebih ringkas dan padat untuk pesan WhatsApp, tanpa menghilangkan informasi penting.
+                    // --- FINAL REVISED SUMMARY PROMPT ---
+                    const prompt = `Anda adalah seorang *copyeditor* profesional yang sangat ahli dalam *conciseness* (keringkasan). Tugas Anda adalah menulis ulang paragraf di bawah ini menjadi versi yang jauh lebih singkat dan padat, tetapi dengan **ATURAN MUTLAK: 100% informasi dan makna asli harus tetap utuh.**
 
-ATURAN UTAMA:
-1.  **JANGAN HILANGKAN INFORMASI KUNCI:** Tujuan Anda adalah mengurangi jumlah kata yang tidak perlu (misalnya "adalah merupakan", "untuk dapat"), bukan menghilangkan substansi atau makna asli. Pembaca harus mendapatkan informasi yang sama persis seperti membaca teks aslinya.
-2.  **JAGA STRUKTUR PARAGRAF:** Tulis ulang teks tersebut menjadi satu paragraf tunggal yang lebih efisien. Jangan mengubahnya menjadi daftar poin.
-3.  **GUNAKAN FORMAT WA:** Setelah diringkas, terapkan format WhatsApp (*tebal* dan _miring_) untuk menonjolkan bagian terpenting pada paragraf ringkas tersebut.
+Caranya:
+- Ganti frasa panjang dengan kata yang lebih singkat (contoh: "melakukan kegiatan" -> "berkegiatan").
+- Hilangkan semua kata-kata yang tidak perlu dan bersifat pengisi (filler words).
+- Gabungkan kalimat jika memungkinkan untuk membuat alur lebih efisien.
+- Hasil akhir HARUS dalam satu paragraf tunggal.
+- Setelah diringkas, terapkan format WhatsApp (*tebal* dan _miring_) untuk menonjolkan poin-poin terpenting.
 
-Tulis ulang dan padatkan teks di bawah ini tanpa mengurangi maknanya:
+Tulis ulang teks berikut menjadi versi yang paling efisien dan padat tanpa kehilangan makna sedikit pun:
 """
 ${textToSummarize}
 """`;
