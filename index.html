@@ -180,17 +180,17 @@
                 if (!textToFormat) { showError("Tidak ada teks di editor untuk diformat."); return; }
                 showLoader();
                 try {
-                    // --- FINAL PROMPT v2 ---
-                    const prompt = `Tugas Anda adalah memformat teks berikut untuk WhatsApp.
-ATURAN KETAT:
+                    // --- FINAL PROMPT v3 ---
+                    const prompt = `Tugas Anda adalah memformat teks berikut untuk WhatsApp dengan aturan yang SANGAT KETAT.
+ATURAN UTAMA:
 1.  **JAGA STRUKTUR ASLI:** Jika input adalah satu paragraf, output HARUS tetap satu paragraf. Jangan menambahkan baris baru.
 2.  **CETAK MIRING (_teks_):** Gunakan HANYA untuk istilah dalam bahasa asing (contoh: _monitoring_, _digital_).
-3.  **CETAK TEBAL (*teks*):** Gunakan untuk frasa kunci yang paling menonjolkan tujuan atau kesimpulan utama dari teks. Anda boleh menebalkan beberapa frasa jika memang penting.
+3.  **CETAK TEBAL (*teks*):** Gunakan untuk frasa kunci yang paling menonjolkan tujuan atau kesimpulan utama dari teks. Beri perhatian khusus pada bagian awal (tujuan) dan akhir (kesimpulan) dari paragraf untuk menemukan kandidat cetak tebal.
 4.  **JANGAN MENAMBAHKAN TEKS APAPUN:** Jangan memberi kalimat pembuka/penutup.
 
 CONTOH YANG DIINGINKAN:
-Input: "Pemerintah pusat dan daerah disarankan memperkuat edukasi dan sosialisasi CKG, khususnya di wilayah dengan kerawanan tinggi dan akses digital terbatas. Optimalisasi pemanfaatan teknologi digital, pelibatan aktif tenaga kesehatan, serta pemberdayaan tokoh masyarakat sangat penting untuk meningkatkan monitoring berkelanjutan."
-Output yang Diinginkan: "Pemerintah pusat dan daerah disarankan *memperkuat edukasi dan sosialisasi CKG*, khususnya di wilayah dengan kerawanan tinggi dan *akses digital terbatas*. Optimalisasi pemanfaatan teknologi _digital_, pelibatan aktif tenaga kesehatan, serta pemberdayaan tokoh masyarakat *sangat penting* untuk meningkatkan _monitoring_ berkelanjutan."
+Input: "Pemerintah pusat dan daerah disarankan memperkuat edukasi dan sosialisasi CKG, khususnya di wilayah dengan kerawanan tinggi dan akses digital terbatas. Optimalisasi pemanfaatan teknologi digital, pelibatan aktif tenaga kesehatan, serta pemberdayaan tokoh masyarakat sangat penting untuk meningkatkan monitoring berkelanjutan dan memastikan keberlanjutan serta dampak jangka panjang program CKG."
+Output yang Diinginkan: "Pemerintah pusat dan daerah disarankan *memperkuat edukasi dan sosialisasi CKG*, khususnya di wilayah dengan kerawanan tinggi dan *akses digital terbatas*. Optimalisasi pemanfaatan teknologi _digital_, pelibatan aktif tenaga kesehatan, serta pemberdayaan tokoh masyarakat sangat penting untuk meningkatkan _monitoring_ berkelanjutan dan *memastikan keberlanjutan serta dampak jangka panjang program CKG*."
 
 Sekarang, format narasi di bawah ini dengan aturan yang sama:
 """
