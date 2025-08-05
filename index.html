@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RapiKlip: AI WhatsApp Text Formatter</title>
-    <meta name="description" content="Format teks laporan WhatsApp secara otomatis dengan AI. Buat teks tebal, miring, daftar poin, atau tiru format dari contoh dengan sekali klik.">
-    <meta name="keywords" content="whatsapp formatter, text formatter, format wa, klippr, rapiklip, ai text formatter">
+    <title>MediaDash: AI Content Formatter & Suite</title>
+    <meta name="description" content="Format, ringkas, dan sempurnakan konten Anda untuk media sosial dengan bantuan AI. MediaDash adalah dasbor konten cerdas Anda.">
+    <meta name="keywords" content="mediadash, content formatter, text formatter, format wa, ai content suite, gemini api">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -41,8 +41,8 @@
 
     <div class="w-full max-w-5xl bg-white rounded-xl shadow-lg p-6 md:p-8">
         <div class="text-center mb-6">
-            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">RapiKlip ✨</h1>
-            <p class="text-gray-600 mt-2">AI WhatsApp Text Formatter</p>
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900">MediaDash ✨</h1>
+            <p class="text-gray-600 mt-2">Your AI-Powered Content Dashboard</p>
         </div>
 
         <div class="border border-gray-200 rounded-lg p-4 mb-6">
@@ -220,7 +220,6 @@ ${textToFormat}
                 if (!textToSummarize) { showError("Tidak ada teks di editor untuk diringkas."); return; }
                 showLoader();
                 try {
-                    // --- FINAL REVISED SUMMARY PROMPT v3 ---
                     const prompt = `Anda adalah seorang *copyeditor* profesional yang sangat ahli dalam *conciseness* (keringkasan). Tugas Anda adalah menulis ulang paragraf di bawah ini menjadi versi yang jauh lebih singkat dan padat, tetapi dengan **ATURAN MUTLAK: 100% informasi dan makna asli harus tetap utuh.**
 
 Caranya:
