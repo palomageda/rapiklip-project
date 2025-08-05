@@ -60,7 +60,7 @@
                             <textarea id="target-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
                         </div>
                     </div>
-                    <button id="format-by-example-btn" class="mt-3 w-full px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700 transition-colors">� Tiru Format</button>
+                    <button id="format-by-example-btn" class="mt-3 w-full px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700 transition-colors">🤖 Tiru Format</button>
                 </div>
                 <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
                     <h3 class="font-semibold text-lg text-purple-700 mb-2">2. Format Cerdas & Ringkas</h3>
@@ -220,7 +220,7 @@ ${textToFormat}
                 if (!textToSummarize) { showError("Tidak ada teks di editor untuk diringkas."); return; }
                 showLoader();
                 try {
-                    // --- FINAL REVISED SUMMARY PROMPT ---
+                    // --- FINAL REVISED SUMMARY PROMPT v3 ---
                     const prompt = `Anda adalah seorang *copyeditor* profesional yang sangat ahli dalam *conciseness* (keringkasan). Tugas Anda adalah menulis ulang paragraf di bawah ini menjadi versi yang jauh lebih singkat dan padat, tetapi dengan **ATURAN MUTLAK: 100% informasi dan makna asli harus tetap utuh.**
 
 Caranya:
@@ -229,7 +229,7 @@ Caranya:
 - Gabungkan kalimat untuk efisiensi.
 - Hasil akhir HARUS dalam satu paragraf tunggal.
 - Setelah diringkas, terapkan format WhatsApp dengan ATURAN SANGAT KETAT:
-    - **Cetak Tebal (*teks*):** Gunakan secara SANGAT HEMAT. Pilih dan tebalkan HANYA SATU frasa yang menjadi inti atau kesimpulan paling utama dari seluruh paragraf. Jangan menebalkan lebih dari satu frasa.
+    - **Cetak Tebal (*teks*):** Gunakan untuk menyorot informasi paling krusial. Ini biasanya mencakup **subjek utama atau rekomendasi di awal kalimat**, dan juga **tujuan atau dampak di akhir kalimat**. Anda boleh menebalkan lebih dari satu frasa jika keduanya sama-sama penting.
     - **Cetak Miring (_teks*):** ATURAN PALING PENTING: Gunakan HANYA dan EKSKLUSIF untuk kata dalam BAHASA ASING (contoh: Bahasa Inggris seperti _monitoring_, _digital_). JANGAN PERNAH, dalam kondisi apapun, gunakan cetak miring untuk kata dalam Bahasa Indonesia.
 
 Tulis ulang teks berikut menjadi versi yang paling efisien dan padat tanpa kehilangan makna sedikit pun:
@@ -272,4 +272,3 @@ ${textToSummarize}
     </script>
 </body>
 </html>
-�
