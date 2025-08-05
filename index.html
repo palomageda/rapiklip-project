@@ -220,15 +220,15 @@ ${textToFormat}
                 if (!textToSummarize) { showError("Tidak ada teks di editor untuk diringkas."); return; }
                 showLoader();
                 try {
-                    // --- NEW PARAGRAPH SUMMARY PROMPT ---
-                    const prompt = `Anda adalah seorang editor ahli yang bertugas meringkas teks panjang menjadi sebuah paragraf yang padat dan informatif untuk WhatsApp.
-ATURAN UTAMA:
-1.  **JAGA STRUKTUR:** Hasil ringkasan HARUS dalam bentuk satu paragraf. Jangan diubah menjadi daftar poin, kecuali jika teks aslinya sudah berupa daftar.
-2.  **FOKUS PADA INTI:** Ekstrak ide utama, tujuan, dan kesimpulan dari teks. Buang kalimat-kalimat yang bersifat pengantar atau pengulangan.
-3.  **GUNAKAN FORMAT WA:** Terapkan format WhatsApp (*tebal* dan _miring_) pada ringkasan Anda untuk menonjolkan bagian terpenting.
-4.  **BAHASA PROFESIONAL:** Gunakan bahasa Indonesia yang baik, ringkas, dan profesional.
+                    // --- REVISED SUMMARY PROMPT ---
+                    const prompt = `Anda adalah seorang editor ahli yang bertugas menulis ulang sebuah teks agar lebih ringkas dan padat untuk pesan WhatsApp, tanpa menghilangkan informasi penting.
 
-Ringkas teks di bawah ini menjadi satu paragraf padat:
+ATURAN UTAMA:
+1.  **JANGAN HILANGKAN INFORMASI KUNCI:** Tujuan Anda adalah mengurangi jumlah kata yang tidak perlu (misalnya "adalah merupakan", "untuk dapat"), bukan menghilangkan substansi atau makna asli. Pembaca harus mendapatkan informasi yang sama persis seperti membaca teks aslinya.
+2.  **JAGA STRUKTUR PARAGRAF:** Tulis ulang teks tersebut menjadi satu paragraf tunggal yang lebih efisien. Jangan mengubahnya menjadi daftar poin.
+3.  **GUNAKAN FORMAT WA:** Setelah diringkas, terapkan format WhatsApp (*tebal* dan _miring_) untuk menonjolkan bagian terpenting pada paragraf ringkas tersebut.
+
+Tulis ulang dan padatkan teks di bawah ini tanpa mengurangi maknanya:
 """
 ${textToSummarize}
 """`;
