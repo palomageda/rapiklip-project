@@ -174,26 +174,6 @@
                 throw new Error(blockReason === 'SAFETY' ? "Permintaan diblokir karena alasan keamanan." : "Gagal mendapatkan respons dari AI.");
             }
         }
-
-        function formatText(openChar, closeChar) {
-            const start = editor.selectionStart;
-            const end = editor.selectionEnd;
-            const selectedText = editor.value.substring(start, end);
-            const beforeText = editor.value.substring(0, start);
-            const afterText = editor.value.substring(end);
-
-            if (start === end) {
-                editor.value = `${beforeText}${openChar}${closeChar}${afterText}`;
-                editor.focus();
-                editor.selectionStart = editor.selectionEnd = start + openChar.length;
-            } else {
-                editor.value = `${beforeText}${openChar}${selectedText}${closeChar}${afterText}`;
-                editor.focus();
-                editor.selectionStart = start;
-                editor.selectionEnd = end + openChar.length + closeChar.length;
-            }
-            updatePreview(editor.value);
-        }
         
         function addAiFeatureListeners() {
             document.getElementById('format-by-example-btn').addEventListener('click', async () => {
@@ -214,7 +194,6 @@
                 if (!textToFormat) { showError("Tidak ada teks di editor untuk diformat."); return; }
                 showLoader();
                 try {
-                    // --- FINAL PROMPT v3 ---
                     const prompt = `Tugas Anda adalah memformat teks berikut untuk WhatsApp dengan aturan yang SANGAT KETAT.
 ATURAN UTAMA:
 1.  **JAGA STRUKTUR ASLI:** Jika input adalah satu paragraf, output HARUS tetap satu paragraf. Jangan menambahkan baris baru.
@@ -237,11 +216,27 @@ ${textToFormat}
             });
 
             document.getElementById('summarize-btn').addEventListener('click', async () => {
-                const textToSummarize = editor.value.trim();
-                if (!textToFormat) { showError("Tidak ada teks di editor untuk diringkas."); return; }
+                const textToSummarize = editor.value.trim(); // BUG FIX: Was textToFormat before
+                if (!textToSummarize) { showError("Tidak ada teks di editor untuk diringkas."); return; }
                 showLoader();
                 try {
-                    const prompt = `Ringkas teks ini menjadi poin-poin penting untuk laporan singkat di WhatsApp. Gunakan format WhatsApp (*tebal*, _miring_, - daftar).\n\nTeks Asli:\n"""\n${textToFormat}\n"""`;
+                    // --- NEW 5W+1H PROMPT ---
+                    const prompt = `Anda adalah seorang analis ahli yang bertugas membuat ringkasan eksekutif untuk laporan singkat di WhatsApp.
+Tugas Anda adalah membaca teks di bawah ini dan mengekstrak informasi paling penting dalam format poin-poin yang jelas dan mudah dibaca.
+Gunakan format WhatsApp (*tebal* dan - untuk poin). Jika memungkinkan, strukturkan ringkasan Anda untuk menjawab pertanyaan 5W+1H:
+- *Apa (What):* Apa inti dari kejadian atau informasi ini?
+- *Siapa (Who):* Siapa saja pihak yang terlibat?
+- *Kapan (When):* Kapan peristiwa ini terjadi? (Jika ada)
+- *Di mana (Where):* Di mana lokasi kejadiannya? (Jika ada)
+- *Mengapa (Why):* Mengapa hal ini penting atau terjadi?
+- *Bagaimana (How):* Bagaimana tindak lanjut atau prosesnya?
+
+Gunakan bahasa Indonesia yang baik dan profesional.
+
+Teks Asli untuk Diringkas:
+"""
+${textToSummarize}
+"""`;
                     const result = await callGeminiAPI(prompt);
                     editor.value = result;
                     updatePreview(result);
