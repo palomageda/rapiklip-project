@@ -90,7 +90,6 @@
         }
 
         async function callGeminiAPI(prompt) {
-            // This function now calls our own backend, not Google's.
             const response = await fetch('/.netlify/functions/call-gemini', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -104,7 +103,16 @@
 
             const result = await response.json();
             if (result.candidates && result.candidates[0].content.parts.length > 0) {
-                return result.candidates[0].content.parts[0].text;
+                let text = result.candidates[0].content.parts[0].text;
+                text = text.replace(/```(whatsapp|text)?\n/g, '').replace(/```/g, '');
+                const lines = text.split('\n');
+                if (lines.length > 1 && !lines[0].includes('*') && !lines[0].includes('_')) {
+                   const firstLineLower = lines[0].toLowerCase();
+                   if (firstLineLower.includes('berikut') || firstLineLower.includes('ini adalah') || firstLineLower.includes('tentu')) {
+                       return lines.slice(1).join('\n').trim();
+                   }
+                }
+                return text.trim();
             } else {
                 const blockReason = result.candidates?.[0]?.finishReason;
                 throw new Error(blockReason === 'SAFETY' ? "Permintaan diblokir karena alasan keamanan." : "Gagal mendapatkan respons dari AI.");
@@ -118,7 +126,7 @@
                 if (!example || !target) { showError("Mohon isi 'Teks Contoh' dan 'Teks Baru'."); return; }
                 showLoader();
                 try {
-                    const prompt = `Anda adalah AI ahli format. Analisis gaya format dari "CONTOH" dan terapkan gaya yang sama persis ke "TEKS BARU".\n\n---\nCONTOH:\n${example}\n---\nTEKS BARU:\n${target}\n---\n\nHASIL FORMAT:`;
+                    const prompt = `Anda adalah AI ahli format. Analisis gaya format dari "CONTOH" dan terapkan gaya yang sama persis ke "TEKS BARU".\n\n---\nCONTOH:\n${example}\n---\nTEKS BARU:\n${target}\n---\n\nHASIL FORMAT (hanya berikan teks yang sudah diformat, tanpa kalimat pembuka):`;
                     editor.value = await callGeminiAPI(prompt);
                 } catch (error) { showError(`Gagal memformat: ${error.message}`); } finally { hideModal(); }
             });
@@ -128,7 +136,11 @@
                 if (!textToFormat) { showError("Tidak ada teks di editor untuk diformat."); return; }
                 showLoader();
                 try {
-                    const prompt = `Anda adalah editor ahli. Analisis teks ini dan terapkan format WhatsApp. Penting: Pertahankan struktur asli teks. Gunakan *teks* untuk tebal, _teks_ untuk miring, dan - untuk daftar.\n\nTeks Asli:\n"""\n${textToFormat}\n"""`;
+                    // --- PROMPT FINAL YANG SUDAH TERBUKTI EFEKTIF ---
+                    const prompt = `buat dalam satu paragraf saja, tandai miring untuk bahasa asing, dan tandai bold untuk yang paling penting saja, untuk narasi dibawah ini:
+"""
+${textToFormat}
+"""`;
                     editor.value = await callGeminiAPI(prompt);
                 } catch (error) { showError(`Gagal memformat: ${error.message}`); } finally { hideModal(); }
             });
