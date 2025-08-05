@@ -11,15 +11,30 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         textarea::selection { background-color: #a5b4fc; color: black; }
-        .tooltip { position: relative; display: inline-block; }
-        .tooltip .tooltiptext { visibility: hidden; width: 140px; background-color: #1f2937; color: #fff; text-align: center; border-radius: 6px; padding: 5px 0; position: absolute; z-index: 50; bottom: 125%; left: 50%; margin-left: -70px; opacity: 0; transition: opacity 0.3s; }
-        .tooltip .tooltiptext::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #1f2937 transparent transparent transparent; }
-        .tooltip.active .tooltiptext { visibility: visible; opacity: 1; }
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
         .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .modal-content { background: white; padding: 2rem; border-radius: 0.5rem; text-align: center; max-width: 90%; width: 400px; }
+        
+        /* WhatsApp Preview Styles */
+        .whatsapp-preview {
+            background-color: #e5ddd5; /* WhatsApp background color */
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); /* Subtle pattern */
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid #d1d5db;
+        }
+        .whatsapp-chat-bubble {
+            background-color: #dcf8c6; /* Chat bubble color */
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            max-width: 80%;
+            margin-left: auto; /* Align to the right */
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            word-wrap: break-word;
+            white-space: pre-wrap; /* Preserve line breaks */
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
@@ -45,7 +60,7 @@
                             <textarea id="target-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
                         </div>
                     </div>
-                    <button id="format-by-example-btn" class="mt-3 w-full px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700 transition-colors">🤖 Tiru Format</button>
+                    <button id="format-by-example-btn" class="mt-3 w-full px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700 transition-colors">� Tiru Format</button>
                 </div>
                 <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
                     <h3 class="font-semibold text-lg text-purple-700 mb-2">2. Format Cerdas & Ringkas</h3>
@@ -62,11 +77,18 @@
             <textarea id="editor" rows="10" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Hasil dari AI akan muncul di sini."></textarea>
         </div>
 
-        <div class="mt-4 flex flex-wrap gap-2 justify-end">
-             <div class="tooltip">
-                <button id="copy-btn" class="w-full sm:w-auto px-5 py-2 bg-gray-700 text-white rounded-md font-semibold hover:bg-gray-800">Salin Hasil</button>
-                <span class="tooltiptext" id="copy-tooltip">Teks disalin!</span>
+        <!-- WhatsApp Preview Section -->
+        <div class="mt-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-2">Tampilan di WhatsApp</h3>
+            <div class="whatsapp-preview">
+                <div class="whatsapp-chat-bubble" id="whatsapp-output">
+                   Tampilan teks Anda akan muncul di sini...
+                </div>
             </div>
+        </div>
+
+        <div class="mt-6 flex flex-wrap gap-2 justify-end">
+             <button id="copy-btn" class="w-full sm:w-auto px-5 py-2 bg-gray-700 text-white rounded-md font-semibold hover:bg-gray-800">Salin Hasil</button>
              <button id="clear-btn" class="w-full sm:w-auto px-5 py-2 bg-red-500 text-white rounded-md font-semibold hover:bg-red-600">Bersihkan Semua</button>
         </div>
     </div>
@@ -77,9 +99,9 @@
         const editor = document.getElementById('editor');
         const copyBtn = document.getElementById('copy-btn');
         const clearBtn = document.getElementById('clear-btn');
-        const copyTooltip = document.querySelector('.tooltip');
         const modal = document.getElementById('modal');
         const modalContentArea = document.getElementById('modal-content-area');
+        const whatsappOutput = document.getElementById('whatsapp-output');
 
         function showLoader() { modalContentArea.innerHTML = '<div class="loader"></div>'; modal.classList.add('visible'); }
         function hideModal() { modal.classList.remove('visible'); modalContentArea.innerHTML = ''; }
@@ -87,6 +109,39 @@
             modalContentArea.innerHTML = `<div class="modal-content"><h3 class="text-xl font-bold text-red-600 mb-2">Terjadi Kesalahan</h3><p class="text-gray-700">${message}</p><button id="close-modal-btn" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md">Tutup</button></div>`;
             modal.classList.add('visible');
             document.getElementById('close-modal-btn').addEventListener('click', hideModal);
+        }
+        
+        // --- NEW: WhatsApp Preview Function ---
+        function updatePreview(text) {
+            if (!text) {
+                whatsappOutput.innerHTML = 'Tampilan teks Anda akan muncul di sini...';
+                return;
+            }
+            let html = text;
+            // Convert WhatsApp markdown to HTML tags
+            html = html.replace(/\*(.*?)\*/g, '<b>$1</b>'); // Bold
+            html = html.replace(/_(.*?)_/g, '<i>$1</i>');   // Italic
+            html = html.replace(/~(.*?)~/g, '<s>$1</s>');   // Strikethrough
+            html = html.replace(/```(.*?)```/g, '<tt>$1</tt>'); // Monospace
+            
+            whatsappOutput.innerHTML = html;
+        }
+        
+        editor.addEventListener('input', (e) => updatePreview(e.target.value));
+
+        // --- NEW: Post-processing cleanup function ---
+        function cleanupAIResponse(text) {
+            // Remove any introductory text from the AI
+            const lines = text.split('\n');
+            if (lines.length > 1 && !lines[0].includes('*') && !lines[0].includes('_')) {
+               const firstLineLower = lines[0].toLowerCase();
+               if (firstLineLower.includes('berikut') || firstLineLower.includes('ini adalah') || firstLineLower.includes('tentu')) {
+                   text = lines.slice(1).join('\n').trim();
+               }
+            }
+            // Fix double asterisks or underscores
+            text = text.replace(/\*\*+/g, '*').replace(/__+/g, '_');
+            return text.trim();
         }
 
         async function callGeminiAPI(prompt) {
@@ -103,16 +158,8 @@
 
             const result = await response.json();
             if (result.candidates && result.candidates[0].content.parts.length > 0) {
-                let text = result.candidates[0].content.parts[0].text;
-                text = text.replace(/```(whatsapp|text)?\n/g, '').replace(/```/g, '');
-                const lines = text.split('\n');
-                if (lines.length > 1 && !lines[0].includes('*') && !lines[0].includes('_')) {
-                   const firstLineLower = lines[0].toLowerCase();
-                   if (firstLineLower.includes('berikut') || firstLineLower.includes('ini adalah') || firstLineLower.includes('tentu')) {
-                       return lines.slice(1).join('\n').trim();
-                   }
-                }
-                return text.trim();
+                let rawText = result.candidates[0].content.parts[0].text;
+                return cleanupAIResponse(rawText); // Use the cleanup function
             } else {
                 const blockReason = result.candidates?.[0]?.finishReason;
                 throw new Error(blockReason === 'SAFETY' ? "Permintaan diblokir karena alasan keamanan." : "Gagal mendapatkan respons dari AI.");
@@ -127,7 +174,9 @@
                 showLoader();
                 try {
                     const prompt = `Anda adalah AI ahli format. Analisis gaya format dari "CONTOH" dan terapkan gaya yang sama persis ke "TEKS BARU".\n\n---\nCONTOH:\n${example}\n---\nTEKS BARU:\n${target}\n---\n\nHASIL FORMAT (hanya berikan teks yang sudah diformat, tanpa kalimat pembuka):`;
-                    editor.value = await callGeminiAPI(prompt);
+                    const result = await callGeminiAPI(prompt);
+                    editor.value = result;
+                    updatePreview(result);
                 } catch (error) { showError(`Gagal memformat: ${error.message}`); } finally { hideModal(); }
             });
 
@@ -136,12 +185,21 @@
                 if (!textToFormat) { showError("Tidak ada teks di editor untuk diformat."); return; }
                 showLoader();
                 try {
-                    // --- PROMPT FINAL YANG SUDAH TERBUKTI EFEKTIF ---
-                    const prompt = `buat dalam satu paragraf saja, tandai miring untuk bahasa asing, dan tandai bold untuk yang paling penting saja, untuk narasi dibawah ini:
+                    // --- FINAL, MOST SPECIFIC PROMPT ---
+                    const prompt = `Tugas Anda adalah memformat teks berikut untuk WhatsApp dengan aturan yang SANGAT KETAT.
+ATURAN UTAMA:
+1.  **JANGAN MENGUBAH STRUKTUR.** Jika input adalah satu paragraf, output HARUS tetap satu paragraf. JANGAN memecahnya atau menambahkan baris baru.
+2.  **CETAK MIRING:** Gunakan garis bawah (_teks_) HANYA untuk istilah dalam BAHASA INGGRIS atau bahasa asing lainnya yang jelas (contoh: _monitoring_, _digital_, _sustainability_). Jangan gunakan untuk bahasa Indonesia.
+3.  **CETAK TEBAL:** Gunakan bintang (*teks*) secara SANGAT HEMAT. Hanya untuk 1-3 frasa kunci yang paling vital atau merupakan kesimpulan utama dalam teks.
+4.  **JANGAN MENAMBAHKAN APAPUN.** Jangan menambahkan kalimat pembuka atau penutup.
+
+Format narasi di bawah ini:
 """
 ${textToFormat}
 """`;
-                    editor.value = await callGeminiAPI(prompt);
+                    const result = await callGeminiAPI(prompt);
+                    editor.value = result;
+                    updatePreview(result);
                 } catch (error) { showError(`Gagal memformat: ${error.message}`); } finally { hideModal(); }
             });
 
@@ -151,7 +209,9 @@ ${textToFormat}
                 showLoader();
                 try {
                     const prompt = `Ringkas teks ini menjadi poin-poin penting untuk laporan singkat di WhatsApp. Gunakan format WhatsApp (*tebal*, _miring_, - daftar).\n\nTeks Asli:\n"""\n${textToSummarize}\n"""`;
-                    editor.value = await callGeminiAPI(prompt);
+                    const result = await callGeminiAPI(prompt);
+                    editor.value = result;
+                    updatePreview(result);
                 } catch (error) { showError(`Gagal meringkas: ${error.message}`); } finally { hideModal(); }
             });
         }
@@ -160,17 +220,20 @@ ${textToFormat}
             if (!editor.value) return;
             editor.select();
             document.execCommand('copy');
-            copyTooltip.classList.add('active');
-            setTimeout(() => copyTooltip.classList.remove('active'), 2000);
+            alert('Teks berhasil disalin!');
         });
         clearBtn.addEventListener('click', () => {
             editor.value = '';
             document.getElementById('example-text').value = '';
             document.getElementById('target-text').value = '';
+            updatePreview('');
             editor.focus();
         });
 
         document.addEventListener('DOMContentLoaded', addAiFeatureListeners);
+        // Initial preview update on load
+        updatePreview(editor.value);
     </script>
 </body>
 </html>
+�
