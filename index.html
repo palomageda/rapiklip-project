@@ -77,6 +77,15 @@
             <textarea id="editor" rows="10" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Hasil dari AI akan muncul di sini."></textarea>
         </div>
 
+        <!-- Manual Formatting Toolbar -->
+        <div class="mt-2 bg-gray-50 border border-gray-200 rounded-lg p-2 flex flex-wrap items-center gap-2">
+            <span class="text-sm font-medium text-gray-600 mr-2">Format Manual:</span>
+            <button id="bold-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md font-bold text-gray-700 hover:bg-gray-100">B</button>
+            <button id="italic-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md italic font-serif text-gray-700 hover:bg-gray-100">I</button>
+            <button id="strike-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md line-through text-gray-700 hover:bg-gray-100">S</button>
+            <button id="mono-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md font-mono text-xs text-gray-700 hover:bg-gray-100">Monospace</button>
+        </div>
+
         <!-- WhatsApp Preview Section -->
         <div class="mt-6">
             <h3 class="text-lg font-semibold text-gray-800 mb-2">Tampilan di WhatsApp</h3>
@@ -102,6 +111,11 @@
         const modal = document.getElementById('modal');
         const modalContentArea = document.getElementById('modal-content-area');
         const whatsappOutput = document.getElementById('whatsapp-output');
+        // Manual format buttons
+        const boldBtn = document.getElementById('bold-btn');
+        const italicBtn = document.getElementById('italic-btn');
+        const strikeBtn = document.getElementById('strike-btn');
+        const monoBtn = document.getElementById('mono-btn');
 
         function showLoader() { modalContentArea.innerHTML = '<div class="loader"></div>'; modal.classList.add('visible'); }
         function hideModal() { modal.classList.remove('visible'); modalContentArea.innerHTML = ''; }
@@ -160,6 +174,26 @@
                 throw new Error(blockReason === 'SAFETY' ? "Permintaan diblokir karena alasan keamanan." : "Gagal mendapatkan respons dari AI.");
             }
         }
+
+        function formatText(openChar, closeChar) {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = editor.value.substring(start, end);
+            const beforeText = editor.value.substring(0, start);
+            const afterText = editor.value.substring(end);
+
+            if (start === end) {
+                editor.value = `${beforeText}${openChar}${closeChar}${afterText}`;
+                editor.focus();
+                editor.selectionStart = editor.selectionEnd = start + openChar.length;
+            } else {
+                editor.value = `${beforeText}${openChar}${selectedText}${closeChar}${afterText}`;
+                editor.focus();
+                editor.selectionStart = start;
+                editor.selectionEnd = end + openChar.length + closeChar.length;
+            }
+            updatePreview(editor.value);
+        }
         
         function addAiFeatureListeners() {
             document.getElementById('format-by-example-btn').addEventListener('click', async () => {
@@ -204,15 +238,22 @@ ${textToFormat}
 
             document.getElementById('summarize-btn').addEventListener('click', async () => {
                 const textToSummarize = editor.value.trim();
-                if (!textToSummarize) { showError("Tidak ada teks di editor untuk diringkas."); return; }
+                if (!textToFormat) { showError("Tidak ada teks di editor untuk diringkas."); return; }
                 showLoader();
                 try {
-                    const prompt = `Ringkas teks ini menjadi poin-poin penting untuk laporan singkat di WhatsApp. Gunakan format WhatsApp (*tebal*, _miring_, - daftar).\n\nTeks Asli:\n"""\n${textToSummarize}\n"""`;
+                    const prompt = `Ringkas teks ini menjadi poin-poin penting untuk laporan singkat di WhatsApp. Gunakan format WhatsApp (*tebal*, _miring_, - daftar).\n\nTeks Asli:\n"""\n${textToFormat}\n"""`;
                     const result = await callGeminiAPI(prompt);
                     editor.value = result;
                     updatePreview(result);
                 } catch (error) { showError(`Gagal meringkas: ${error.message}`); } finally { hideModal(); }
             });
+        }
+
+        function addManualFormatListeners() {
+            boldBtn.addEventListener('click', () => formatText('*', '*'));
+            italicBtn.addEventListener('click', () => formatText('_', '_'));
+            strikeBtn.addEventListener('click', () => formatText('~', '~'));
+            monoBtn.addEventListener('click', () => formatText('```', '```'));
         }
 
         copyBtn.addEventListener('click', () => {
@@ -229,8 +270,11 @@ ${textToFormat}
             editor.focus();
         });
 
-        document.addEventListener('DOMContentLoaded', addAiFeatureListeners);
-        updatePreview(editor.value);
+        document.addEventListener('DOMContentLoaded', () => {
+            addAiFeatureListeners();
+            addManualFormatListeners();
+            updatePreview(editor.value);
+        });
     </script>
 </body>
 </html>
