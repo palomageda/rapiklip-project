@@ -150,7 +150,7 @@
     </div>
 
     <!-- Modal untuk Loading & Error -->
-    <div id="modal" class="modal-overlay hidden"><div id="modal-content-area"></div></div>
+    <div id="modal" class="modal-overlay"><div id="modal-content-area"></div></div>
 
     <script>
         // --- KONFIGURASI FIREBASE ANDA ---
@@ -217,7 +217,7 @@
                     </div>
                 </div>
             `;
-            modal.classList.remove('hidden');
+            modal.classList.add('visible');
             
             const progressBar = document.getElementById('progress-bar');
             let width = 0;
@@ -241,15 +241,15 @@
                 progressBar.textContent = '100%';
             }
             setTimeout(() => {
-                modal.classList.add('hidden');
+                modal.classList.remove('visible');
                 modalContentArea.innerHTML = '';
             }, 500);
         }
 
         function showError(message) {
-            modal.classList.remove('hidden');
+            modal.classList.add('visible');
             modalContentArea.innerHTML = `<div class="modal-content"><h3 class="text-xl font-bold text-red-600 mb-2">Terjadi Kesalahan</h3><p class="text-gray-700">${message}</p><button id="close-error-modal-btn" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md">Tutup</button></div>`;
-            document.getElementById('close-error-modal-btn').addEventListener('click', () => modal.classList.add('hidden'));
+            document.getElementById('close-error-modal-btn').addEventListener('click', () => modal.classList.remove('visible'));
         }
 
         // --- Auth State Management ---
@@ -341,7 +341,6 @@
             return text.trim();
         }
 
-        // BUG FIX: Added formatText function for manual formatting
         function formatText(openChar, closeChar) {
             const start = editor.selectionStart;
             const end = editor.selectionEnd;
