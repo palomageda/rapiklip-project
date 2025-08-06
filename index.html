@@ -20,11 +20,27 @@
         textarea::selection { background-color: #a5b4fc; color: black; }
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
-        .loader { border: 5px solid #f3f3f3; border-top: 5px solid #4f46e5; border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .modal-content { background: white; padding: 2rem; border-radius: 0.5rem; text-align: center; max-width: 90%; width: 400px; }
         .whatsapp-preview { background-color: #e5ddd5; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; }
         .whatsapp-chat-bubble { background-color: #dcf8c6; padding: 0.5rem 0.75rem; border-radius: 0.5rem; max-width: 80%; margin-left: auto; box-shadow: 0 1px 1px rgba(0,0,0,0.1); word-wrap: break-word; white-space: pre-wrap; }
+        
+        /* New Progress Bar Styles */
+        .progress-bar-container {
+            width: 100%;
+            background-color: #e5e7eb;
+            border-radius: 9999px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 1.5rem;
+            width: 0%;
+            background-color: #4f46e5;
+            transition: width 0.3s ease-in-out;
+            text-align: center;
+            line-height: 1.5rem;
+            color: white;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -58,13 +74,14 @@
                     <div id="ai-features-panel">
                         <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
                             <h3 class="font-semibold text-lg text-indigo-700 mb-2">1. Format Berdasarkan Contoh</h3>
+                            <p class="text-sm text-gray-600 mb-3">Punya format laporan yang Anda sukai? AI akan meniru gaya format dari teks contoh dan menerapkannya pada teks baru Anda.</p>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
-                                    <label for="example-text" class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Contoh</label>
+                                    <label for="example-text" class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Contoh (dengan format)</label>
                                     <textarea id="example-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
                                 </div>
                                 <div>
-                                    <label for="target-text" class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Baru</label>
+                                    <label for="target-text" class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Baru (tanpa format)</label>
                                     <textarea id="target-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
                                 </div>
                             </div>
@@ -72,6 +89,7 @@
                         </div>
                         <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
                             <h3 class="font-semibold text-lg text-purple-700 mb-2">2. Format Cerdas & Ringkas</h3>
+                            <p class="text-sm text-gray-600 mb-3">Biarkan AI bekerja untuk Anda. Tempel teks di editor di bawah, lalu pilih salah satu fungsi otomatis ini.</p>
                             <div class="flex flex-col sm:flex-row gap-2">
                                 <button id="smart-format-btn" class="w-full px-4 py-2 bg-purple-500 text-white rounded-md font-semibold hover:bg-purple-600 transition-colors">🧠 Format Cerdas</button>
                                 <button id="summarize-btn" class="w-full px-4 py-2 bg-green-500 text-white rounded-md font-semibold hover:bg-green-600 transition-colors">📚 Ringkas Teks</button>
@@ -189,12 +207,49 @@
         loginLink.addEventListener('click', openModal);
         closeModalBtn.addEventListener('click', closeModal);
 
-        function showLoader() { modal.classList.remove('hidden'); modalContentArea.innerHTML = '<div class="loader"></div>'; }
-        function hideLoader() { modal.classList.add('hidden'); modalContentArea.innerHTML = ''; }
+        let progressInterval;
+        function showProgressBar() {
+            modalContentArea.innerHTML = `
+                <div class="modal-content">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">AI sedang bekerja...</h3>
+                    <div class="progress-bar-container">
+                        <div id="progress-bar" class="progress-bar">0%</div>
+                    </div>
+                </div>
+            `;
+            modal.classList.remove('hidden');
+            
+            const progressBar = document.getElementById('progress-bar');
+            let width = 0;
+            // Animate the progress bar to 90% and hold
+            progressInterval = setInterval(() => {
+                if (width >= 90) {
+                    clearInterval(progressInterval);
+                } else {
+                    width++;
+                    progressBar.style.width = width + '%';
+                    progressBar.textContent = width + '%';
+                }
+            }, 30); // Adjust timing for smoother animation
+        }
+
+        function hideProgressBar() {
+            clearInterval(progressInterval);
+            const progressBar = document.getElementById('progress-bar');
+            if (progressBar) {
+                progressBar.style.width = '100%';
+                progressBar.textContent = '100%';
+            }
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modalContentArea.innerHTML = '';
+            }, 500);
+        }
+
         function showError(message) {
             modal.classList.remove('hidden');
             modalContentArea.innerHTML = `<div class="modal-content"><h3 class="text-xl font-bold text-red-600 mb-2">Terjadi Kesalahan</h3><p class="text-gray-700">${message}</p><button id="close-error-modal-btn" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md">Tutup</button></div>`;
-            document.getElementById('close-error-modal-btn').addEventListener('click', hideLoader);
+            document.getElementById('close-error-modal-btn').addEventListener('click', () => modal.classList.add('hidden'));
         }
 
         // --- Auth State Management ---
@@ -298,7 +353,7 @@
                 updateGuestUsage(usageData);
             }
             
-            showLoader();
+            showProgressBar();
             try {
                 const response = await fetch('/.netlify/functions/call-gemini', {
                     method: 'POST',
@@ -320,7 +375,7 @@
                     throw new Error(blockReason === 'SAFETY' ? "Permintaan diblokir karena alasan keamanan." : "Gagal mendapatkan respons dari AI.");
                 }
             } finally {
-                hideLoader();
+                hideProgressBar();
             }
         }
         
