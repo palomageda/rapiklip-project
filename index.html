@@ -341,6 +341,27 @@
             return text.trim();
         }
 
+        // BUG FIX: Added formatText function for manual formatting
+        function formatText(openChar, closeChar) {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selectedText = editor.value.substring(start, end);
+            const beforeText = editor.value.substring(0, start);
+            const afterText = editor.value.substring(end);
+
+            if (start === end) {
+                editor.value = `${beforeText}${openChar}${closeChar}${afterText}`;
+                editor.focus();
+                editor.selectionStart = editor.selectionEnd = start + openChar.length;
+            } else {
+                editor.value = `${beforeText}${openChar}${selectedText}${closeChar}${afterText}`;
+                editor.focus();
+                editor.selectionStart = start;
+                editor.selectionEnd = end + openChar.length + closeChar.length;
+            }
+            updatePreview(editor.value);
+        }
+
         async function callGeminiAPI(prompt) {
             const user = auth.currentUser;
             if (!user) {
