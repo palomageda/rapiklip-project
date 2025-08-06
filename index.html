@@ -219,7 +219,6 @@
             const usageData = JSON.parse(localStorage.getItem('mediaDashGuestUsage')) || { count: 0, date: '' };
             const today = new Date().toISOString().split('T')[0];
             if (usageData.date !== today) {
-                // Reset jika hari baru dan simpan tanggal baru
                 const newUsageData = { count: 0, date: today };
                 localStorage.setItem('mediaDashGuestUsage', JSON.stringify(newUsageData));
                 return newUsageData;
@@ -389,44 +388,3 @@
     </script>
 </body>
 </html>
-```
-
-### Langkah 2: Memperbaiki Login Google
-
-Sekarang, mari kita selesaikan masalah login Google. Ini adalah perbaikan konfigurasi di Firebase, bukan di kode.
-
-
-### Panduan Memperbaiki Login Google di Firebase
-
-Ikuti langkah-langkah ini di dalam konsol Firebase Anda.
-
-1.  **Buka Firebase Console:**
-    Masuk ke [**firebase.google.com**](https://firebase.google.com) dan buka proyek `mediadash-app` Anda.
-
-2.  **Masuk ke Pengaturan Otentikasi:**
-    Di menu sebelah kiri, klik **Build** > **Authentication**.
-
-3.  **Buka Tab "Settings":**
-    Di halaman Authentication, klik pada tab **"Settings"**.
-
-4.  **Pilih "Authorized domains":**
-    Di dalam halaman Settings, klik pada menu **"Authorized domains"**.
-
-5.  **Tambahkan Domain Anda:**
-    Anda akan melihat daftar domain yang sudah diizinkan (kemungkinan besar hanya `localhost` dan `mediadash-app.firebaseapp.com`).
-    * Klik tombol **"Add domain"**.
-    * Ketik nama domain Anda: **`mediadash.id`**
-    * Klik **"Add"**.
-
-[Gambar dari halaman Authorized Domains di Firebase, menunjukkan proses menambahkan `mediadash.id` ke dalam daftar.]
-
-Setelah Anda menambahkan `mediadash.id` ke daftar ini, Firebase akan secara otomatis mengizinkan permintaan login dari website Anda. Perubahan ini biasanya aktif dalam beberapa menit.
-
-### Rangkuman Langkah Anda Selanjutnya:
-
-1.  **Perbarui Kode:** Ganti isi file `index.html` di GitHub Anda dengan kode baru dari Canvas di atas.
-2.  **Perbarui Pengaturan Firebase:** Ikuti panduan di atas untuk menambahkan `mediadash.id` ke *Authorized domains*.
-3.  **Tunggu Deployment:** Biarkan Netlify men-deploy versi terbaru secara otomatis.
-4.  **Lakukan Hard Refresh:** Setelah deployment selesai, buka `mediadash.id` dan lakukan *hard refresh* (`Ctrl+Shift+R` atau `Cmd+Shift+R`) untuk memastikan Anda mendapatkan versi terbaru.
-
-Setelah itu, kedua masalah Anda seharusnya sudah teratasi. Limit tamu akan berfungsi dengan benar, dan pengguna akan bisa login menggunakan akun Google mere
