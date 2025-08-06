@@ -287,6 +287,7 @@
         const tabScheduler = document.getElementById('tab-scheduler');
         const formatterContent = document.getElementById('formatter-content');
         const schedulerContent = document.getElementById('scheduler-content');
+        // ... (semua elemen DOM lainnya) ...
         const guestView = document.getElementById('guest-view');
         const userView = document.getElementById('user-view');
         const userEmail = document.getElementById('user-email');
@@ -306,6 +307,12 @@
         const italicBtn = document.getElementById('italic-btn');
         const strikeBtn = document.getElementById('strike-btn');
         const monoBtn = document.getElementById('mono-btn');
+        const fileUpload = document.getElementById('file-upload');
+        const imageUploadBox = document.getElementById('image-upload-box');
+        const imageUploadPlaceholder = document.getElementById('image-upload-placeholder');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imagePreview = document.getElementById('image-preview');
+        const removeImageBtn = document.getElementById('remove-image-btn');
 
         // --- View Management Logic ---
         function showHubView() {
@@ -320,15 +327,9 @@
             backToHubBtn.classList.remove('hidden');
 
             if (defaultTab === 'formatter') {
-                tabFormatter.classList.add('active');
-                tabScheduler.classList.remove('active');
-                formatterContent.classList.remove('hidden');
-                schedulerContent.classList.add('hidden');
+                tabFormatter.click();
             } else if (defaultTab === 'scheduler') {
-                tabScheduler.classList.add('active');
-                tabFormatter.classList.remove('active');
-                schedulerContent.classList.remove('hidden');
-                formatterContent.classList.add('hidden');
+                tabScheduler.click();
             }
         }
 
@@ -350,8 +351,32 @@
             formatterContent.classList.add('hidden');
         });
 
+        // --- Image Preview Logic ---
+        fileUpload.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagePreview.src = e.target.result;
+                    imageUploadPlaceholder.classList.add('hidden');
+                    imagePreviewContainer.classList.remove('hidden');
+                    imageUploadBox.classList.remove('border-dashed');
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeImageBtn.addEventListener('click', () => {
+            fileUpload.value = ''; // Clear the file input
+            imagePreview.src = '';
+            imagePreviewContainer.classList.add('hidden');
+            imageUploadPlaceholder.classList.remove('hidden');
+            imageUploadBox.classList.add('border-dashed');
+        });
+
         // --- Sisipkan semua fungsi JavaScript lainnya di sini ---
         // (showLoader, showError, Auth logic, Guest logic, callGeminiAPI, dll.)
+        // Ini adalah tempat untuk semua fungsi yang sudah kita buat sebelumnya
     </script>
 </body>
 </html>
