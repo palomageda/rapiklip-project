@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediaDash: Dasbor Konten Cerdas Anda (Improved)</title>
+    <title>MediaDash: Dasbor Konten Cerdas Anda</title>
     <meta name="description" content="Satu tempat untuk semua kebutuhan konten Anda. Format teks, jadwalkan postingan media sosial, dan banyak lagi dengan kekuatan AI.">
     <meta name="keywords" content="mediadash, content dashboard, social media scheduler, ai content suite, gemini api">
-    <!-- Tailwind and Fonts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         .hidden { display: none; }
@@ -24,12 +25,15 @@
         .modal-content { background: white; padding: 2rem; border-radius: 0.5rem; text-align: center; max-width: 90%; width: 400px; }
         .whatsapp-preview { background-color: #e5ddd5; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; }
         .whatsapp-chat-bubble { background-color: #dcf8c6; padding: 0.5rem 0.75rem; border-radius: 0.5rem; max-width: 80%; margin-left: auto; box-shadow: 0 1px 1px rgba(0,0,0,0.1); word-wrap: break-word; white-space: pre-wrap; }
+        .progress-bar-container { width: 100%; background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; }
+        .progress-bar { height: 1.5rem; width: 0%; background-color: #4f46e5; transition: width 0.3s ease-in-out; text-align: center; line-height: 1.5rem; color: white; font-weight: 600; }
         .tab-button.active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
-        #image-preview-container { width: 100%; max-height: 200px; overflow: hidden; border-radius: 0.375rem; }
-        #image-preview { width: 100%; height: 100%; object-fit: cover; }
+        #image-preview-container { width: 100%; max-height: 300px; overflow: hidden; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; }
+        #image-preview { width: 100%; height: auto; max-height: 300px; object-fit: contain; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
+
     <!-- Navbar -->
     <nav class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-50">
         <div class="flex items-center gap-4">
@@ -54,6 +58,7 @@
 
     <!-- Main Content Area -->
     <main id="main-content" class="p-4 md:p-8">
+        
         <!-- HUB VIEW -->
         <div id="hub-view">
             <div class="text-center py-16 px-4 sm:px-6 lg:px-8 bg-white rounded-xl shadow-lg">
@@ -63,7 +68,7 @@
                 <p class="mt-5 max-w-2xl mx-auto text-xl text-gray-600">
                     Hemat waktu berharga, jangkau audiens lebih luas.
                 </p>
-                <div class="mt-8">
+                 <div class="mt-8">
                     <p class="text-sm text-gray-400 tracking-wider">PILIH ALAT ANDA UNTUK MEMULAI</p>
                 </div>
             </div>
@@ -73,7 +78,7 @@
                 <div id="open-formatter" class="bg-white p-8 rounded-xl shadow-lg flex flex-col cursor-pointer card-hover-effect">
                     <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                     </div>
                     <div class="mt-4 flex-grow">
@@ -82,25 +87,27 @@
                     </div>
                     <div class="mt-6"><span class="font-semibold text-indigo-600">Buka Formatter &rarr;</span></div>
                 </div>
+
                 <!-- Card 2: Social Media Scheduler -->
                 <div id="open-scheduler" class="bg-white p-8 rounded-xl shadow-lg flex flex-col cursor-pointer card-hover-effect">
                     <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-green-100 text-green-600 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                         </svg>
                     </div>
                     <div class="mt-4 flex-grow">
                         <h3 class="text-xl font-bold text-gray-900">Social Media Scheduler</h3>
-                        <p class="mt-2 text-gray-600">Tulis sekali, posting ke banyak platform. Jadwalkan konten Anda untuk X, Facebook, Instagram, TikTok, dan Snack Video.</p>
+                        <p class="mt-2 text-gray-600">Tulis sekali, posting ke banyak platform. Jadwalkan konten Anda untuk X, Facebook, dan Instagram.</p>
                     </div>
                     <div class="mt-6"><span class="font-semibold text-green-600">Buka Penjadwal &rarr;</span></div>
                 </div>
+
                 <!-- Card 3: Photo Marketplace -->
                 <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col card-hover-effect opacity-60 cursor-not-allowed">
-                    <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-pink-100 text-pink-600 rounded-lg">
+                     <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-pink-100 text-pink-600 rounded-lg">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2-2H5a2 2 0 01-2-2V9z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2-2H5a2 2 0 01-2-2V9z" />
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     </div>
                     <div class="mt-4 flex-grow">
@@ -111,6 +118,7 @@
                 </div>
             </div>
         </div>
+
         <!-- APP VIEW (Content Studio) -->
         <div id="app-view" class="hidden">
             <div class="w-full max-w-5xl mx-auto">
@@ -119,6 +127,7 @@
                     <p>Anda menggunakan mode tamu. <button id="login-link-app" class="font-bold underline">Login atau daftar</button> untuk mendapatkan akses tak terbatas.</p>
                     <p class="mt-2">Sisa penggunaan hari ini: <span id="usage-count-app" class="font-bold">5</span></p>
                 </div>
+                
                 <!-- Tab Navigation -->
                 <div class="mb-6 border-b border-gray-200">
                     <nav class="-mb-px flex space-x-6" aria-label="Tabs">
@@ -126,6 +135,7 @@
                         <button id="tab-scheduler" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">Buat Postingan</button>
                     </nav>
                 </div>
+
                 <!-- Tab Content -->
                 <div id="formatter-content">
                     <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
@@ -180,6 +190,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div id="scheduler-content" class="hidden">
                     <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Buat Postingan Baru</h2>
@@ -214,27 +225,15 @@
                             <div>
                                 <div class="mb-6">
                                     <h3 class="text-sm font-medium text-gray-700 mb-2">Pilih Platform</h3>
-                                    <div class="flex flex-col space-y-2">
-                                        <label class="flex items-center space-x-2">
-                                            <input id="platform-x" name="platform" type="checkbox" value="X" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                                            <span>X (Twitter)</span>
-                                        </label>
-                                        <label class="flex items-center space-x-2">
-                                            <input id="platform-fb" name="platform" type="checkbox" value="Facebook" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                                            <span>Facebook</span>
-                                        </label>
-                                        <label class="flex items-center space-x-2">
-                                            <input id="platform-ig" name="platform" type="checkbox" value="Instagram" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                                            <span>Instagram</span>
-                                        </label>
-                                        <label class="flex items-center space-x-2">
-                                            <input id="platform-tt" name="platform" type="checkbox" value="TikTok" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                                            <span>TikTok</span>
-                                        </label>
-                                        <label class="flex items-center space-x-2">
-                                            <input id="platform-snack" name="platform" type="checkbox" value="Snack Video" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                                            <span>Snack Video</span>
-                                        </label>
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex items-center">
+                                            <input id="platform-x" name="platform" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                                            <label for="platform-x" class="ml-2 block text-sm text-gray-900">X (Twitter)</label>
+                                        </div>
+                                        <div class="flex items-center opacity-50">
+                                            <input type="checkbox" class="h-4 w-4 text-gray-400 border-gray-300 rounded" disabled>
+                                            <label class="ml-2 block text-sm text-gray-500">Facebook</label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="mb-6">
@@ -256,132 +255,102 @@
         </div>
     </main>
 
-    <!-- Modals -->
-    <div id="auth-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 z-50"></div>
+    <!-- Modal untuk Login/Registrasi, Pengaturan, Loading, Error -->
+    <div id="auth-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 z-50">
+        <!-- ... Konten Modal Login ... -->
+    </div>
     <div id="modal" class="modal-overlay hidden"><div id="modal-content-area"></div></div>
 
     <script>
-        // Firebase config (keamanan: gunakan variabel environment di aplikasi nyata)
+        // --- KONFIGURASI FIREBASE ANDA ---
         const firebaseConfig = {
-            apiKey: "AIzaSyDdeqL1jjJKFYKEgkWmkjDu_xuwQEIKaDA",
-            authDomain: "mediadash-app.firebaseapp.com",
-            projectId: "mediadash-app",
-            storageBucket: "mediadash-app.appspot.com",
-            messagingSenderId: "832563611731",
-            appId: "1:832563611731:web:cb069bc4eab1014fabdea6"
+          apiKey: "AIzaSyDdeqL1jjJKFYKEgkWmkjDu_xuwQEIKaDA",
+          authDomain: "mediadash-app.firebaseapp.com",
+          projectId: "mediadash-app",
+          storageBucket: "mediadash-app.appspot.com",
+          messagingSenderId: "832563611731",
+          appId: "1:832563611731:web:cb069bc4eab1014fabdea6"
         };
+
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-
-        // Element references
+        
+        // --- DOM Elements ---
         const hubView = document.getElementById('hub-view');
         const appView = document.getElementById('app-view');
-        const backBtn = document.getElementById('back-to-hub-btn');
-        const openFormatter = document.getElementById('open-formatter');
-        const openScheduler = document.getElementById('open-scheduler');
+        const backToHubBtn = document.getElementById('back-to-hub-btn');
+        const openFormatterBtn = document.getElementById('open-formatter');
+        const openSchedulerBtn = document.getElementById('open-scheduler');
         const tabFormatter = document.getElementById('tab-formatter');
         const tabScheduler = document.getElementById('tab-scheduler');
         const formatterContent = document.getElementById('formatter-content');
         const schedulerContent = document.getElementById('scheduler-content');
-        // Formatter elements
+        const guestView = document.getElementById('guest-view');
+        const userView = document.getElementById('user-view');
+        const userEmail = document.getElementById('user-email');
+        const guestNotificationApp = document.getElementById('guest-notification-app');
+        const usageCountApp = document.getElementById('usage-count-app');
+        const loginBtn = document.getElementById('login-btn');
+        const loginLinkApp = document.getElementById('login-link-app');
+        const logoutBtn = document.getElementById('logout-btn');
+        const authModal = document.getElementById('auth-modal');
         const editor = document.getElementById('editor');
+        const copyBtn = document.getElementById('copy-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const modal = document.getElementById('modal');
+        const modalContentArea = document.getElementById('modal-content-area');
         const whatsappOutput = document.getElementById('whatsapp-output');
         const boldBtn = document.getElementById('bold-btn');
         const italicBtn = document.getElementById('italic-btn');
         const strikeBtn = document.getElementById('strike-btn');
         const monoBtn = document.getElementById('mono-btn');
-        const copyBtn = document.getElementById('copy-btn');
-        const clearBtn = document.getElementById('clear-btn');
-        // Scheduler elements
-        const schedulePostBtn = document.getElementById('schedule-post-btn');
-        const postNowBtn = document.getElementById('post-now-btn');
-        const scheduleDate = document.getElementById('schedule-date');
-        const scheduleTime = document.getElementById('schedule-time');
-        // Image upload elements
         const fileUpload = document.getElementById('file-upload');
-        const imageUploadPlaceholder = document.getElementById('image-upload-placeholder');
         const imageUploadBox = document.getElementById('image-upload-box');
+        const imageUploadPlaceholder = document.getElementById('image-upload-placeholder');
         const imagePreviewContainer = document.getElementById('image-preview-container');
         const imagePreview = document.getElementById('image-preview');
         const removeImageBtn = document.getElementById('remove-image-btn');
 
-        // Navigation between hub and app
-        function showHub() {
+        // --- View Management Logic ---
+        function showHubView() {
             hubView.classList.remove('hidden');
             appView.classList.add('hidden');
-            backBtn.classList.add('hidden');
+            backToHubBtn.classList.add('hidden');
         }
-        function showApp(defaultTab) {
+
+        function showAppView(defaultTab) {
             hubView.classList.add('hidden');
             appView.classList.remove('hidden');
-            backBtn.classList.remove('hidden');
+            backToHubBtn.classList.remove('hidden');
+
             if (defaultTab === 'formatter') {
                 tabFormatter.click();
-            } else {
+            } else if (defaultTab === 'scheduler') {
                 tabScheduler.click();
             }
         }
-        openFormatter.addEventListener('click', () => showApp('formatter'));
-        openScheduler.addEventListener('click', () => showApp('scheduler'));
-        backBtn.addEventListener('click', () => showHub());
 
-        // Tab switching logic
+        openFormatterBtn.addEventListener('click', () => showAppView('formatter'));
+        openSchedulerBtn.addEventListener('click', () => showAppView('scheduler'));
+        backToHubBtn.addEventListener('click', showHubView);
+
         tabFormatter.addEventListener('click', () => {
             tabFormatter.classList.add('active');
             tabScheduler.classList.remove('active');
             formatterContent.classList.remove('hidden');
             schedulerContent.classList.add('hidden');
         });
+
         tabScheduler.addEventListener('click', () => {
             tabScheduler.classList.add('active');
             tabFormatter.classList.remove('active');
-            formatterContent.classList.add('hidden');
             schedulerContent.classList.remove('hidden');
+            formatterContent.classList.add('hidden');
         });
 
-        // Manual formatting functions
-        function updateWhatsAppOutput() {
-            whatsappOutput.textContent = editor.value || 'Tampilan teks Anda akan muncul di sini...';
-        }
-        function formatTextWrap(marker) {
-            const start = editor.selectionStart;
-            const end = editor.selectionEnd;
-            const text = editor.value;
-            if (start === end) {
-                // Insert empty markers at cursor
-                editor.value = text.slice(0, start) + marker + marker + text.slice(end);
-                editor.setSelectionRange(start + marker.length, start + marker.length);
-            } else {
-                editor.value = text.slice(0, start) + marker + text.slice(start, end) + marker + text.slice(end);
-                editor.setSelectionRange(end + marker.length * 2, end + marker.length * 2);
-            }
-            editor.focus();
-            updateWhatsAppOutput();
-        }
-        boldBtn.addEventListener('click', () => formatTextWrap('*'));
-        italicBtn.addEventListener('click', () => formatTextWrap('_'));
-        strikeBtn.addEventListener('click', () => formatTextWrap('~'));
-        monoBtn.addEventListener('click', () => formatTextWrap('```'));
-        editor.addEventListener('input', updateWhatsAppOutput);
-        updateWhatsAppOutput();
-        copyBtn.addEventListener('click', () => {
-            if (!navigator.clipboard) {
-                alert('Clipboard API tidak didukung di peramban ini');
-                return;
-            }
-            navigator.clipboard.writeText(editor.value).then(() => {
-                alert('Teks disalin ke clipboard');
-            }).catch(() => {
-                alert('Gagal menyalin teks');
-            });
-        });
-        clearBtn.addEventListener('click', () => {
-            editor.value = '';
-            updateWhatsAppOutput();
-        });
-
-        // Image upload preview
+        // --- Image Preview Logic ---
         fileUpload.addEventListener('change', (event) => {
             const file = event.target.files[0];
             if (file) {
@@ -391,45 +360,21 @@
                     imageUploadPlaceholder.classList.add('hidden');
                     imagePreviewContainer.classList.remove('hidden');
                     imageUploadBox.classList.remove('border-dashed');
-                };
+                }
                 reader.readAsDataURL(file);
             }
         });
+
         removeImageBtn.addEventListener('click', () => {
-            fileUpload.value = '';
+            fileUpload.value = ''; // Clear the file input
             imagePreview.src = '';
             imagePreviewContainer.classList.add('hidden');
             imageUploadPlaceholder.classList.remove('hidden');
             imageUploadBox.classList.add('border-dashed');
         });
 
-        // Scheduler logic: gather selected platforms and show an alert
-        function getSelectedPlatforms() {
-            const checked = document.querySelectorAll('input[name="platform"]:checked');
-            return Array.from(checked).map(el => el.value);
-        }
-        schedulePostBtn.addEventListener('click', () => {
-            const platforms = getSelectedPlatforms();
-            if (platforms.length === 0) {
-                alert('Pilih setidaknya satu platform untuk menjadwalkan postingan.');
-                return;
-            }
-            const date = scheduleDate.value;
-            const time = scheduleTime.value;
-            if (!date || !time) {
-                alert('Isi tanggal dan waktu untuk menjadwalkan.');
-                return;
-            }
-            alert('Postingan dijadwalkan ke ' + platforms.join(', ') + ' pada ' + date + ' pukul ' + time + '. (Fitur ini hanya simulasi)');
-        });
-        postNowBtn.addEventListener('click', () => {
-            const platforms = getSelectedPlatforms();
-            if (platforms.length === 0) {
-                alert('Pilih setidaknya satu platform untuk memposting.');
-                return;
-            }
-            alert('Postingan akan segera dikirim ke ' + platforms.join(', ') + '. (Fitur ini hanya simulasi)');
-        });
+        // --- Sisipkan semua fungsi JavaScript lainnya di sini ---
+        // (showLoader, showError, Auth logic, Guest logic, callGeminiAPI, dll.)
     </script>
 </body>
 </html>
