@@ -70,10 +70,10 @@
         }
         
         /* Styling untuk Image Uploader */
-        #image-upload-box {
+        #content-upload-box {
             transition: background-color 0.2s ease;
         }
-        #image-upload-box.dragover {
+        #content-upload-box.dragover {
             background-color: #eef2ff;
             border-color: #4f46e5;
         }
@@ -308,10 +308,12 @@
             
             appView.innerHTML = getAppViewTemplate();
             
+            // Re-select elements that are inside the new template
             const tabFormatter = document.getElementById('tab-formatter');
             const tabScheduler = document.getElementById('tab-scheduler');
             const formatterContent = document.getElementById('formatter-content');
             const schedulerContent = document.getElementById('scheduler-content');
+            const connectAccountBtn = document.getElementById('connect-account-btn');
 
             const handleTabClick = (activeTab) => {
                 tabFormatter.classList.toggle('active', activeTab === 'formatter');
@@ -323,7 +325,79 @@
             tabFormatter.addEventListener('click', () => handleTabClick('formatter'));
             tabScheduler.addEventListener('click', () => handleTabClick('scheduler'));
             
+            if (connectAccountBtn) {
+                connectAccountBtn.addEventListener('click', () => toggleSettingsModal(true));
+            }
+
+            // Initialize the correct tab
             handleTabClick(defaultTab);
+
+            // Initialize logic for the active tab
+            if (defaultTab === 'scheduler') {
+                initSchedulerLogic();
+            }
+        }
+
+        function initSchedulerLogic() {
+            // This function contains all the logic for the scheduler tab
+            const fileUpload = document.getElementById('file-upload');
+            const uploadBox = document.getElementById('content-upload-box');
+            const uploadPlaceholder = document.getElementById('content-upload-placeholder');
+            const previewContainer = document.getElementById('content-preview-container');
+            const removeContentBtn = document.getElementById('remove-content-btn');
+
+            const handleFileSelect = (file) => {
+                if (!file) return;
+
+                previewContainer.innerHTML = ''; // Clear previous preview
+                const fileURL = URL.createObjectURL(file);
+                let previewElement;
+
+                if (file.type.startsWith('image/')) {
+                    previewElement = document.createElement('img');
+                    previewElement.className = "rounded-md max-h-64 mx-auto";
+                } else if (file.type.startsWith('video/')) {
+                    previewElement = document.createElement('video');
+                    previewElement.setAttribute('controls', '');
+                    previewElement.className = "rounded-md max-h-64 mx-auto";
+                } else {
+                    // Handle other file types if needed, e.g., show an icon
+                    return;
+                }
+                
+                previewElement.src = fileURL;
+                previewContainer.appendChild(previewElement);
+
+                uploadPlaceholder.classList.add('hidden');
+                previewContainer.classList.remove('hidden');
+            };
+
+            const resetUpload = () => {
+                fileUpload.value = ''; // Clear file input
+                previewContainer.innerHTML = ''; // Clear preview
+                previewContainer.classList.add('hidden');
+                uploadPlaceholder.classList.remove('hidden');
+            };
+
+            fileUpload.addEventListener('change', (e) => handleFileSelect(e.target.files[0]));
+            removeContentBtn.addEventListener('click', resetUpload);
+
+            // Drag and Drop logic
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                uploadBox.addEventListener(eventName, (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => {
+                uploadBox.addEventListener(eventName, () => uploadBox.classList.add('dragover'), false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                uploadBox.addEventListener(eventName, () => uploadBox.classList.remove('dragover'), false);
+            });
+            uploadBox.addEventListener('drop', (e) => {
+                handleFileSelect(e.dataTransfer.files[0]);
+            }, false);
         }
 
         openFormatterBtn.addEventListener('click', () => showAppView('formatter'));
@@ -353,23 +427,26 @@
                         <h2 class="text-2xl font-bold text-gray-900 mb-6">Buat & Jadwalkan Postingan Baru</h2>
                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             
-                            <!-- Kolom Kiri: Editor Teks dan Gambar -->
+                            <!-- Kolom Kiri: Konten -->
                             <div class="lg:col-span-2 space-y-6">
                                 <div>
-                                    <label for="caption" class="block text-sm font-medium text-gray-700 mb-1">Tulis caption Anda</label>
-                                    <textarea id="caption" rows="10" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 shadow-sm" placeholder="Apa yang Anda pikirkan?"></textarea>
-                                    <button id="hashtag-suggestion-btn" class="mt-2 text-sm text-indigo-600 font-semibold hover:underline">✨ Dapatkan Rekomendasi Tagar</button>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Konten (Opsional)</label>
+                                    <div id="content-upload-box" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
+                                        <div id="content-upload-placeholder" class="space-y-1 text-center">
+                                            <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
+                                            <div class="flex text-sm text-gray-600"><label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500"><span>Upload file</span><input id="file-upload" name="file-upload" type="file" class="sr-only" accept="image/*,video/mp4,video/quicktime"></label><p class="pl-1">atau seret dan lepas</p></div>
+                                            <p class="text-xs text-gray-500">Gambar atau Video (MP4, MOV)</p>
+                                        </div>
+                                        <div id="content-preview-container" class="hidden relative w-full">
+                                            <!-- Preview akan muncul di sini -->
+                                            <button id="remove-content-btn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 leading-none hover:bg-red-600 z-10">&times;</button>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload Gambar (Opsional)</label>
-                                    <div id="image-upload-box" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                                        <div id="image-upload-placeholder" class="space-y-1 text-center">
-                                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                                            <div class="flex text-sm text-gray-600"><label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500"><span>Upload file</span><input id="file-upload" name="file-upload" type="file" class="sr-only" accept="image/png, image/jpeg, image/gif"></label><p class="pl-1">atau seret dan lepas</p></div>
-                                            <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 10MB</p>
-                                        </div>
-                                        <div id="image-preview-container" class="hidden relative w-full"><img id="image-preview" src="" alt="Pratinjau Gambar" class="rounded-md max-h-64 mx-auto"/><button id="remove-image-btn" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 leading-none hover:bg-red-600">&times;</button></div>
-                                    </div>
+                                    <label for="caption" class="block text-sm font-medium text-gray-700 mb-1">Tulis caption Anda</label>
+                                    <textarea id="caption" rows="8" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 shadow-sm" placeholder="Apa yang Anda pikirkan?"></textarea>
+                                    <button id="hashtag-suggestion-btn" class="mt-2 text-sm text-indigo-600 font-semibold hover:underline">✨ Dapatkan Rekomendasi Tagar</button>
                                 </div>
                             </div>
 
@@ -379,7 +456,10 @@
                                     <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Postingan</h3>
                                     <div class="space-y-4">
                                         <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-2">Pilih Platform</label>
+                                            <div class="flex justify-between items-center mb-2">
+                                                <label class="block text-sm font-medium text-gray-700">Pilih Platform</label>
+                                                <button id="connect-account-btn" class="text-xs text-indigo-600 font-semibold hover:underline">Hubungkan Akun</button>
+                                            </div>
                                             <div class="flex items-center space-x-4">
                                                 <div class="flex items-center"><input id="platform-x" name="platform" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><label for="platform-x" class="ml-2 block text-sm text-gray-900">X (Twitter)</label></div>
                                                 <div class="flex items-center opacity-50"><input type="checkbox" class="h-4 w-4" disabled><label class="ml-2 block text-sm text-gray-500">Facebook</label></div>
@@ -406,5 +486,4 @@
         }
     </script>
 </body>
-</html> 
- 
+</html>
