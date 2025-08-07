@@ -9,108 +9,173 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
-
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #f8f9fa;
+        }
         .hidden { display: none; }
-        .card-hover-effect { transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out; }
-        .card-hover-effect:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
-        textarea::selection { background-color: #a5b4fc; color: black; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
+        
+        /* Efek Hover & Transisi */
+        .card-hover-effect { 
+            transition: transform 0.3s ease, box-shadow 0.3s ease; 
+        }
+        .card-hover-effect:hover { 
+            transform: translateY(-6px); 
+            box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+        }
+        .btn-transition {
+            transition: all 0.2s ease-in-out;
+        }
+
+        /* Gradasi Teks */
+        .text-gradient {
+            background: linear-gradient(to right, #4f46e5, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Styling Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(17, 24, 39, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 1000;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
         .modal-overlay.visible { opacity: 1; visibility: visible; }
-        .modal-content { background: white; padding: 2rem; border-radius: 0.5rem; text-align: center; max-width: 90%; width: 400px; }
-        .whatsapp-preview { background-color: #e5ddd5; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; }
-        .whatsapp-chat-bubble { background-color: #dcf8c6; padding: 0.5rem 0.75rem; border-radius: 0.5rem; max-width: 80%; margin-left: auto; box-shadow: 0 1px 1px rgba(0,0,0,0.1); word-wrap: break-word; white-space: pre-wrap; }
-        .progress-bar-container { width: 100%; background-color: #e5e7eb; border-radius: 9999px; overflow: hidden; }
-        .progress-bar { height: 1.5rem; width: 0%; background-color: #4f46e5; transition: width 0.3s ease-in-out; text-align: center; line-height: 1.5rem; color: white; font-weight: 600; }
-        .tab-button.active { border-color: #4f46e5; color: #4f46e5; background-color: #eef2ff; }
-        #image-preview-container { width: 100%; max-height: 300px; overflow: hidden; border-radius: 0.375rem; display: flex; align-items: center; justify-content: center; }
-        #image-preview { width: 100%; height: auto; max-height: 300px; object-fit: contain; }
+        .modal-content {
+             background: white; padding: 2rem; border-radius: 0.75rem;
+             width: 90%; max-width: 420px;
+             box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+             transform: scale(0.95);
+             transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content {
+            transform: scale(1);
+        }
+
+        /* Preview WhatsApp yang lebih baik */
+        .whatsapp-preview { 
+            background-color: #e5ddd5; 
+            background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); 
+            padding: 1.5rem; 
+            border-radius: 0.75rem; 
+        }
+        .whatsapp-chat-bubble { 
+            background-color: #dcf8c6; 
+            padding: 0.75rem 1rem; 
+            border-radius: 0.75rem; 
+            max-width: 85%; 
+            margin-left: auto; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08); 
+            word-wrap: break-word; 
+            white-space: pre-wrap; 
+            text-align: left;
+        }
+        
+        /* Tombol Tab yang lebih halus */
+        .tab-button {
+            padding: 0.75rem 0.5rem;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .tab-button.active { 
+            border-color: #4f46e5; 
+            color: #4f46e5; 
+            font-weight: 600;
+        }
+        
+        /* Styling untuk Image Uploader */
+        #image-upload-box {
+            transition: background-color 0.2s ease;
+        }
+        #image-upload-box.dragover {
+            background-color: #eef2ff;
+            border-color: #4f46e5;
+        }
+        
+        .btn-disabled { 
+            cursor: not-allowed; 
+            background-color: #e5e7eb !important;
+            color: #9ca3af !important;
+            opacity: 0.7;
+        }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gray-50 text-gray-800 antialiased">
 
     <!-- Navbar -->
-    <nav class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-50">
-        <div class="flex items-center gap-4">
-            <h1 class="text-2xl font-bold text-gray-900">MediaDash ✨</h1>
-            <button id="back-to-hub-btn" class="hidden text-sm font-semibold text-indigo-600 hover:underline">
-                &larr; Kembali ke Dasbor
-            </button>
-        </div>
-        <div>
-            <div id="guest-view">
-                <button id="login-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700">Login / Daftar</button>
-            </div>
-            <div id="user-view" class="hidden items-center gap-4">
-                <span id="user-email" class="text-gray-700 text-sm hidden sm:inline"></span>
-                <button id="settings-btn" class="p-2 rounded-md hover:bg-gray-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-200">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+            <div class="flex items-center gap-4">
+                <h1 class="text-xl font-bold text-gray-900">MediaDash ✨</h1>
+                <button id="back-to-hub-btn" class="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 btn-transition">
+                    &larr; Kembali ke Dasbor
                 </button>
-                <button id="logout-btn" class="px-4 py-2 bg-red-500 text-white rounded-md font-semibold hover:bg-red-600">Logout</button>
             </div>
-        </div>
-    </nav>
-
-    <!-- Main Content Area -->
-    <main id="main-content" class="p-4 md:p-8">
-        
-        <!-- HUB VIEW -->
-        <div id="hub-view">
-            <div class="text-center py-16 px-4 sm:px-6 lg:px-8 bg-white rounded-xl shadow-lg">
-                <h2 class="text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight">
-                    Konten Lebih Baik, Lebih Cepat.
-                </h2>
-                <p class="mt-5 max-w-2xl mx-auto text-xl text-gray-600">
-                    Hemat waktu berharga, jangkau audiens lebih luas.
-                </p>
-                 <div class="mt-8">
-                    <p class="text-sm text-gray-400 tracking-wider">PILIH ALAT ANDA UNTUK MEMULAI</p>
+            <div>
+                <div id="guest-view">
+                    <button id="login-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 btn-transition shadow-sm hover:shadow-md">Login / Daftar</button>
+                </div>
+                <div id="user-view" class="hidden items-center gap-3">
+                    <span id="user-email" class="text-gray-600 text-sm hidden sm:inline"></span>
+                    <button id="settings-btn" class="p-2 rounded-full hover:bg-gray-100 btn-transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
+                    <button id="logout-btn" class="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 btn-transition shadow-sm hover:shadow-md">Logout</button>
                 </div>
             </div>
+        </nav>
+    </header>
 
-            <div class="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+    <!-- Main Content Area -->
+    <main id="main-content" class="px-4 py-8 sm:px-6 lg:px-8">
+        
+        <!-- HUB VIEW -->
+        <div id="hub-view" class="max-w-6xl mx-auto">
+            <div class="text-center py-20 sm:py-28">
+                <h2 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 tracking-tight">
+                    Konten Lebih Baik, <span class="text-gradient">Lebih Cepat.</span>
+                </h2>
+                <p class="mt-6 max-w-2xl mx-auto text-lg text-gray-600">
+                    Hemat waktu berharga Anda. Biarkan AI membantu Anda memformat teks, menjadwalkan postingan, dan menjangkau audiens lebih luas.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <!-- Card 1: Text Formatter -->
-                <div id="open-formatter" class="bg-white p-8 rounded-xl shadow-lg flex flex-col cursor-pointer card-hover-effect">
-                    <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                        </svg>
+                <div id="open-formatter" class="bg-white p-8 rounded-2xl shadow-md flex flex-col cursor-pointer card-hover-effect">
+                    <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-xl">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     </div>
-                    <div class="mt-4 flex-grow">
+                    <div class="mt-5 flex-grow">
                         <h3 class="text-xl font-bold text-gray-900">AI Text Formatter</h3>
-                        <p class="mt-2 text-gray-600">Sempurnakan tulisan Anda untuk WhatsApp atau platform lain dengan format cerdas dan ringkasan otomatis.</p>
+                        <p class="mt-2 text-gray-600">Sempurnakan tulisan untuk WhatsApp atau platform lain dengan format cerdas dan ringkasan otomatis.</p>
                     </div>
                     <div class="mt-6"><span class="font-semibold text-indigo-600">Buka Formatter &rarr;</span></div>
                 </div>
 
                 <!-- Card 2: Social Media Scheduler -->
-                <div id="open-scheduler" class="bg-white p-8 rounded-xl shadow-lg flex flex-col cursor-pointer card-hover-effect">
-                    <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-green-100 text-green-600 rounded-lg">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                           <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                         </svg>
+                <div id="open-scheduler" class="bg-white p-8 rounded-2xl shadow-md flex flex-col cursor-pointer card-hover-effect">
+                    <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-green-100 text-green-600 rounded-xl">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     </div>
-                    <div class="mt-4 flex-grow">
+                    <div class="mt-5 flex-grow">
                         <h3 class="text-xl font-bold text-gray-900">Social Media Scheduler</h3>
-                        <p class="mt-2 text-gray-600">Tulis sekali, posting ke banyak platform. Jadwalkan konten Anda untuk X, Facebook, dan Instagram.</p>
+                        <p class="mt-2 text-gray-600">Tulis sekali, posting ke banyak platform. Jadwalkan konten Anda untuk X, Facebook, dan lainnya.</p>
                     </div>
                     <div class="mt-6"><span class="font-semibold text-green-600">Buka Penjadwal &rarr;</span></div>
                 </div>
 
                 <!-- Card 3: Photo Marketplace -->
-                <div class="bg-white p-8 rounded-xl shadow-lg flex flex-col card-hover-effect opacity-60 cursor-not-allowed">
-                     <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-pink-100 text-pink-600 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                           <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2-2H5a2 2 0 01-2-2V9z" />
-                           <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
+                <div class="bg-white p-8 rounded-2xl shadow-md flex flex-col opacity-70 cursor-not-allowed">
+                     <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-pink-100 text-pink-600 rounded-xl">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2-2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     </div>
-                    <div class="mt-4 flex-grow">
+                    <div class="mt-5 flex-grow">
                         <h3 class="text-xl font-bold text-gray-900">Photo Marketplace</h3>
                         <p class="mt-2 text-gray-600">Jual foto-foto olahraga dan aktivitas terbaik Anda kepada audiens global.</p>
                     </div>
@@ -120,200 +185,135 @@
         </div>
 
         <!-- APP VIEW (Content Studio) -->
-        <div id="app-view" class="hidden">
-            <div class="w-full max-w-5xl mx-auto">
-                <!-- Notifikasi untuk pengguna tamu -->
-                <div id="guest-notification-app" class="hidden mb-6 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
-                    <p>Anda menggunakan mode tamu. <button id="login-link-app" class="font-bold underline">Login atau daftar</button> untuk mendapatkan akses tak terbatas.</p>
-                    <p class="mt-2">Sisa penggunaan hari ini: <span id="usage-count-app" class="font-bold">5</span></p>
-                </div>
-                
-                <!-- Tab Navigation -->
-                <div class="mb-6 border-b border-gray-200">
-                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-                        <button id="tab-formatter" class="tab-button active whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Formatter Teks</button>
-                        <button id="tab-scheduler" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 hover:text-gray-700 hover:border-gray-300">Buat Postingan</button>
-                    </nav>
-                </div>
-
-                <!-- Tab Content -->
-                <div id="formatter-content">
-                    <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                        <div class="border border-gray-200 rounded-lg p-4 mb-6">
-                            <h2 class="text-xl font-semibold text-indigo-800 mb-4">Fitur Bantuan AI Formatter</h2>
-                            <div id="ai-features-panel">
-                                <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
-                                    <h3 class="font-semibold text-lg text-indigo-700 mb-2">1. Format Berdasarkan Contoh</h3>
-                                    <p class="text-sm text-gray-600 mb-3">Punya format laporan yang Anda sukai? AI akan meniru gaya format dari teks contoh dan menerapkannya pada teks baru Anda.</p>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <label for="example-text" class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Contoh (dengan format)</label>
-                                            <textarea id="example-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
-                                        </div>
-                                        <div>
-                                            <label for="target-text" class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Baru (tanpa format)</label>
-                                            <textarea id="target-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
-                                        </div>
-                                    </div>
-                                    <button id="format-by-example-btn" class="mt-3 w-full px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700 transition-colors">🤖 Tiru Format</button>
-                                </div>
-                                <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                                    <h3 class="font-semibold text-lg text-purple-700 mb-2">2. Format Cerdas & Ringkas</h3>
-                                    <p class="text-sm text-gray-600 mb-3">Biarkan AI bekerja untuk Anda. Tempel teks di editor di bawah, lalu pilih salah satu fungsi otomatis ini.</p>
-                                    <div class="flex flex-col sm:flex-row gap-2">
-                                        <button id="smart-format-btn" class="w-full px-4 py-2 bg-purple-500 text-white rounded-md font-semibold hover:bg-purple-600 transition-colors">🧠 Format Cerdas</button>
-                                        <button id="summarize-btn" class="w-full px-4 py-2 bg-green-500 text-white rounded-md font-semibold hover:bg-green-600 transition-colors">📚 Ringkas Teks</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div>
-                            <label for="editor" class="block text-lg font-semibold text-gray-800 mb-2">Editor Utama & Hasil</label>
-                            <textarea id="editor" rows="10" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Hasil dari AI akan muncul di sini."></textarea>
-                        </div>
-                        <div class="mt-2 bg-gray-50 border border-gray-200 rounded-lg p-2 flex flex-wrap items-center gap-2">
-                            <span class="text-sm font-medium text-gray-600 mr-2">Format Manual:</span>
-                            <button id="bold-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md font-bold text-gray-700 hover:bg-gray-100">B</button>
-                            <button id="italic-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md italic font-serif text-gray-700 hover:bg-gray-100">I</button>
-                            <button id="strike-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md line-through text-gray-700 hover:bg-gray-100">S</button>
-                            <button id="mono-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md font-mono text-xs text-gray-700 hover:bg-gray-100">Monospace</button>
-                        </div>
-                        <div class="mt-6">
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Tampilan di WhatsApp</h3>
-                            <div class="whatsapp-preview">
-                                <div class="whatsapp-chat-bubble" id="whatsapp-output">Tampilan teks Anda akan muncul di sini...</div>
-                            </div>
-                        </div>
-                        <div class="mt-6 flex flex-wrap gap-2 justify-end">
-                             <button id="copy-btn" class="w-full sm:w-auto px-5 py-2 bg-gray-700 text-white rounded-md font-semibold hover:bg-gray-800">Salin Hasil</button>
-                             <button id="clear-btn" class="w-full sm:w-auto px-5 py-2 bg-red-500 text-white rounded-md font-semibold hover:bg-red-600">Bersihkan Semua</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="scheduler-content" class="hidden">
-                    <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                        <h2 class="text-2xl font-bold text-gray-900 mb-6">Buat Postingan Baru</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                            <div>
-                                <div class="mb-6">
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">Upload Gambar (Opsional)</label>
-                                    <div id="image-upload-box" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-                                        <div id="image-upload-placeholder" class="space-y-1 text-center">
-                                            <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true"><path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
-                                            <div class="flex text-sm text-gray-600">
-                                                <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500">
-                                                    <span>Upload file</span>
-                                                    <input id="file-upload" name="file-upload" type="file" class="sr-only" accept="image/png, image/jpeg, image/gif">
-                                                </label>
-                                                <p class="pl-1">atau seret dan lepas</p>
-                                            </div>
-                                            <p class="text-xs text-gray-500">PNG, JPG, GIF hingga 10MB</p>
-                                        </div>
-                                        <div id="image-preview-container" class="hidden relative">
-                                            <img id="image-preview" src="" alt="Pratinjau Gambar"/>
-                                            <button id="remove-image-btn" class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600">&times;</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label for="caption" class="block text-sm font-medium text-gray-700 mb-2">Caption</label>
-                                    <textarea id="caption" rows="8" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-500"></textarea>
-                                    <button id="hashtag-suggestion-btn" class="mt-2 text-sm text-indigo-600 font-semibold hover:underline">✨ Dapatkan Rekomendasi Tagar</button>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="mb-6">
-                                    <h3 class="text-sm font-medium text-gray-700 mb-2">Pilih Platform</h3>
-                                    <div class="flex items-center space-x-4">
-                                        <div class="flex items-center">
-                                            <input id="platform-x" name="platform" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                                            <label for="platform-x" class="ml-2 block text-sm text-gray-900">X (Twitter)</label>
-                                        </div>
-                                        <div class="flex items-center opacity-50">
-                                            <input type="checkbox" class="h-4 w-4 text-gray-400 border-gray-300 rounded" disabled>
-                                            <label class="ml-2 block text-sm text-gray-500">Facebook</label>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mb-6">
-                                    <h3 class="text-sm font-medium text-gray-700 mb-2">Jadwalkan Postingan</h3>
-                                    <div class="flex items-center gap-4">
-                                        <input type="date" id="schedule-date" class="w-full p-2 border border-gray-300 rounded-md">
-                                        <input type="time" id="schedule-time" class="w-full p-2 border border-gray-300 rounded-md">
-                                    </div>
-                                </div>
-                                <div class="flex flex-col gap-3">
-                                    <button id="schedule-post-btn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700">Jadwalkan</button>
-                                    <button id="post-now-btn" class="w-full px-4 py-3 bg-gray-600 text-white rounded-md font-semibold hover:bg-gray-700">Posting Sekarang</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        <div id="app-view" class="hidden max-w-5xl mx-auto">
+            <!-- App view content will be injected here -->
+        </div>
+    </main>
+    
+    <!-- Modal untuk Pengaturan -->
+    <div id="settings-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-semibold text-gray-900">Pengaturan Akun</h3>
+                <button id="close-settings-btn" class="text-gray-400 hover:text-gray-700 btn-transition">&times;</button>
+            </div>
+            <div>
+                <h4 class="font-medium text-gray-800 mb-2">Hubungkan Akun Media Sosial</h4>
+                <p class="text-sm text-gray-600 mb-4">Hubungkan akun Anda untuk mulai menjadwalkan postingan. Kami tidak pernah menyimpan password Anda.</p>
+                <div class="space-y-3">
+                    <button id="connect-twitter-btn" class="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 btn-transition">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.58-2.46.67.88-.53 1.56-1.37 1.88-2.38-.83.49-1.74.85-2.7 1.03A4.26 4.26 0 0016.31 4c-2.38 0-4.31 1.93-4.31 4.31 0 .34.04.67.11.98-3.58-.18-6.76-1.9-8.89-4.51-.37.63-.58 1.37-.58 2.15 0 1.49.76 2.81 1.92 3.58-.71-.02-1.37-.22-1.95-.54v.05c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 01-1.95.07 4.3 4.3 0 004.02 2.98 8.62 8.62 0 01-5.33 1.84c-.35 0-.69-.02-1.03-.06A12.18 12.18 0 008.29 20c7.55 0 11.68-6.25 11.68-11.68l-.01-.53c.8-.58 1.49-1.3 2.02-2.13z"></path></svg>
+                        <span id="twitter-connect-text">Hubungkan Akun X (Twitter)</span>
+                    </button>
                 </div>
             </div>
         </div>
-    </main>
-
-    <!-- Modal untuk Login/Registrasi, Pengaturan, Loading, Error -->
-    <div id="auth-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 z-50">
-        <!-- ... Konten Modal Login ... -->
     </div>
-    <div id="modal" class="modal-overlay hidden"><div id="modal-content-area"></div></div>
+    
+    <!-- Modal Lainnya (Loading, Error, dsb) -->
+    <div id="modal" class="modal-overlay"><div id="modal-content-area" class="modal-content"></div></div>
 
-    <script>
+    <!-- Firebase SDK (Modular v9) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+
         // --- KONFIGURASI FIREBASE ANDA ---
         const firebaseConfig = {
-          apiKey: "AIzaSyDdeqL1jjJKFYKEgkWmkjDu_xuwQEIKaDA",
-          authDomain: "mediadash-app.firebaseapp.com",
-          projectId: "mediadash-app",
-          storageBucket: "mediadash-app.appspot.com",
-          messagingSenderId: "832563611731",
-          appId: "1:832563611731:web:cb069bc4eab1014fabdea6"
+            apiKey: "AIzaSyDdeqL1jjJKFYKEgkWmkjDu_xuwQEIKaDA", // Ganti dengan API Key Anda
+            authDomain: "mediadash-app.firebaseapp.com",
+            projectId: "mediadash-app",
+            storageBucket: "mediadash-app.appspot.com",
+            messagingSenderId: "832563611731",
+            appId: "1:832563611731:web:cb069bc4eab1014fabdea6"
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
         
         // --- DOM Elements ---
         const hubView = document.getElementById('hub-view');
         const appView = document.getElementById('app-view');
         const backToHubBtn = document.getElementById('back-to-hub-btn');
-        const openFormatterBtn = document.getElementById('open-formatter');
-        const openSchedulerBtn = document.getElementById('open-scheduler');
-        const tabFormatter = document.getElementById('tab-formatter');
-        const tabScheduler = document.getElementById('tab-scheduler');
-        const formatterContent = document.getElementById('formatter-content');
-        const schedulerContent = document.getElementById('scheduler-content');
         const guestView = document.getElementById('guest-view');
         const userView = document.getElementById('user-view');
         const userEmail = document.getElementById('user-email');
-        const guestNotificationApp = document.getElementById('guest-notification-app');
-        const usageCountApp = document.getElementById('usage-count-app');
         const loginBtn = document.getElementById('login-btn');
-        const loginLinkApp = document.getElementById('login-link-app');
         const logoutBtn = document.getElementById('logout-btn');
-        const authModal = document.getElementById('auth-modal');
-        const editor = document.getElementById('editor');
-        const copyBtn = document.getElementById('copy-btn');
-        const clearBtn = document.getElementById('clear-btn');
-        const modal = document.getElementById('modal');
-        const modalContentArea = document.getElementById('modal-content-area');
-        const whatsappOutput = document.getElementById('whatsapp-output');
-        const boldBtn = document.getElementById('bold-btn');
-        const italicBtn = document.getElementById('italic-btn');
-        const strikeBtn = document.getElementById('strike-btn');
-        const monoBtn = document.getElementById('mono-btn');
-        const fileUpload = document.getElementById('file-upload');
-        const imageUploadBox = document.getElementById('image-upload-box');
-        const imageUploadPlaceholder = document.getElementById('image-upload-placeholder');
-        const imagePreviewContainer = document.getElementById('image-preview-container');
-        const imagePreview = document.getElementById('image-preview');
-        const removeImageBtn = document.getElementById('remove-image-btn');
+        const settingsBtn = document.getElementById('settings-btn');
+        const settingsModal = document.getElementById('settings-modal');
+        const closeSettingsBtn = document.getElementById('close-settings-btn');
+        const connectTwitterBtn = document.getElementById('connect-twitter-btn');
+        const twitterConnectText = document.getElementById('twitter-connect-text');
+        const openFormatterBtn = document.getElementById('open-formatter');
+        const openSchedulerBtn = document.getElementById('open-scheduler');
 
-        // --- View Management Logic ---
+        // --- Auth State Logic ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                guestView.classList.add('hidden');
+                userView.classList.remove('hidden');
+                userEmail.textContent = user.email;
+                await checkTwitterConnection(user.uid);
+            } else {
+                userView.classList.add('hidden');
+                guestView.classList.remove('hidden');
+                userEmail.textContent = '';
+            }
+        });
+
+        // --- Auth Actions ---
+        loginBtn.addEventListener('click', () => {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider).catch(console.error);
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            signOut(auth).catch(console.error);
+        });
+
+        // --- Settings Modal Logic ---
+        const toggleSettingsModal = (show) => {
+            if (show) {
+                settingsModal.classList.remove('hidden');
+                setTimeout(() => settingsModal.classList.add('visible'), 10);
+            } else {
+                settingsModal.classList.remove('visible');
+                setTimeout(() => settingsModal.classList.add('hidden'), 300);
+            }
+        };
+        settingsBtn.addEventListener('click', () => toggleSettingsModal(true));
+        closeSettingsBtn.addEventListener('click', () => toggleSettingsModal(false));
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) toggleSettingsModal(false);
+        });
+
+        // --- Twitter Connection Logic ---
+        connectTwitterBtn.addEventListener('click', () => {
+            if (!connectTwitterBtn.disabled) {
+                window.location.href = '/.netlify/functions/twitter-auth-start';
+            }
+        });
+
+        async function checkTwitterConnection(userId) {
+            const userDocRef = doc(db, 'users', userId);
+            const userDoc = await getDoc(userDocRef);
+
+            if (userDoc.exists() && userDoc.data().twitterConnected) {
+                twitterConnectText.textContent = 'Akun X Terhubung';
+                connectTwitterBtn.classList.add('btn-disabled');
+                connectTwitterBtn.disabled = true;
+            } else {
+                twitterConnectText.textContent = 'Hubungkan Akun X (Twitter)';
+                connectTwitterBtn.classList.remove('btn-disabled');
+                connectTwitterBtn.disabled = false;
+            }
+        }
+        
+        // --- View Management & Templates ---
         function showHubView() {
             hubView.classList.remove('hidden');
             appView.classList.add('hidden');
@@ -324,7 +324,30 @@
             hubView.classList.add('hidden');
             appView.classList.remove('hidden');
             backToHubBtn.classList.remove('hidden');
+            
+            // Inject the app view content
+            appView.innerHTML = getAppViewTemplate();
+            
+            // Attach event listeners for the newly created elements
+            const tabFormatter = document.getElementById('tab-formatter');
+            const tabScheduler = document.getElementById('tab-scheduler');
+            const formatterContent = document.getElementById('formatter-content');
+            const schedulerContent = document.getElementById('scheduler-content');
 
+            tabFormatter.addEventListener('click', () => {
+                tabFormatter.classList.add('active');
+                tabScheduler.classList.remove('active');
+                formatterContent.classList.remove('hidden');
+                schedulerContent.classList.add('hidden');
+            });
+
+            tabScheduler.addEventListener('click', () => {
+                tabScheduler.classList.add('active');
+                tabFormatter.classList.remove('active');
+                schedulerContent.classList.remove('hidden');
+                formatterContent.classList.add('hidden');
+            });
+            
             if (defaultTab === 'formatter') {
                 tabFormatter.click();
             } else if (defaultTab === 'scheduler') {
@@ -336,45 +359,39 @@
         openSchedulerBtn.addEventListener('click', () => showAppView('scheduler'));
         backToHubBtn.addEventListener('click', showHubView);
 
-        tabFormatter.addEventListener('click', () => {
-            tabFormatter.classList.add('active');
-            tabScheduler.classList.remove('active');
-            formatterContent.classList.remove('hidden');
-            schedulerContent.classList.add('hidden');
-        });
+        // --- HTML Templates for App View ---
+        function getAppViewTemplate() {
+            // This function returns the HTML for the entire app view.
+            // This prevents cluttered HTML and makes it easier to manage dynamic content.
+            return `
+                <div id="guest-notification-app" class="hidden mb-6 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-lg">
+                    <p>Anda menggunakan mode tamu. <button id="login-link-app" class="font-bold underline">Login atau daftar</button> untuk mendapatkan akses tak terbatas.</p>
+                    <p class="mt-2">Sisa penggunaan hari ini: <span id="usage-count-app" class="font-bold">5</span></p>
+                </div>
+                
+                <div class="mb-6 border-b border-gray-200">
+                    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+                        <button id="tab-formatter" class="tab-button active">Formatter Teks</button>
+                        <button id="tab-scheduler" class="tab-button text-gray-500 hover:text-gray-700">Buat Postingan</button>
+                    </nav>
+                </div>
 
-        tabScheduler.addEventListener('click', () => {
-            tabScheduler.classList.add('active');
-            tabFormatter.classList.remove('active');
-            schedulerContent.classList.remove('hidden');
-            formatterContent.classList.add('hidden');
-        });
+                <div id="formatter-content">
+                    <!-- Formatter HTML will go here -->
+                    <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+                        <p>Formatter Content Area</p>
+                    </div>
+                </div>
 
-        // --- Image Preview Logic ---
-        fileUpload.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    imagePreview.src = e.target.result;
-                    imageUploadPlaceholder.classList.add('hidden');
-                    imagePreviewContainer.classList.remove('hidden');
-                    imageUploadBox.classList.remove('border-dashed');
-                }
-                reader.readAsDataURL(file);
-            }
-        });
+                <div id="scheduler-content" class="hidden">
+                    <!-- Scheduler HTML will go here -->
+                     <div class="bg-white rounded-2xl shadow-md p-6 md:p-8">
+                        <p>Scheduler Content Area</p>
+                    </div>
+                </div>
+            `;
+        }
 
-        removeImageBtn.addEventListener('click', () => {
-            fileUpload.value = ''; // Clear the file input
-            imagePreview.src = '';
-            imagePreviewContainer.classList.add('hidden');
-            imageUploadPlaceholder.classList.remove('hidden');
-            imageUploadBox.classList.add('border-dashed');
-        });
-
-        // --- Sisipkan semua fungsi JavaScript lainnya di sini ---
-        // (showLoader, showError, Auth logic, Guest logic, callGeminiAPI, dll.)
     </script>
 </body>
 </html>
