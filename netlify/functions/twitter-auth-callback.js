@@ -1,27 +1,19 @@
-// This function handles the user's return from Twitter after authorization.
-// It exchanges the temporary code for a permanent access token.
-
+// netlify/functions/twitter-auth-callback.js
 exports.handler = async function (event) {
   const { code, state } = event.queryStringParameters;
   
-  // Retrieve the state and code_verifier from the cookies
   const cookies = event.headers.cookie || '';
   const storedState = cookies.split('; ').find(c => c.startsWith('twitter_oauth_state='))?.split('=')[1];
   const codeVerifier = cookies.split('; ').find(c => c.startsWith('twitter_code_verifier='))?.split('=')[1];
 
-  // Security check: ensure the state matches
   if (!state || !storedState || state !== storedState) {
-    return {
-      statusCode: 400,
-      body: 'State mismatch. Possible CSRF attack.',
-    };
+    return { statusCode: 400, body: 'State mismatch. Possible CSRF attack.' };
   }
 
   const clientId = process.env.TWITTER_CLIENT_ID;
   const clientSecret = process.env.TWITTER_CLIENT_SECRET;
   const redirectUri = `${process.env.URL}/.netlify/functions/twitter-auth-callback`;
 
-  // Prepare the request to exchange the code for an access token
   const tokenUrl = 'https://api.twitter.com/2/oauth2/token';
   const authHeader = 'Basic ' + Buffer.from(`${clientId}:${clientSecret}`).toString('base64');
   
@@ -44,27 +36,16 @@ exports.handler = async function (event) {
     if (!response.ok) {
       const errorBody = await response.text();
       console.error('Twitter API Error:', errorBody);
-      return {
-        statusCode: response.status,
-        body: `Failed to get access token from Twitter: ${errorBody}`,
-      };
+      return { statusCode: response.status, body: `Failed to get access token: ${errorBody}` };
     }
 
     const tokenData = await response.json();
-    const accessToken = tokenData.access_token;
-    const refreshToken = tokenData.refresh_token;
-
-    // TODO: Securely store the accessToken and refreshToken in your database (e.g., Firestore)
-    // associated with the logged-in user's ID. This is a critical next step.
+    // TODO: Securely store these tokens in Firestore, associated with the user.
     
-    // For now, redirect the user back to the main page with a success message
-    // In a real app, you'd likely store the token and then redirect.
     return {
       statusCode: 302,
       headers: {
         'Location': '/', // Redirect to the homepage
-        // Clear the state and verifier cookies
-        'Set-Cookie': 'twitter_oauth_state=; Path=/; Max-Age=0',
         'Cache-Control': 'no-cache'
       },
        multiValueHeaders: {
@@ -72,15 +53,10 @@ exports.handler = async function (event) {
             'twitter_oauth_state=; Path=/; Max-Age=0',
             'twitter_code_verifier=; Path=/; Max-Age=0'
         ]
-      },
-      body: 'Authentication successful! Redirecting...',
+      }
     };
-
   } catch (error) {
     console.error('Error during token exchange:', error);
-    return {
-      statusCode: 500,
-      body: 'An internal error occurred during authentication.',
-    };
+    return { statusCode: 500, body: 'An internal error occurred.' };
   }
 };
