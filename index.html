@@ -52,6 +52,7 @@
              box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
              transform: scale(0.95);
              transition: transform 0.3s ease;
+             text-align: center;
         }
         .modal-overlay.visible .modal-content {
             transform: scale(1);
@@ -192,7 +193,7 @@
     </div>
     
     <!-- Modal Lainnya (Loading, Error, dsb) -->
-    <div id="modal" class="modal-overlay"><div id="modal-content-area" class="modal-content"></div></div>
+    <div id="status-modal" class="modal-overlay"><div id="status-modal-content" class="modal-content"></div></div>
 
     <!-- Firebase SDK (Modular v9) -->
     <script type="module">
@@ -215,6 +216,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         
+        // --- Global State ---
+        let uploadedFile = null;
+
         // --- DOM Elements ---
         const hubView = document.getElementById('hub-view');
         const appView = document.getElementById('app-view');
@@ -231,6 +235,9 @@
         const twitterConnectText = document.getElementById('twitter-connect-text');
         const openFormatterBtn = document.getElementById('open-formatter');
         const openSchedulerBtn = document.getElementById('open-scheduler');
+        const statusModal = document.getElementById('status-modal');
+        const statusModalContent = document.getElementById('status-modal-content');
+
 
         // --- Auth State Logic ---
         onAuthStateChanged(auth, async (user) => {
@@ -256,22 +263,25 @@
             signOut(auth).catch(console.error);
         });
 
-        // --- Settings Modal Logic ---
-        const toggleSettingsModal = (show) => {
+        // --- Modal Logic ---
+        function toggleModal(modalElement, contentElement, show, message = '', isError = false) {
             if (show) {
-                settingsModal.classList.remove('hidden');
-                setTimeout(() => settingsModal.classList.add('visible'), 10);
+                contentElement.innerHTML = `<p class="${isError ? 'text-red-500' : 'text-gray-700'}">${message}</p>`;
+                modalElement.classList.remove('hidden');
+                setTimeout(() => modalElement.classList.add('visible'), 10);
             } else {
-                settingsModal.classList.remove('visible');
-                setTimeout(() => settingsModal.classList.add('hidden'), 300);
+                modalElement.classList.remove('visible');
+                setTimeout(() => modalElement.classList.add('hidden'), 300);
             }
-        };
-        settingsBtn.addEventListener('click', () => toggleSettingsModal(true));
-        closeSettingsBtn.addEventListener('click', () => toggleSettingsModal(false));
-        settingsModal.addEventListener('click', (e) => {
-            if (e.target === settingsModal) toggleSettingsModal(false);
-        });
+        }
 
+        // --- Settings Modal Logic ---
+        settingsBtn.addEventListener('click', () => toggleModal(settingsModal, document.querySelector('#settings-modal .modal-content'), true));
+        closeSettingsBtn.addEventListener('click', () => toggleModal(settingsModal, document.querySelector('#settings-modal .modal-content'), false));
+        settingsModal.addEventListener('click', (e) => {
+            if (e.target === settingsModal) toggleModal(settingsModal, document.querySelector('#settings-modal .modal-content'), false);
+        });
+        
         // --- Twitter Connection Logic ---
         connectTwitterBtn.addEventListener('click', () => {
             if (!connectTwitterBtn.disabled) {
@@ -326,7 +336,7 @@
             tabScheduler.addEventListener('click', () => handleTabClick('scheduler'));
             
             if (connectAccountBtn) {
-                connectAccountBtn.addEventListener('click', () => toggleSettingsModal(true));
+                connectAccountBtn.addEventListener('click', () => toggleModal(settingsModal, document.querySelector('#settings-modal .modal-content'), true));
             }
 
             // Initialize the correct tab
@@ -337,19 +347,78 @@
                 initSchedulerLogic();
             }
         }
+        
+        // --- AI API Call ---
+        async function callGeminiAPI(prompt, base64Data, mimeType) {
+            console.log("Calling AI with multimodal prompt...");
+            
+            const payload = {
+              contents: [
+                    {
+                        role: "user",
+                        parts: [
+                            { text: prompt },
+                            {
+                                inlineData: {
+                                    mimeType: mimeType,
+                                    data: base64Data
+                                }
+                            }
+                        ]
+                    }
+                ],
+            };
+            
+            // In a real scenario, you would make a fetch call to your backend
+            // which then calls the Gemini API to protect your API key.
+            // For this demonstration, we'll simulate the call.
+            // const apiKey = "YOUR_GEMINI_API_KEY";
+            // const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+            // const response = await fetch(apiUrl, {
+            //     method: 'POST',
+            //     headers: { 'Content-Type': 'application/json' },
+            //     body: JSON.stringify(payload)
+            // });
+            // if (!response.ok) {
+            //     const error = await response.json();
+            //     console.error("Gemini API Error:", error);
+            //     throw new Error('Failed to get response from AI');
+            // }
+            // const result = await response.json();
+            // return result.candidates[0].content.parts[0].text;
+
+            // --- SIMULATED RESPONSE FOR DEMO ---
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            return "Menikmati pagi yang cerah bersama teman-teman di sekolah. Belajar jadi lebih semangat! ☀️\n\n#PendidikanAnak #SekolahDasar #BelajarBersama #AnakIndonesia #MenuSehatAnak";
+        }
+
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    // Result includes "data:mime/type;base64," prefix, remove it
+                    resolve(reader.result.split(',')[1]);
+                };
+                reader.onerror = error => reject(error);
+            });
+        }
 
         function initSchedulerLogic() {
-            // This function contains all the logic for the scheduler tab
             const fileUpload = document.getElementById('file-upload');
             const uploadBox = document.getElementById('content-upload-box');
             const uploadPlaceholder = document.getElementById('content-upload-placeholder');
             const previewContainer = document.getElementById('content-preview-container');
+            const previewWrapper = document.getElementById('preview-element-wrapper');
             const removeContentBtn = document.getElementById('remove-content-btn');
+            const aiBtn = document.getElementById('ai-suggestion-btn');
+            const captionArea = document.getElementById('caption');
 
             const handleFileSelect = (file) => {
                 if (!file) return;
 
-                previewContainer.innerHTML = ''; // Clear previous preview
+                uploadedFile = file; // Store the file object globally
+                previewWrapper.innerHTML = ''; // Clear previous preview
                 const fileURL = URL.createObjectURL(file);
                 let previewElement;
 
@@ -361,20 +430,22 @@
                     previewElement.setAttribute('controls', '');
                     previewElement.className = "rounded-md max-h-64 mx-auto";
                 } else {
-                    // Handle other file types if needed, e.g., show an icon
+                    toggleModal(statusModal, statusModalContent, true, 'Format file tidak didukung.', true);
+                    setTimeout(() => toggleModal(statusModal, statusModalContent, false), 2000);
                     return;
                 }
                 
                 previewElement.src = fileURL;
-                previewContainer.appendChild(previewElement);
+                previewWrapper.appendChild(previewElement);
 
                 uploadPlaceholder.classList.add('hidden');
                 previewContainer.classList.remove('hidden');
             };
 
             const resetUpload = () => {
-                fileUpload.value = ''; // Clear file input
-                previewContainer.innerHTML = ''; // Clear preview
+                uploadedFile = null;
+                fileUpload.value = ''; 
+                previewWrapper.innerHTML = ''; 
                 previewContainer.classList.add('hidden');
                 uploadPlaceholder.classList.remove('hidden');
             };
@@ -398,6 +469,35 @@
             uploadBox.addEventListener('drop', (e) => {
                 handleFileSelect(e.dataTransfer.files[0]);
             }, false);
+
+            // AI suggestion logic
+            aiBtn.addEventListener('click', async () => {
+                if (!uploadedFile) {
+                    toggleModal(statusModal, statusModalContent, true, 'Silakan upload gambar terlebih dahulu.', true);
+                    setTimeout(() => toggleModal(statusModal, statusModalContent, false), 2500);
+                    return;
+                }
+                
+                aiBtn.innerHTML = '✨ Menganalisis gambar...';
+                aiBtn.disabled = true;
+
+                try {
+                    const base64Data = await fileToBase64(uploadedFile);
+                    const mimeType = uploadedFile.type;
+                    const prompt = `Analisis gambar ini. Buatlah caption singkat yang menarik untuk media sosial (maksimal 2 kalimat) diikuti dengan 5-7 tagar yang relevan. Berikan jawaban hanya dalam format teks biasa.`;
+                    
+                    const aiResponse = await callGeminiAPI(prompt, base64Data, mimeType);
+                    captionArea.value = aiResponse; // Replace caption with AI response
+
+                } catch (error) {
+                    console.error('Error getting AI suggestion:', error);
+                    toggleModal(statusModal, statusModalContent, true, 'Gagal mendapatkan rekomendasi AI.', true);
+                    setTimeout(() => toggleModal(statusModal, statusModalContent, false), 2500);
+                } finally {
+                    aiBtn.innerHTML = '✨ Buat Caption & Tagar dengan AI';
+                    aiBtn.disabled = false;
+                }
+            });
         }
 
         openFormatterBtn.addEventListener('click', () => showAppView('formatter'));
@@ -438,15 +538,19 @@
                                             <p class="text-xs text-gray-500">Gambar atau Video (MP4, MOV)</p>
                                         </div>
                                         <div id="content-preview-container" class="hidden relative w-full">
-                                            <!-- Preview akan muncul di sini -->
-                                            <button id="remove-content-btn" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 leading-none hover:bg-red-600 z-10">&times;</button>
+                                            <div id="preview-element-wrapper"></div>
+                                            <button id="remove-content-btn" class="absolute -top-2 -right-2 bg-black/50 text-white rounded-full p-1 leading-none hover:bg-red-600 z-10">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
                                 <div>
                                     <label for="caption" class="block text-sm font-medium text-gray-700 mb-1">Tulis caption Anda</label>
-                                    <textarea id="caption" rows="8" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 shadow-sm" placeholder="Apa yang Anda pikirkan?"></textarea>
-                                    <button id="hashtag-suggestion-btn" class="mt-2 text-sm text-indigo-600 font-semibold hover:underline">✨ Dapatkan Rekomendasi Tagar</button>
+                                    <textarea id="caption" rows="8" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 shadow-sm" placeholder="Apa yang Anda pikirkan? Atau biarkan AI yang membuatkannya untuk Anda."></textarea>
+                                    <button id="ai-suggestion-btn" class="mt-2 text-sm text-indigo-600 font-semibold hover:underline disabled:opacity-50 disabled:no-underline">✨ Buat Caption & Tagar dengan AI</button>
                                 </div>
                             </div>
 
