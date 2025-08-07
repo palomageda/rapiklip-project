@@ -1,8 +1,6 @@
 // This function handles the user's return from Twitter after authorization.
 // It exchanges the temporary code for a permanent access token.
 
-const fetch = require('node-fetch'); // You might need to install this dependency if not available in Netlify's environment
-
 exports.handler = async function (event) {
   const { code, state } = event.queryStringParameters;
   
