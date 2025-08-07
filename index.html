@@ -210,6 +210,11 @@
             messagingSenderId: "832563611731",
             appId: "1:832563611731:web:cb069bc4eab1014fabdea6"
         };
+        
+        // --- PENTING: MASUKKAN API KEY ANDA DI SINI ---
+        // Dapatkan kunci Anda dari Google AI Studio: https://aistudio.google.com/app/apikey
+        // Untuk keamanan, sebaiknya pindahkan panggilan API ini ke backend (Netlify Function)
+        const GEMINI_API_KEY = ""; // <-- MASUKKAN KUNCI ANDA DI SINI
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
@@ -350,7 +355,9 @@
         
         // --- AI API Call ---
         async function callGeminiAPI(prompt, base64Data, mimeType) {
-            console.log("Calling AI with multimodal prompt...");
+            if (!GEMINI_API_KEY) {
+                throw new Error("Kunci API untuk Gemini belum diatur. Silakan masukkan di dalam kode.");
+            }
             
             const payload = {
               contents: [
@@ -369,27 +376,26 @@
                 ],
             };
             
-            // In a real scenario, you would make a fetch call to your backend
-            // which then calls the Gemini API to protect your API key.
-            // For this demonstration, we'll simulate the call.
-            // const apiKey = "YOUR_GEMINI_API_KEY";
-            // const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-            // const response = await fetch(apiUrl, {
-            //     method: 'POST',
-            //     headers: { 'Content-Type': 'application/json' },
-            //     body: JSON.stringify(payload)
-            // });
-            // if (!response.ok) {
-            //     const error = await response.json();
-            //     console.error("Gemini API Error:", error);
-            //     throw new Error('Failed to get response from AI');
-            // }
-            // const result = await response.json();
-            // return result.candidates[0].content.parts[0].text;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
+            
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
 
-            // --- SIMULATED RESPONSE FOR DEMO ---
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            return "Menikmati pagi yang cerah bersama teman-teman di sekolah. Belajar jadi lebih semangat! ☀️\n\n#PendidikanAnak #SekolahDasar #BelajarBersama #AnakIndonesia #MenuSehatAnak";
+            if (!response.ok) {
+                const error = await response.json();
+                console.error("Gemini API Error:", error);
+                throw new Error('Gagal mendapatkan respons dari AI. Periksa konsol untuk detail.');
+            }
+            
+            const result = await response.json();
+            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
+                 return result.candidates[0].content.parts[0].text;
+            } else {
+                 throw new Error('Respons dari AI tidak valid.');
+            }
         }
 
         function fileToBase64(file) {
@@ -473,26 +479,55 @@
             // AI suggestion logic
             aiBtn.addEventListener('click', async () => {
                 if (!uploadedFile) {
-                    toggleModal(statusModal, statusModalContent, true, 'Silakan upload gambar terlebih dahulu.', true);
+                    toggleModal(statusModal, statusModalContent, true, 'Silakan upload gambar atau video terlebih dahulu.', true);
                     setTimeout(() => toggleModal(statusModal, statusModalContent, false), 2500);
                     return;
                 }
                 
-                aiBtn.innerHTML = '✨ Menganalisis gambar...';
+                aiBtn.innerHTML = '✨ Menganalisis konten...';
                 aiBtn.disabled = true;
 
                 try {
-                    const base64Data = await fileToBase64(uploadedFile);
-                    const mimeType = uploadedFile.type;
-                    const prompt = `Analisis gambar ini. Buatlah caption singkat yang menarik untuk media sosial (maksimal 2 kalimat) diikuti dengan 5-7 tagar yang relevan. Berikan jawaban hanya dalam format teks biasa.`;
+                    let base64Data;
+                    let mimeType = uploadedFile.type;
+                    let prompt;
+
+                    if (mimeType.startsWith('image/')) {
+                         base64Data = await fileToBase64(uploadedFile);
+                         prompt = `Analisis gambar ini secara menyeluruh. Perhatikan elemen visual DAN semua teks yang mungkin ada di dalam gambar. Berdasarkan analisis gabungan ini, buatlah caption singkat yang menarik untuk media sosial (maksimal 2 kalimat) diikuti dengan 5-7 tagar yang relevan. Berikan jawaban hanya dalam format teks biasa.`;
+                    } else if (mimeType.startsWith('video/')) {
+                        // For video, we need to capture a frame. This requires a canvas.
+                        const video = document.createElement('video');
+                        video.src = URL.createObjectURL(uploadedFile);
+                        video.muted = true;
+
+                        await new Promise((resolve, reject) => {
+                            video.onloadeddata = () => {
+                                video.currentTime = 1; // Seek to 1 second to get a good frame
+                            };
+                            video.onseeked = async () => {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = video.videoWidth;
+                                canvas.height = video.videoHeight;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                                base64Data = canvas.toDataURL('image/jpeg').split(',')[1];
+                                mimeType = 'image/jpeg';
+                                resolve();
+                            };
+                            video.onerror = reject;
+                            video.load();
+                        });
+                        prompt = `Analisis thumbnail video ini. Perhatikan elemen visual DAN semua teks yang mungkin ada di dalamnya. Berdasarkan analisis ini, buatlah caption singkat yang menarik untuk media sosial (maksimal 2 kalimat) yang mengajak orang untuk menonton, diikuti dengan 5-7 tagar yang relevan. Berikan jawaban hanya dalam format teks biasa.`;
+                    }
                     
                     const aiResponse = await callGeminiAPI(prompt, base64Data, mimeType);
                     captionArea.value = aiResponse; // Replace caption with AI response
 
                 } catch (error) {
                     console.error('Error getting AI suggestion:', error);
-                    toggleModal(statusModal, statusModalContent, true, 'Gagal mendapatkan rekomendasi AI.', true);
-                    setTimeout(() => toggleModal(statusModal, statusModalContent, false), 2500);
+                    toggleModal(statusModal, statusModalContent, true, error.message, true);
+                    setTimeout(() => toggleModal(statusModal, statusModalContent, false), 3000);
                 } finally {
                     aiBtn.innerHTML = '✨ Buat Caption & Tagar dengan AI';
                     aiBtn.disabled = false;
