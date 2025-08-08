@@ -111,7 +111,7 @@
     window.addEventListener('DOMContentLoaded', () => {
       import("https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js").then(({ initializeApp }) => {
         import("https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js").then(({ getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut }) => {
-          import("https://www.gstatic.com/firebasejs/9.15.0/firestore.js").then(({ getFirestore, doc, getDoc, setDoc }) => {
+          import("https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js").then(({ getFirestore, doc, getDoc, setDoc }) => {
             const firebaseConfig = {
               apiKey: "AIzaSyDdeqL1jjJKFYKEgkWmkjDu_xuwQEIKaDA",
               authDomain: "mediadash-app.firebaseapp.com",
