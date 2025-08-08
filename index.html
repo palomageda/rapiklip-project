@@ -199,7 +199,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
         import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firestore.js";
 
         // --- KONFIGURASI FIREBASE ANDA ---
         const firebaseConfig = {
@@ -211,11 +211,6 @@
             appId: "1:832563611731:web:cb069bc4eab1014fabdea6"
         };
         
-        // --- PENTING: MASUKKAN API KEY ANDA DI SINI ---
-        // Dapatkan kunci Anda dari Google AI Studio: https://aistudio.google.com/app/apikey
-        // Untuk keamanan, sebaiknya pindahkan panggilan API ini ke backend (Netlify Function)
-        const GEMINI_API_KEY = ""; // <-- MASUKKAN KUNCI ANDA DI SINI
-
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -328,74 +323,50 @@
             const tabScheduler = document.getElementById('tab-scheduler');
             const formatterContent = document.getElementById('formatter-content');
             const schedulerContent = document.getElementById('scheduler-content');
-            const connectAccountBtn = document.getElementById('connect-account-btn');
-
+            
             const handleTabClick = (activeTab) => {
                 tabFormatter.classList.toggle('active', activeTab === 'formatter');
                 tabScheduler.classList.toggle('active', activeTab === 'scheduler');
                 formatterContent.classList.toggle('hidden', activeTab !== 'formatter');
                 schedulerContent.classList.toggle('hidden', activeTab !== 'scheduler');
+
+                // PERBAIKAN: Jalankan logika untuk tab yang baru aktif.
+                if (activeTab === 'scheduler') {
+                    initSchedulerLogic();
+                }
+                // else if (activeTab === 'formatter') {
+                //     initFormatterLogic(); // Jika Anda memiliki logika spesifik untuk formatter
+                // }
             };
 
             tabFormatter.addEventListener('click', () => handleTabClick('formatter'));
             tabScheduler.addEventListener('click', () => handleTabClick('scheduler'));
             
-            if (connectAccountBtn) {
-                connectAccountBtn.addEventListener('click', () => toggleModal(settingsModal, document.querySelector('#settings-modal .modal-content'), true));
-            }
-
             // Initialize the correct tab
             handleTabClick(defaultTab);
-
-            // Initialize logic for the active tab
-            if (defaultTab === 'scheduler') {
-                initSchedulerLogic();
-            }
         }
         
-        // --- AI API Call ---
+        // --- AI API Call (Secure via Netlify Function) ---
         async function callGeminiAPI(prompt, base64Data, mimeType) {
-            if (!GEMINI_API_KEY) {
-                throw new Error("Kunci API untuk Gemini belum diatur. Silakan masukkan di dalam kode.");
-            }
+            console.log("Calling secure AI function...");
             
-            const payload = {
-              contents: [
-                    {
-                        role: "user",
-                        parts: [
-                            { text: prompt },
-                            {
-                                inlineData: {
-                                    mimeType: mimeType,
-                                    data: base64Data
-                                }
-                            }
-                        ]
-                    }
-                ],
-            };
-            
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
-            
+            // PERBAIKAN: Menggunakan URL lengkap untuk memastikan fetch berfungsi di semua lingkungan.
+            const apiUrl = `${window.location.origin}/.netlify/functions/call-gemini`;
+
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({ prompt, base64Data, mimeType })
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                console.error("Gemini API Error:", error);
-                throw new Error('Gagal mendapatkan respons dari AI. Periksa konsol untuk detail.');
+                const errorResult = await response.json();
+                console.error("Backend Function Error:", errorResult);
+                throw new Error(errorResult.error || 'Gagal mendapatkan respons dari AI.');
             }
             
             const result = await response.json();
-            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content.parts.length > 0) {
-                 return result.candidates[0].content.parts[0].text;
-            } else {
-                 throw new Error('Respons dari AI tidak valid.');
-            }
+            return result.response;
         }
 
         function fileToBase64(file) {
@@ -411,6 +382,12 @@
         }
 
         function initSchedulerLogic() {
+            // Fungsi ini hanya boleh dijalankan sekali per tampilan tab
+            if (document.getElementById('scheduler-content').dataset.initialized) {
+                return;
+            }
+            document.getElementById('scheduler-content').dataset.initialized = 'true';
+
             const fileUpload = document.getElementById('file-upload');
             const uploadBox = document.getElementById('content-upload-box');
             const uploadPlaceholder = document.getElementById('content-upload-placeholder');
@@ -419,6 +396,11 @@
             const removeContentBtn = document.getElementById('remove-content-btn');
             const aiBtn = document.getElementById('ai-suggestion-btn');
             const captionArea = document.getElementById('caption');
+            const connectAccountBtn = document.getElementById('connect-account-btn');
+
+            if (connectAccountBtn) {
+                connectAccountBtn.addEventListener('click', () => toggleModal(settingsModal, document.querySelector('#settings-modal .modal-content'), true));
+            }
 
             const handleFileSelect = (file) => {
                 if (!file) return;
