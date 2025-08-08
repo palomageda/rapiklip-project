@@ -1,69 +1,94 @@
-// File: netlify/functions/call-gemini.js
+// netlify/functions/call-gemini.js
+export async function handler(event) {
+  if (event.httpMethod === "OPTIONS") {
+    return {
+      statusCode: 204,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+      body: "",
+    };
+  }
 
-// Menggunakan node-fetch untuk melakukan panggilan API di lingkungan Node.js
-const fetch = require('node-fetch');
+  if (event.httpMethod !== "POST") {
+    return {
+      statusCode: 405,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: "Method not allowed" }),
+    };
+  }
 
-exports.handler = async (event, context) => {
-    // 1. Keamanan: Hanya izinkan metode POST
-    if (event.httpMethod !== 'POST') {
-        return { statusCode: 405, body: 'Method Not Allowed' };
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return {
+      statusCode: 500,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: "Missing GEMINI_API_KEY" }),
+    };
+  }
+
+  try {
+    const { prompt, base64Data, mimeType } = JSON.parse(event.body || "{}");
+    if (!prompt) {
+      return {
+        statusCode: 400,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ error: "Missing prompt" }),
+      };
     }
 
-    // 2. Ambil kunci API rahasia dari environment variables Netlify
-    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+    const genUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
-    if (!GEMINI_API_KEY) {
-        return { statusCode: 500, body: JSON.stringify({ error: 'Kunci API Gemini tidak diatur di server.' }) };
+    const parts = [{ text: prompt }];
+    if (base64Data && mimeType) {
+      parts.push({ inline_data: { data: base64Data, mime_type: mimeType } });
     }
 
-    try {
-        // 3. Ambil data (prompt dan gambar) yang dikirim dari frontend
-        const { prompt, base64Data, mimeType } = JSON.parse(event.body);
+    const res = await fetch(`${genUrl}?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ role: "user", parts }] }),
+    });
 
-        if (!prompt || !base64Data || !mimeType) {
-            return { statusCode: 400, body: JSON.stringify({ error: 'Data yang dikirim tidak lengkap.' }) };
-        }
-
-        // 4. Siapkan payload untuk dikirim ke API Gemini
-        const payload = {
-            contents: [{
-                role: "user",
-                parts: [
-                    { text: prompt },
-                    { inlineData: { mimeType, data: base64Data } }
-                ]
-            }],
-        };
-
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`;
-
-        // 5. Lakukan panggilan ke API Gemini yang sesungguhnya
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-
-        if (!response.ok) {
-            const error = await response.json();
-            console.error("Gemini API Error:", error);
-            return { statusCode: 500, body: JSON.stringify({ error: 'Gagal mendapatkan respons dari AI.' }) };
-        }
-
-        const result = await response.json();
-
-        // 6. Ekstrak dan kirim kembali teks jawaban ke frontend
-        const textResponse = result.candidates[0].content.parts[0].text;
-        return {
-            statusCode: 200,
-            body: JSON.stringify({ response: textResponse }),
-        };
-
-    } catch (error) {
-        console.error('Error in Netlify function:', error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: 'Terjadi kesalahan internal pada server.' }),
-        };
+    if (!res.ok) {
+      const errText = await res.text();
+      return {
+        statusCode: res.status,
+        headers: { "Access-Control-Allow-Origin": "*" },
+        body: JSON.stringify({ error: errText }),
+      };
     }
-};
+
+    const data = await res.json();
+    const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text).join("\n") || "";
+
+    return {
+      statusCode: 200,
+      headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ response: text }),
+    };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      headers: { "Access-Control-Allow-Origin": "*" },
+      body: JSON.stringify({ error: e.message || String(e) }),
+    };
+  }
+}
+
+/* netlify.toml (place at repo root)
+[build]
+  command = "npm run build --if-present"
+  publish = "."
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+  included_files = []
+[functions.call-gemini]
+  timeout = 20
+*/
