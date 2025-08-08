@@ -1,3 +1,16 @@
-# This file tells Netlify where to find our serverless function.
+[build]
+  command = "npm run build --if-present"
+  publish = "."
+
 [functions]
-  directory = "netlify/functions/"
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+[context.production.environment]
+  GEMINI_API_KEY = "${GEMINI_API_KEY}"
+
+[context.branch-deploy.environment]
+  GEMINI_API_KEY = "${GEMINI_API_KEY_STAGING}"
+
+[context.deploy-preview.environment]
+  GEMINI_API_KEY = "${GEMINI_API_KEY_STAGING}"
