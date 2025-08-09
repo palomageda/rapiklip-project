@@ -13,7 +13,7 @@ export async function handler() {
   const sig = b64url(crypto.createHmac('sha256', process.env.SESSION_SECRET).update(stateRaw).digest());
   const state = `${stateRaw}.${sig}`;
 
-  const url = new URL('https://twitter.com/i/oauth2/authorize');
+  const url = new URL('https://x.com/i/oauth2/authorize');
   url.searchParams.set('response_type', 'code');
   url.searchParams.set('client_id', process.env.X_CLIENT_ID);
   url.searchParams.set('redirect_uri', process.env.X_REDIRECT_URI); // https://mediadash.id/.netlify/functions/oauth-x-callback
