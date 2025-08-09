@@ -1,1 +1,135 @@
+// === FILE: netlify/functions/_shared/firebaseAdmin.js ===
+import pkg from 'firebase-admin';
+const { initializeApp, cert, getApps } = pkg;
+import { getFirestore } from 'firebase-admin/firestore';
+import { getAuth } from 'firebase-admin/auth';
+
+export function initAdmin(){
+  if(!getApps().length){
+    initializeApp({ credential: cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    })});
+  }
+}
+export { getFirestore, getAuth };
+
+
+// === FILE: netlify/functions/oauth-x-start.js ===
+import crypto from 'crypto';
+
+function b64url(input){
+  return input.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+
+export async function handler(event){
+  const verifier = b64url(crypto.randomBytes(32));
+  const challenge = b64url(crypto.createHash('sha256').update(verifier).digest());
+  const stateRaw = `${crypto.randomUUID()}.${Date.now()}`;
+  const stateSig = b64url(crypto.createHmac('sha256', process.env.SESSION_SECRET).update(stateRaw).digest());
+  const state = `${stateRaw}.${stateSig}`;
+
+  const url = new URL('https://twitter.com/i/oauth2/authorize');
+  url.searchParams.set('response_type', 'code');
+  url.searchParams.set('client_id', process.env.X_CLIENT_ID);
+  url.searchParams.set('redirect_uri', process.env.X_REDIRECT_URI);
+  url.searchParams.set('scope', 'tweet.read tweet.write users.read offline.access');
+  url.searchParams.set('state', state);
+  url.searchParams.set('code_challenge', challenge);
+  url.searchParams.set('code_challenge_method', 'S256');
+
+  const cookie = `x_pkce_verifier=${verifier}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=600`;
+  return { statusCode: 302, headers: { Location: url.toString(), 'Set-Cookie': cookie } };
+}
+
+
+// === FILE: netlify/functions/oauth-x-callback.js ===
+import crypto from 'crypto';
+import { initAdmin, getFirestore, getAuth } from './_shared/firebaseAdmin.js';
+
+function getCookie(event, name){
+  const raw = event.headers.cookie || event.headers.Cookie || '';
+  const m = raw.match(new RegExp(`${name}=([^;]+)`));
+  return m ? decodeURIComponent(m[1]) : '';
+}
+function b64url(buf){ return buf.toString('base64').replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); }
+function verifyState(state){
+  try{
+    const [id, ts, sig] = state.split('.');
+    const data = `${id}.${ts}`;
+    const expect = b64url(crypto.createHmac('sha256', process.env.SESSION_SECRET).update(data).digest());
+    return sig === expect;
+  }catch{ return false; }
+}
+
+export async function handler(event){
+  const qp = event.queryStringParameters || {};
+  const { code, state } = qp;
+  if(!code || !state) return { statusCode: 400, body: 'missing code/state' };
+  if(!verifyState(state)) return { statusCode: 400, body: 'bad state' };
+
+  const verifier = getCookie(event, 'x_pkce_verifier');
+  if(!verifier) return { statusCode: 400, body: 'missing verifier' };
+
+  const tokenRes = await fetch('https://api.twitter.com/2/oauth2/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'authorization_code',
+      client_id: process.env.X_CLIENT_ID,
+      redirect_uri: process.env.X_REDIRECT_URI,
+      code_verifier: verifier,
+      code,
+    })
+  });
+  const tokens = await tokenRes.json();
+  if(!tokenRes.ok) return { statusCode: tokenRes.status, body: JSON.stringify(tokens) };
+
+  let uid = 'unknown';
+  try{
+    initAdmin();
+    const authz = event.headers.authorization || event.headers.Authorization || '';
+    const m = authz.match(/^Bearer\s+(.+)/);
+    if(m){ const idToken = m[1]; const auth = getAuth(); const decoded = await auth.verifyIdToken(idToken); uid = decoded.uid; }
+  }catch{}
+
+  initAdmin();
+  const db = getFirestore();
+  await db.doc(`connections/${uid}_x`).set({
+    uid,
+    provider: 'x',
+    accessToken: tokens.access_token,
+    refreshToken: tokens.refresh_token,
+    tokenType: tokens.token_type,
+    expiresAt: tokens.expires_in ? Date.now() + tokens.expires_in*1000 : null,
+    updatedAt: Date.now()
+  }, { merge: true });
+
+  return { statusCode: 302, headers: { Location: '/' } };
+}
+
+
+// === FILE: netlify/functions/publish-x.js ===
+export async function handler(event){
+  try{
+    const { accessToken, text } = JSON.parse(event.body || '{}');
+    if(!accessToken || !text) return { statusCode: 400, body: 'missing params' };
+    const r = await fetch('https://api.twitter.com/2/tweets', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text })
+    });
+    const j = await r.json();
+    const url = j?.data?.id ? `https://x.com/i/web/status/${j.data.id}` : undefined;
+    return { statusCode: r.ok?200:r.status, body: JSON.stringify({ ok: r.ok, data: j, url }) };
+  }catch(e){
+    return { statusCode: 500, body: String(e) };
+  }
+}
+
+
+// === NOTE: Environment variables to set (Netlify) ===
+// X_CLIENT_ID, X_CLIENT_SECRET, X_REDIRECT_URI = "https://mediadash.id/.netlify/functions/oauth-x-callback"
+// SESSION_SECRET (>=32 chars), FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY
 
