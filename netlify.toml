@@ -6,6 +6,11 @@
   directory = "netlify/functions"
   node_bundler = "esbuild"
 
+# (opsional) jadwal untuk cron nanti
+# [[scheduled.functions]]
+# cron = "* * * * *"
+# name = "schedule-tick"
+
 [context.production.environment]
   GEMINI_API_KEY = "${GEMINI_API_KEY}"
 
