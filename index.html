@@ -1,350 +1,148 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MediaDash: Dasbor Konten Cerdas Anda</title>
-  <meta name="description" content="Satu tempat untuk semua kebutuhan konten Anda. Format teks, jadwalkan postingan media sosial, dan banyak lagi dengan kekuatan AI." />
-  <meta name="keywords" content="mediadash, content dashboard, social media scheduler, ai content suite, gemini api" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MediaDash</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
-    body { font-family: "Inter", sans-serif; background-color: #f8f9fa; }
-    .hidden { display: none; }
-    .card-hover-effect { transition: transform .3s ease, box-shadow .3s ease; }
-    .card-hover-effect:hover { transform: translateY(-6px); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1); }
-    .btn-transition { transition: all .2s ease-in-out; }
-    .text-gradient { background: linear-gradient(to right, #4f46e5, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .modal-overlay { position: fixed; inset: 0; background-color: rgba(17,24,39,0.6); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity .3s, visibility .3s; pointer-events: none; }
-    .modal-overlay.visible { opacity: 1; visibility: visible; pointer-events: auto; }
-    .modal-content { background: white; padding: 2rem; border-radius: .75rem; width: 90%; max-width: 420px; box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25); transform: scale(.95); transition: transform .3s ease; text-align: center; }
-    .modal-overlay.visible .modal-content { transform: scale(1); }
-    .tab-button { padding: .75rem .5rem; border-bottom: 2px solid transparent; transition: all .3s ease; }
-    .tab-button.active { border-color: #4f46e5; color: #4f46e5; font-weight: 600; }
-    #content-upload-box { transition: background-color .2s ease, border-color .2s ease; }
-    #content-upload-box.dragover { background-color: #eef2ff; border-color: #4f46e5; }
-    .btn-disabled { cursor: not-allowed; background-color: #e5e7eb !important; color: #9ca3af !important; opacity: .7; }
-    .whatsapp-preview { background-color: #e5ddd5; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); padding: 1.5rem; border-radius: .5rem; border: 1px solid #d1d5db; }
-    .whatsapp-chat-bubble { background-color: #dcf8c6; padding: .5rem .75rem; border-radius: .5rem; max-width: 80%; margin-left: auto; box-shadow: 0 1px 1px rgba(0,0,0,.1); word-wrap: break-word; white-space: pre-wrap; }
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial}
+    .hidden{display:none}
+    .modal-overlay{position:fixed;inset:0;background:rgba(17,24,39,.6);display:flex;align-items:center;justify-content:center;opacity:0;visibility:hidden;transition:.25s}
+    .modal-overlay.visible{opacity:1;visibility:visible}
+    .modal-content{background:#fff;border-radius:12px;max-width:420px;width:92%;padding:20px}
+    .tab-button{padding:.75rem .5rem;border-bottom:2px solid transparent}
+    .tab-button.active{border-color:#4f46e5;color:#4f46e5;font-weight:600}
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased">
-  <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-50 border-b border-gray-200">
-    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-      <div class="flex items-center gap-4">
-        <h1 class="text-xl font-bold text-gray-900">MediaDash ✨</h1>
-        <button id="back-to-hub-btn" class="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 btn-transition" aria-label="Kembali ke Dasbor">&larr; Kembali ke Dasbor</button>
-      </div>
-      <div>
-        <div id="guest-view">
-          <button id="login-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 btn-transition shadow-sm hover:shadow-md">Login / Daftar</button>
-        </div>
-        <div id="user-view" class="hidden items-center gap-3">
-          <span id="user-email" class="text-gray-600 text-sm hidden sm:inline"></span>
-          <button id="settings-btn" class="p-2 rounded-full hover:bg-gray-100 btn-transition" aria-label="Pengaturan">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-          </button>
-          <button id="logout-btn" class="px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 btn-transition shadow-sm hover:shadow-md">Logout</button>
-        </div>
+<body class="bg-gray-50 text-gray-800">
+  <header class="bg-white border-b">
+    <nav class="max-w-7xl mx-auto h-16 px-4 flex items-center justify-between">
+      <h1 class="font-bold">MediaDash ✨</h1>
+      <div class="flex items-center gap-2">
+        <span id="user-email" class="text-sm text-gray-600 hidden"></span>
+        <button id="settings-btn" class="p-2 rounded hover:bg-gray-100">⚙️</button>
       </div>
     </nav>
   </header>
-  <main id="main-content" class="px-4 py-8 sm:px-6 lg:px-8">
-    <div id="hub-view" class="max-w-6xl mx-auto">
-      <div class="text-center py-20 sm:py-28">
-        <h2 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 tracking-tight">Konten Lebih Baik, <span class="text-gradient">Lebih Cepat.</span></h2>
-        <p class="mt-6 max-w-2xl mx-auto text-lg text-gray-600">Hemat waktu berharga Anda. Biarkan AI membantu Anda memformat teks, menjadwalkan postingan, dan menjangkau audiens lebih luas.</p>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <button id="open-formatter" type="button" class="text-left bg-white p-8 rounded-2xl shadow-md flex flex-col card-hover-effect focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-          </div>
-          <div class="mt-5 flex-grow"><h3 class="text-xl font-bold text-gray-900">AI Text Formatter</h3><p class="mt-2 text-gray-600">Sempurnakan tulisan untuk WhatsApp atau platform lain dengan format cerdas dan ringkasan otomatis.</p></div>
-          <div class="mt-6"><span class="font-semibold text-indigo-600">Buka Formatter →</span></div>
-        </button>
-        <button id="open-scheduler" type="button" class="text-left bg-white p-8 rounded-2xl shadow-md flex flex-col card-hover-effect focus:outline-none focus:ring-2 focus:ring-indigo-500">
-          <div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-green-100 text-green-600 rounded-xl">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-          </div>
-          <div class="mt-5 flex-grow"><h3 class="text-xl font-bold text-gray-900">Social Media Scheduler</h3><p class="mt-2 text-gray-600">Tulis sekali, posting ke banyak platform. Jadwalkan konten Anda untuk X, Facebook, dan lainnya.</p></div>
-          <div class="mt-6"><span class="font-semibold text-green-600">Buka Penjadwal →</span></div>
-        </button>
-        <div class="bg-white p-8 rounded-2xl shadow-md flex flex-col opacity-70 cursor-not-allowed"><div class="flex-shrink-0 h-12 w-12 flex items-center justify-center bg-pink-100 text-pink-600 rounded-xl"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2-2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg></div><div class="mt-5 flex-grow"><h3 class="text-xl font-bold text-gray-900">Photo Marketplace</h3><p class="mt-2 text-gray-600">Jual foto-foto olahraga dan aktivitas terbaik Anda kepada audiens global.</p></div><div class="mt-6"><span class="font-semibold text-gray-500">Segera Hadir</span></div></div>
-      </div>
+
+  <main class="px-4 py-8 max-w-7xl mx-auto">
+    <div class="mb-6 border-b border-gray-200">
+      <nav class="-mb-px flex gap-6" aria-label="Tabs">
+        <button id="tab-formatter" class="tab-button active" type="button">Formatter Teks</button>
+        <button id="tab-scheduler" class="tab-button" type="button">Buat Postingan</button>
+      </nav>
     </div>
-    <div id="app-view" class="hidden max-w-7xl mx-auto"></div>
-  </main>
-  <div id="settings-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true"><div class="modal-content"><div class="flex justify-between items-center mb-6"><h3 class="text-xl font-semibold text-gray-900">Pengaturan Akun</h3><button id="close-settings-btn" class="text-gray-400 hover:text-gray-700 btn-transition" aria-label="Tutup">&times;</button></div><div><h4 class="font-medium text-gray-800 mb-2">Hubungkan Akun Media Sosial</h4><p class="text-sm text-gray-600 mb-4">Hubungkan akun Anda untuk mulai menjadwalkan postingan. Kami tidak pernah menyimpan password Anda.</p><div class="space-y-3"><button id="connect-twitter-btn" class="w-full flex items-center justify-center gap-3 px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 btn-transition"><svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M22.46 6c-.77.35-1.6.58-2.46.67.88-.53 1.56-1.37 1.88-2.38-.83.49-1.74.85-2.7 1.03A4.26 4.26 0 0016.31 4c-2.38 0-4.31 1.93-4.31 4.31 0 .34.04.67.11.98-3.58-.18-6.76-1.9-8.89-4.51-.37.63-.58 1.37-.58 2.15 0 1.49.76 2.81 1.92 3.58-.71-.02-1.37-.22-1.95-.54v.05c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 01-1.95.07 4.3 4.3 0 004.02 2.98 8.62 8.62 0 01-5.33 1.84c-.35 0-.69-.02-1.03-.06A12.18 12.18 0 008.29 20c7.55 0 11.68-6.25 11.68-11.68l-.01-.53c.8-.58 1.49-1.3 2.02-2.13z"></path></svg><span id="twitter-connect-text">Hubungkan Akun X (Twitter)</span></button></div></div></div></div>
-  <div id="status-modal" class="modal-overlay"><div id="status-modal-content" class="modal-content"></div></div>
-  <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-  import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore.js";
 
-    const firebaseConfig = { apiKey: "AIzaSyDdeqL1jjJKFYKEgkWmkjDu_xuwQEIKaDA", authDomain: "mediadash-app.firebaseapp.com", projectId: "mediadash-app", storageBucket: "mediadash-app.appspot.com", messagingSenderId: "832563611731", appId: "1:832563611731:web:cb069bc4eab1014fabdea6" };
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    const hubView = document.getElementById('hub-view');
-    const appView = document.getElementById('app-view');
-    const backToHubBtn = document.getElementById('back-to-hub-btn');
-    const guestView = document.getElementById('guest-view');
-    const userView = document.getElementById('user-view');
-    const userEmail = document.getElementById('user-email');
-    const loginBtn = document.getElementById('login-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const settingsBtn = document.getElementById('settings-btn');
-    const settingsModal = document.getElementById('settings-modal');
-    const closeSettingsBtn = document.getElementById('close-settings-btn');
-    const connectTwitterBtn = document.getElementById("connect-twitter-btn");
-  if (connectTwitterBtn) {
-    connectTwitterBtn.addEventListener("click", () => {
-      window.location.href = "/.netlify/functions/oauth-x-start";
-    });
-  }
-    const twitterConnectText = document.getElementById('twitter-connect-text');
-    const statusModal = document.getElementById('status-modal');
-    const statusModalContent = document.getElementById('status-modal-content');
-
-    const on = (el, ev, fn, opts) => el && el.addEventListener(ev, fn, opts);
-
-    function toggleModal(modalElement, contentElement, show, message = '', isError = false) {
-      if (show) {
-        if (contentElement && message) { contentElement.innerHTML = `<p class="${isError ? 'text-red-500' : 'text-gray-700'}">${message}</p>`; }
-        modalElement.classList.remove('hidden');
-        requestAnimationFrame(() => modalElement.classList.add('visible'));
-      } else { modalElement.classList.remove('visible'); setTimeout(() => modalElement.classList.add('hidden'), 300); }
-    }
-
-    onAuthStateChanged(auth, async (user) => {
-      if (user) { guestView.classList.add('hidden'); userView.classList.remove('hidden'); userEmail.textContent = user.email || ''; await checkTwitterConnection(user.uid); }
-      else { userView.classList.add('hidden'); guestView.classList.remove('hidden'); userEmail.textContent = ''; }
-    });
-
-    on(loginBtn, 'click', () => { const provider = new GoogleAuthProvider(); signInWithPopup(auth, provider).catch(console.error); });
-    on(logoutBtn, 'click', () => { signOut(auth).catch(console.error); });
-
-    on(settingsBtn, 'click', () => toggleModal(settingsModal, settingsModal.querySelector('.modal-content'), true));
-    on(closeSettingsBtn, 'click', () => toggleModal(settingsModal, settingsModal.querySelector('.modal-content'), false));
-    on(settingsModal, 'click', (e) => { if (e.target === settingsModal) toggleModal(settingsModal, settingsModal.querySelector('.modal-content'), false); });
-    on(connectTwitterBtn, 'click', () => { if (!connectTwitterBtn.disabled) window.location.href = '/.netlify/functions/twitter-auth-start'; });
-
-    async function checkTwitterConnection(uid){ try{ const snap = await getDoc(doc(db,'users',uid)); if(snap.exists() && snap.data().twitterConnected){ twitterConnectText.textContent='Akun X Terhubung'; connectTwitterBtn.classList.add('btn-disabled'); connectTwitterBtn.disabled=true; } else { twitterConnectText.textContent='Hubungkan Akun X (Twitter)'; connectTwitterBtn.classList.remove('btn-disabled'); connectTwitterBtn.disabled=false; } }catch(e){ console.warn(e); }}
-
-    function showHubView(){ hubView.classList.remove('hidden'); appView.classList.add('hidden'); backToHubBtn.classList.add('hidden'); }
-    function showAppView(defaultTab){ hubView.classList.add('hidden'); appView.classList.remove('hidden'); backToHubBtn.classList.remove('hidden'); appView.innerHTML = getAppViewTemplate(); bindTabs(defaultTab); }
-
-    function bindTabs(defaultTab){
-      const tabFormatter = document.getElementById('tab-formatter');
-      const tabScheduler = document.getElementById('tab-scheduler');
-      const formatterContent = document.getElementById('formatter-content');
-      const schedulerContent = document.getElementById('scheduler-content');
-      let formatterInited = false;
-      const activate = (name)=>{
-        tabFormatter.classList.toggle('active', name==='formatter');
-        tabScheduler.classList.toggle('active', name==='scheduler');
-        formatterContent.classList.toggle('hidden', name!=='formatter');
-        schedulerContent.classList.toggle('hidden', name!=='scheduler');
-        if(name==='formatter' && !formatterInited){ initFormatterLogic(formatterContent); formatterInited=true; }
-        if(name==='scheduler'){ initSchedulerLogic(); }
-      };
-      on(tabFormatter,'click',()=>activate('formatter'));
-      on(tabScheduler,'click',()=>activate('scheduler'));
-      activate(defaultTab);
-    }
-
-    async function callGeminiAPI(prompt, base64Data, mimeType){
-      const apiUrl = `${window.location.origin}/.netlify/functions/call-gemini`;
-      const res = await fetch(apiUrl,{ method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ prompt, base64Data, mimeType })});
-      if(!res.ok){ let t='Gagal mendapatkan respons dari AI.'; try{ const j=await res.json(); t=j.error||t; }catch{} throw new Error(t); }
-      const data = await res.json();
-      return data.response || '';
-    }
-
-    function initFormatterLogic(root){
-      const example = root.querySelector('#example-text');
-      const target = root.querySelector('#target-text');
-      const editor = root.querySelector('#editor');
-      const waOut = root.querySelector('#whatsapp-output');
-      const byExampleBtn = root.querySelector('#format-by-example-btn');
-      const smartBtn = root.querySelector('#smart-format-btn');
-      const sumBtn = root.querySelector('#summarize-btn');
-      const boldBtn = root.querySelector('#bold-btn');
-      const italicBtn = root.querySelector('#italic-btn');
-      const strikeBtn = root.querySelector('#strike-btn');
-      const monoBtn = root.querySelector('#mono-btn');
-      const copyBtn = root.querySelector('#copy-btn');
-      const clearBtn = root.querySelector('#clear-btn');
-
-      const updatePreview=(text)=>{ if(!text){ waOut.innerHTML='Tampilan teks Anda akan muncul di sini...'; return; } let html=text.replace(/</g,'&lt;').replace(/>/g,'&gt;'); html=html.replace(/\*(.*?)\*/g,'<b>$1</b>'); html=html.replace(/_(.*?)_/g,'<i>$1</i>'); html=html.replace(/~(.*?)~/g,'<s>$1</s>'); html=html.replace(/```(.*?)```/g,'<tt>$1</tt>'); waOut.innerHTML=html; };
-      const formatText=(open,close)=>{ const start=editor.selectionStart; const end=editor.selectionEnd; const val=editor.value; const before=val.slice(0,start); const sel=val.slice(start,end); const after=val.slice(end); editor.value = start===end ? `${before}${open}${close}${after}` : `${before}${open}${sel}${close}${after}`; editor.focus(); updatePreview(editor.value); };
-
-      const showBusy=(msg)=>toggleModal(statusModal,statusModalContent,true,`<div class='text-gray-800 font-semibold mb-3'>${msg||'AI sedang bekerja...'}</div><div class='w-full bg-gray-200 rounded-full overflow-hidden'><div class='h-3 w-2/3 animate-pulse bg-indigo-500'></div></div>`);
-      const hideBusy=()=>toggleModal(statusModal,statusModalContent,false);
-
-      editor.addEventListener('input', e=>updatePreview(e.target.value));
-      boldBtn.addEventListener('click',()=>formatText('*','*'));
-      italicBtn.addEventListener('click',()=>formatText('_','_'));
-      strikeBtn.addEventListener('click',()=>formatText('~','~'));
-      monoBtn.addEventListener('click',()=>formatText('```','```'));
-      copyBtn.addEventListener('click',()=>{ if(!editor.value) return; navigator.clipboard.writeText(editor.value); toggleModal(statusModal,statusModalContent,true,'Teks disalin.'); setTimeout(()=>hideBusy(),900); });
-      clearBtn.addEventListener('click',()=>{ editor.value=''; if(example) example.value=''; if(target) target.value=''; updatePreview(''); });
-
-      byExampleBtn.addEventListener('click', async()=>{
-        const ex = example.value.trim(); const tg = target.value.trim(); if(!ex||!tg){ toggleModal(statusModal,statusModalContent,true,'Isi contoh dan teks baru.',true); setTimeout(()=>hideBusy(),1500); return; }
-        showBusy('Menerapkan format dari contoh...');
-        try{ const prompt = `Anda adalah AI ahli format. Analisis gaya format dari "CONTOH" dan terapkan gaya yang sama ke "TEKS BARU".\n\n---\nCONTOH:\n${ex}\n---\nTEKS BARU:\n${tg}\n---\nHASIL FORMAT:`; const out = await callGeminiAPI(prompt); editor.value=out.trim(); updatePreview(editor.value); } catch(e){ toggleModal(statusModal,statusModalContent,true,e.message||'Gagal',true); } finally{ hideBusy(); }
-      });
-
-      smartBtn.addEventListener('click', async()=>{
-        const txt = editor.value.trim(); if(!txt){ toggleModal(statusModal,statusModalContent,true,'Tidak ada teks di editor.',true); setTimeout(()=>hideBusy(),1500); return; }
-        showBusy('Memformat teks...');
-        try{ const prompt = `Format teks berikut untuk WhatsApp dengan aturan ketat: jaga paragraf tunggal; *_italic_* hanya untuk kata asing; *bold* untuk frasa kunci. Hasilkan teks saja. \n\nTeks: ${txt}`; const out = await callGeminiAPI(prompt); editor.value=out.trim(); updatePreview(editor.value); } catch(e){ toggleModal(statusModal,statusModalContent,true,e.message||'Gagal',true); } finally{ hideBusy(); }
-      });
-
-      sumBtn.addEventListener('click', async()=>{
-        const txt = editor.value.trim(); if(!txt){ toggleModal(statusModal,statusModalContent,true,'Tidak ada teks untuk diringkas.',true); setTimeout(()=>hideBusy(),1500); return; }
-        showBusy('Merangkum teks...');
-        try{ const prompt = `Ringkas paragraf berikut menjadi satu paragraf padat tanpa kehilangan makna. Gunakan *bold* untuk poin paling penting dan _italic_ hanya untuk kata asing. \n\nTeks: ${txt}`; const out = await callGeminiAPI(prompt); editor.value=out.trim(); updatePreview(editor.value); } catch(e){ toggleModal(statusModal,statusModalContent,true,e.message||'Gagal',true); } finally{ hideBusy(); }
-      });
-
-      updatePreview(editor.value);
-    }
-
-    function initSchedulerLogic(){
-      const root = document.getElementById('scheduler-content');
-      if(root.dataset.initialized) return; root.dataset.initialized='1';
-      const fileUpload = document.getElementById('file-upload');
-      const uploadBox = document.getElementById('content-upload-box');
-      const uploadPlaceholder = document.getElementById('content-upload-placeholder');
-      const previewContainer = document.getElementById('content-preview-container');
-      const previewWrapper = document.getElementById('preview-element-wrapper');
-      const removeContentBtn = document.getElementById('remove-content-btn');
-      const aiBtn = document.getElementById('ai-suggestion-btn');
-      const captionArea = document.getElementById('caption');
-      const connectAccountBtn = document.getElementById('connect-account-btn');
-      on(connectAccountBtn,'click',()=>toggleModal(settingsModal,settingsModal.querySelector('.modal-content'),true));
-
-      let uploadedFile=null;
-      const handleFile=(file)=>{ if(!file) return; uploadedFile=file; previewWrapper.innerHTML=''; const url=URL.createObjectURL(file); let el; if(file.type.startsWith('image/')){ el=document.createElement('img'); el.className='rounded-md max-h-64 mx-auto'; } else if(file.type.startsWith('video/')){ el=document.createElement('video'); el.setAttribute('controls',''); el.className='rounded-md max-h-64 mx-auto'; } else { toggleModal(statusModal,statusModalContent,true,'Format file tidak didukung.',true); setTimeout(()=>toggleModal(statusModal,statusModalContent,false),1800); return; } el.src=url; previewWrapper.appendChild(el); uploadPlaceholder.classList.add('hidden'); previewContainer.classList.remove('hidden'); };
-      const reset=()=>{ uploadedFile=null; if(fileUpload) fileUpload.value=''; previewWrapper.innerHTML=''; previewContainer.classList.add('hidden'); uploadPlaceholder.classList.remove('hidden'); };
-      on(fileUpload,'change',e=>handleFile(e.target.files?.[0]));
-      on(removeContentBtn,'click',reset);
-      const prevent=(e)=>{ e.preventDefault(); e.stopPropagation(); };
-      ['dragenter','dragover','dragleave','drop'].forEach(ev=>on(uploadBox,ev,prevent,{passive:false}));
-      ['dragenter','dragover'].forEach(ev=>on(uploadBox,ev,()=>uploadBox.classList.add('dragover')));
-      ['dragleave','drop'].forEach(ev=>on(uploadBox,ev,()=>uploadBox.classList.remove('dragover')));
-      on(uploadBox,'drop',e=>handleFile(e.dataTransfer.files?.[0]));
-
-      let busy=false;
-      on(aiBtn,'click', async()=>{
-        if(busy) return; if(!uploadedFile){ toggleModal(statusModal,statusModalContent,true,'Silakan upload gambar atau video terlebih dahulu.',true); setTimeout(()=>toggleModal(statusModal,statusModalContent,false),2000); return; }
-        busy=true; aiBtn.disabled=true; aiBtn.textContent='✨ Menganalisis konten...';
-        try{ let b64, mt=uploadedFile.type; if(mt.startsWith('image/')){ b64 = await new Promise((res,rej)=>{ const r=new FileReader(); r.readAsDataURL(uploadedFile); r.onload=()=>res(String(r.result).split(',')[1]); r.onerror=rej; }); } else { const v=document.createElement('video'); v.src=URL.createObjectURL(uploadedFile); v.muted=true; await new Promise((resolve,reject)=>{ v.onloadeddata=()=>{ v.currentTime=Math.min(1,v.duration/2||1); }; v.onseeked=()=>{ const c=document.createElement('canvas'); c.width=v.videoWidth; c.height=v.videoHeight; const ctx=c.getContext('2d'); ctx.drawImage(v,0,0,c.width,c.height); b64=c.toDataURL('image/jpeg').split(',')[1]; mt='image/jpeg'; resolve(); }; v.onerror=reject; v.load(); }); }
-          const prompt = mt.startsWith('image/')? 'Analisis gambar dan buat caption singkat (≤2 kalimat) + 5-7 tagar relevan.': 'Analisis thumbnail video dan buat caption singkat (≤2 kalimat) + 5-7 tagar relevan yang mengajak menonton.';
-          const out = await callGeminiAPI(prompt,b64,mt); captionArea.value=out;
-        } catch(e){ toggleModal(statusModal,statusModalContent,true,e.message||'Gagal',true); } finally { busy=false; aiBtn.disabled=false; aiBtn.textContent='✨ Buat Caption & Tagar dengan AI'; }
-      });
-
-      const d=new Date(); const pad=(n)=>String(n).padStart(2,'0'); const yyyy=d.getFullYear(); const mm=pad(d.getMonth()+1); const dd=pad(d.getDate()); const hh=pad(d.getHours()); const mi=pad(Math.ceil(d.getMinutes()/5)*5%60);
-      const dateEl=document.getElementById('schedule-date'); const timeEl=document.getElementById('schedule-time'); if(dateEl) dateEl.value=`${yyyy}-${mm}-${dd}`; if(timeEl) timeEl.value=`${hh}:${mi}`;
-    }
-
-    document.getElementById('open-formatter').addEventListener('click',()=>showAppView('formatter'));
-    document.getElementById('open-scheduler').addEventListener('click',()=>showAppView('scheduler'));
-    document.getElementById('back-to-hub-btn').addEventListener('click',showHubView);
-    showHubView();
-
-    function getAppViewTemplate(){ return `
-      <div class="mb-6 border-b border-gray-200">
-        <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-          <button id="tab-formatter" class="tab-button" type="button">Formatter Teks</button>
-          <button id="tab-scheduler" class="tab-button" type="button">Buat Postingan</button>
-        </nav>
+    <section id="formatter-content">
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h2 class="text-2xl font-bold mb-2">AI Text Formatter</h2>
+        <p class="text-gray-600">Konten formatter kamu di sini.</p>
       </div>
-      <div id="formatter-content" class="space-y-6">
-        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6">AI Text Formatter</h2>
-          <div class="border border-gray-200 rounded-lg p-4 mb-6">
-            <h3 class="text-xl font-semibold text-indigo-800 mb-4">Fitur Bantuan AI</h3>
-            <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
-              <h4 class="font-semibold text-lg text-indigo-700 mb-2">1. Format Berdasarkan Contoh</h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Contoh</label><textarea id="example-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea></div>
-                <div><label class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Baru</label><textarea id="target-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea></div>
-              </div>
-              <button id="format-by-example-btn" class="mt-3 w-full px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700">Tiru Format</button>
-            </div>
-            <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-              <h4 class="font-semibold text-lg text-purple-700 mb-2">2. Format Cerdas & Ringkas</h4>
-              <div class="flex flex-col sm:flex-row gap-2">
-                <button id="smart-format-btn" class="w-full px-4 py-2 bg-purple-500 text-white rounded-md font-semibold hover:bg-purple-600">Format Cerdas</button>
-                <button id="summarize-btn" class="w-full px-4 py-2 bg-green-500 text-white rounded-md font-semibold hover:bg-green-600">Ringkas Teks</button>
-              </div>
-            </div>
+    </section>
+
+    <section id="scheduler-content" class="hidden">
+      <div class="bg-white p-6 rounded-xl shadow">
+        <h2 class="text-2xl font-bold mb-6">Buat & Jadwalkan Postingan</h2>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div class="lg:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Tulis caption</label>
+            <textarea id="caption" rows="8" class="w-full p-3 border rounded-md"></textarea>
           </div>
           <div>
-            <label class="block text-lg font-semibold text-gray-800 mb-2">Editor Utama & Hasil</label>
-            <textarea id="editor" rows="10" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Hasil dari AI akan muncul di sini."></textarea>
-          </div>
-          <div class="mt-2 bg-gray-50 border border-gray-200 rounded-lg p-2 flex flex-wrap items-center gap-2">
-            <span class="text-sm font-medium text-gray-600 mr-2">Format Manual:</span>
-            <button id="bold-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md font-bold text-gray-700 hover:bg-gray-100">B</button>
-            <button id="italic-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md italic font-serif text-gray-700 hover:bg-gray-100">I</button>
-            <button id="strike-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md line-through text-gray-700 hover:bg-gray-100">S</button>
-            <button id="mono-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md font-mono text-xs text-gray-700 hover:bg-gray-100">Monospace</button>
-          </div>
-          <div class="mt-6">
-            <h3 class="text-lg font-semibold text-gray-800 mb-2">Tampilan di WhatsApp</h3>
-            <div class="whatsapp-preview"><div class="whatsapp-chat-bubble" id="whatsapp-output">Tampilan teks Anda akan muncul di sini...</div></div>
-          </div>
-          <div class="mt-6 flex flex-wrap gap-2 justify-end">
-            <button id="copy-btn" class="w-full sm:w-auto px-5 py-2 bg-gray-700 text-white rounded-md font-semibold hover:bg-gray-800">Salin Hasil</button>
-            <button id="clear-btn" class="w-full sm:w-auto px-5 py-2 bg-red-500 text-white rounded-md font-semibold hover:bg-red-600">Bersihkan Semua</button>
+            <div class="p-4 bg-gray-50 rounded-lg border">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-700">Pilih Platform</span>
+                <button id="connect-account-btn" type="button" class="text-xs text-indigo-600 font-semibold hover:underline">Hubungkan Akun</button>
+              </div>
+              <label class="flex items-center gap-2">
+                <input id="platform-x" type="checkbox" class="h-4 w-4 text-indigo-600 rounded">
+                <span>X (Twitter)</span>
+              </label>
+            </div>
+            <div class="mt-3 flex flex-col gap-3">
+              <button id="schedule-post-btn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold">Jadwalkan</button>
+              <button id="post-now-btn" class="w-full px-4 py-2 bg-gray-700 text-white rounded-lg font-semibold">Posting Sekarang</button>
+            </div>
           </div>
         </div>
       </div>
-      <div id="scheduler-content" class="hidden">
-        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6">Buat & Jadwalkan Postingan Baru</h2>
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2 space-y-6">
-              <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Upload Konten (Opsional)</label>
-                <div id="content-upload-box" class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-lg">
-                  <div id="content-upload-placeholder" class="space-y-1 text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16.5V9.75m0 0l-3 3m3-3l3 3M6.75 19.5a4.5 4.5 0 01-1.41-8.775 5.25 5.25 0 0110.233-2.33 3 3 0 013.758 3.848A3.752 3.752 0 0118 19.5H6.75z" /></svg>
-                    <div class="flex text-sm text-gray-600"><label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500"><span>Upload file</span><input id="file-upload" name="file-upload" type="file" class="sr-only" accept="image/*,video/mp4,video/quicktime"></label><p class="pl-1">atau seret dan lepas</p></div>
-                    <p class="text-xs text-gray-500">Gambar atau Video (MP4, MOV)</p>
-                  </div>
-                  <div id="content-preview-container" class="hidden relative w-full"><div id="preview-element-wrapper"></div><button id="remove-content-btn" class="absolute -top-2 -right-2 bg-black/50 text-white rounded-full p-1 leading-none hover:bg-red-600 z-10" aria-label="Hapus konten"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg></button></div>
-                </div>
-              </div>
-              <div>
-                <label for="caption" class="block text-sm font-medium text-gray-700 mb-1">Tulis caption Anda</label>
-                <textarea id="caption" rows="8" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 shadow-sm" placeholder="Apa yang Anda pikirkan? Atau biarkan AI yang membuatkannya untuk Anda."></textarea>
-                <button id="ai-suggestion-btn" class="mt-2 text-sm text-indigo-600 font-semibold hover:underline disabled:opacity-50 disabled:no-underline" type="button">✨ Buat Caption & Tagar dengan AI</button>
-              </div>
-            </div>
-            <div class="lg:col-span-1 space-y-6">
-              <div class="p-4 bg-gray-50 rounded-lg border">
-                <h3 class="text-lg font-semibold text-gray-800 mb-4">Pengaturan Postingan</h3>
-                <div class="space-y-4">
-                  <div>
-                    <div class="flex justify-between items-center mb-2"><label class="block text-sm font-medium text-gray-700">Pilih Platform</label><button id="connect-account-btn" class="text-xs text-indigo-600 font-semibold hover:underline" type="button">Hubungkan Akun</button></div>
-                    <div class="flex items-center space-x-4"><label class="flex items-center"><input id="platform-x" name="platform" type="checkbox" class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"><span class="ml-2 block text-sm text-gray-900">X (Twitter)</span></label><label class="flex items-center opacity-50"><input type="checkbox" class="h-4 w-4" disabled><span class="ml-2 block text-sm text-gray-500">Facebook</span></label></div>
-                  </div>
-                  <div><label class="block text-sm font-medium text-gray-700 mb-2">Jadwalkan</label><div class="space-y-2"><input type="date" id="schedule-date" class="w-full p-2 border border-gray-300 rounded-md shadow-sm"><input type="time" id="schedule-time" class="w-full p-2 border border-gray-300 rounded-md shadow-sm"></div></div>
-                </div>
-              </div>
-              <div class="flex flex-col gap-3"><button id="schedule-post-btn" class="w-full px-4 py-3 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 btn-transition shadow-sm" type="button">Jadwalkan</button><button id="post-now-btn" class="w-full px-4 py-2 bg-gray-600 text-white rounded-lg font-semibold hover:bg-gray-700 btn-transition shadow-sm" type="button">Posting Sekarang</button></div>
-            </div>
-          </div>
-        </div>
-      </div>`; }
+    </section>
+  </main>
+
+  <!-- Modal Pengaturan -->
+  <div id="settings-modal" class="modal-overlay" aria-hidden="true" role="dialog">
+    <div class="modal-content">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-xl font-semibold">Pengaturan Akun</h3>
+        <button id="close-settings-btn" class="text-gray-500 hover:text-gray-700">✕</button>
+      </div>
+      <h4 class="font-medium mb-2">Hubungkan Akun Media Sosial</h4>
+      <p class="text-sm text-gray-600 mb-4">Kami tidak pernah menyimpan password Anda.</p>
+      <button id="connect-twitter-btn" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 border rounded-lg bg-white hover:bg-gray-50">
+        <span>Hubungkan Akun X (Twitter)</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Status Modal -->
+  <div id="status-modal" class="modal-overlay"><div id="status-modal-content" class="modal-content"></div></div>
+
+  <script type="module">
+    // Tab
+    const tabFormatter = document.getElementById('tab-formatter');
+    const tabScheduler = document.getElementById('tab-scheduler');
+    const formatterContent = document.getElementById('formatter-content');
+    const schedulerContent = document.getElementById('scheduler-content');
+    const setTab = (name) => {
+      tabFormatter.classList.toggle('active', name==='formatter');
+      tabScheduler.classList.toggle('active', name==='scheduler');
+      formatterContent.classList.toggle('hidden', name!=='formatter');
+      schedulerContent.classList.toggle('hidden', name!=='scheduler');
+    };
+    tabFormatter.addEventListener('click', ()=>setTab('formatter'));
+    tabScheduler.addEventListener('click', ()=>setTab('scheduler'));
+
+    // Modal util
+    const settingsModal = document.getElementById('settings-modal');
+    const statusModal = document.getElementById('status-modal');
+    const statusModalContent = document.getElementById('status-modal-content');
+    const toggleModal = (modal, show, html='', isErr=false) => {
+      if(show){
+        if(html) statusModalContent.innerHTML = `<p class="${isErr?'text-red-600':'text-gray-800'}">${html}</p>`;
+        modal.classList.add('visible'); modal.classList.remove('hidden');
+      } else { modal.classList.remove('visible'); setTimeout(()=>modal.classList.add('hidden'), 250); }
+    };
+
+    // Open/close settings
+    document.getElementById('settings-btn').addEventListener('click', ()=>toggleModal(settingsModal, true));
+    document.getElementById('close-settings-btn').addEventListener('click', ()=>toggleModal(settingsModal, false));
+    settingsModal.addEventListener('click', (e)=>{ if(e.target===settingsModal) toggleModal(settingsModal,false); });
+
+    // ====== INI BAGIAN PENTINGNYA ======
+    // 1) Tombol di modal
+    const connectTwitterBtn = document.getElementById('connect-twitter-btn');
+    if (connectTwitterBtn) {
+      connectTwitterBtn.addEventListener('click', () => {
+        window.location.href = '/.netlify/functions/oauth-x-start';
+      });
+    }
+    // 2) Tombol “Hubungkan Akun” di panel kanan scheduler
+    const connectAccountBtn = document.getElementById('connect-account-btn');
+    if (connectAccountBtn) {
+      connectAccountBtn.addEventListener('click', () => {
+        // buka modal dulu supaya konsisten UX
+        toggleModal(settingsModal, true);
+      });
+    }
+    // ===================================
+
+    // Optional: helper notifikasi
+    function toast(msg, isErr=false){
+      toggleModal(statusModal, true, msg, isErr);
+      setTimeout(()=>toggleModal(statusModal,false), 1500);
+    }
   </script>
 </body>
 </html>
-
