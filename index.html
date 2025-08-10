@@ -10,12 +10,10 @@
     body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif}
     .tab-btn{position:relative;padding:10px 14px;color:#6b7280;font-weight:600;border-bottom:2px solid transparent}
     .tab-btn.active{color:#4f46e5;border-color:#4f46e5}
-    /* keep canvas crisp on retina */
     canvas{image-rendering:auto}
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
-  <!-- NAV -->
   <header class="bg-white sticky top-0 z-40 border-b border-gray-200/80">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
       <div class="flex items-center gap-3">
@@ -29,7 +27,6 @@
   </header>
 
   <main class="px-4 py-8 sm:px-6 lg:px-8">
-    <!-- HUB -->
     <section id="hub" class="max-w-6xl mx-auto">
       <div class="text-center py-10 md:py-14">
         <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900">Konten Lebih Baik, <span class="text-indigo-600">Lebih Cepat.</span></h1>
@@ -65,17 +62,12 @@
       </div>
     </section>
 
-    <!-- APP -->
     <section id="app" class="hidden max-w-7xl mx-auto"></section>
   </main>
 
   <script type="module">
     const $ = (s,r=document)=>r.querySelector(s);
-
-    const hub=$('#hub');
-    const app=$('#app');
-    const backBtn=$('#backBtn');
-
+    const hub=$('#hub'); const app=$('#app'); const backBtn=$('#backBtn');
     $('#card-collage').addEventListener('click',()=>showCollage());
     $('#card-formatter').addEventListener('click',()=>showFormatter());
     backBtn.addEventListener('click',()=>{app.classList.add('hidden'); hub.classList.remove('hidden'); backBtn.classList.add('hidden');});
@@ -86,196 +78,75 @@
         <div class="mb-6 border-b border-gray-200">
           <nav class="-mb-px flex gap-6"><button class="tab-btn active">Formatter Teks</button></nav>
         </div>
-        <section class="bg-white rounded-2xl shadow p-6">
-          <h2 class="text-xl font-bold mb-2">AI Text Formatter</h2>
-          <p class="text-gray-600">Area formatter stabil. (Pasang implementasi formatter milikmu di sini jika perlu.)</p>
-        </section>`;
+        <section class="bg-white rounded-2xl shadow p-6"><h2 class="text-xl font-bold mb-2">AI Text Formatter</h2><p class="text-gray-600">Area formatter stabil. (Pasang implementasi formatter milikmu di sini jika perlu.)</p></section>`;
     }
 
     function collageTemplate(){
       return `
-      <div class="mb-6 border-b border-gray-200">
-        <nav class="-mb-px flex gap-6"><button id="tab-collage" class="tab-btn active">Media Collage</button><button id="tab-album" class="tab-btn">Media Album</button></nav>
-      </div>
-
+      <div class="mb-6 border-b border-gray-200"><nav class="-mb-px flex gap-6"><button id="tab-collage" class="tab-btn active">Media Collage</button><button id="tab-album" class="tab-btn">Media Album</button></nav></div>
       <div id="collage-grid" class="grid lg:grid-cols-3 gap-6" style="height:0">
         <section class="lg:col-span-2 bg-white rounded-2xl shadow p-4 md:p-6 flex">
-          <div id="collage-shell" class="relative w-full bg-gray-100 rounded-lg overflow-hidden" style="height:100%">
-            <canvas id="canvas" class="block mx-auto"></canvas>
-          </div>
+          <div id="collage-shell" class="relative w-full bg-gray-100 rounded-lg overflow-hidden" style="height:100%"><canvas id="canvas" class="block mx-auto"></canvas></div>
         </section>
         <aside class="bg-white rounded-2xl shadow p-4 md:p-6 overflow-auto">
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tambah Foto</label>
-            <input id="file" type="file" accept="image/*" multiple class="block w-full text-sm" />
-            <div class="text-xs text-gray-500 mt-1">Drag & drop ke area kanvas juga bisa.</div>
-          </div>
-
-          <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-2">Pattern</label>
-            <select id="pattern" class="w-full border rounded p-2">
-              <option value="grid">Picture Grid (Equal)</option>
-              <option value="mosaic" selected>Picture Grid (Unequal) / Mosaic</option>
-              <option value="center">Center Frame</option>
-              <option value="zigzag">Zig Zag</option>
-              <option value="wall">Photo Wall</option>
-              <option value="pile">Advanced Pile</option>
-              <option value="polaroid">Polaroid</option>
-              <option value="mood">Mood Board / Gallery</option>
-            </select>
-          </div>
-
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-1">Tambah Foto</label><input id="file" type="file" accept="image/*" multiple class="block w-full text-sm" /><div class="text-xs text-gray-500 mt-1">Drag & drop ke area kanvas juga bisa.</div></div>
+          <div class="mb-4"><label class="block text-sm font-medium text-gray-700 mb-2">Pattern</label><select id="pattern" class="w-full border rounded p-2"><option value="grid">Picture Grid (Equal)</option><option value="mosaic" selected>Picture Grid (Unequal) / Mosaic</option><option value="center">Center Frame</option><option value="zigzag">Zig Zag</option><option value="wall">Photo Wall</option><option value="pile">Advanced Pile</option><option value="polaroid">Polaroid</option><option value="mood">Mood Board / Gallery</option></select></div>
           <div class="space-y-3">
-            <div class="flex items-center gap-2 text-sm text-gray-700">
-              <label>Ratio</label>
-              <select id="ratio" class="border rounded p-1">
-                <option value="1:1">1:1</option>
-                <option value="4:5">4:5</option>
-                <option value="3:2">3:2</option>
-                <option value="16:9">16:9</option>
-                <option value="9:16" selected>9:16</option>
-              </select>
-              <label class="ml-3">Orientation</label>
-              <select id="orientation" class="border rounded p-1">
-                <option value="auto">Auto</option>
-                <option value="portrait" selected>Portrait</option>
-                <option value="landscape">Landscape</option>
-              </select>
-            </div>
-
+            <div class="flex items-center gap-2 text-sm text-gray-700"><label>Ratio</label><select id="ratio" class="border rounded p-1"><option value="1:1">1:1</option><option value="4:5">4:5</option><option value="3:2">3:2</option><option value="16:9">16:9</option><option value="9:16" selected>9:16</option></select><label class="ml-3">Orientation</label><select id="orientation" class="border rounded p-1"><option value="portrait" selected>Portrait</option><option value="landscape">Landscape</option></select></div>
             <label class="block text-sm">Gap <input id="gap" type="range" min="0" max="40" value="4" class="w-full"></label>
             <label class="block text-sm">Radius <input id="radius" type="range" min="0" max="40" value="10" class="w-full"></label>
             <label class="block text-sm">Padding <input id="padding" type="range" min="0" max="100" value="16" class="w-full"></label>
-
-            <div class="flex items-center justify-between">
-              <label class="text-sm">Background</label>
-              <input id="bg" type="color" value="#ffffff" />
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-              <button id="btn-shuffle" class="px-2 py-2 rounded bg-gray-100 hover:bg-gray-200">Shuffle</button>
-              <button id="btn-clear" class="px-2 py-2 rounded bg-red-50 text-red-600 hover:bg-red-100">Bersihkan</button>
-            </div>
-
+            <div class="flex items-center justify-between"><label class="text-sm">Background</label><input id="bg" type="color" value="#ffffff" /></div>
+            <div class="grid grid-cols-2 gap-2"><button id="btn-shuffle" class="px-2 py-2 rounded bg-gray-100 hover:bg-gray-200">Shuffle</button><button id="btn-clear" class="px-2 py-2 rounded bg-red-50 text-red-600 hover:bg-red-100">Bersihkan</button></div>
             <div class="pt-3 border-t space-y-2">
-              <div>
-                <label class="block text-sm font-medium">Format</label>
-                <select id="export-format" class="border rounded p-1 mt-1 w-full">
-                  <option value="jpg" selected>JPEG (foto, ukuran lebih kecil)</option>
-                  <option value="png">PNG (lossless)</option>
-                </select>
-              </div>
-              <div id="qwrap">
-                <label class="block text-sm">JPEG Quality <span id="qval" class="text-gray-500">98</span>
-                  <input id="export-quality" type="range" min="80" max="100" value="98" class="w-full" />
-                </label>
-              </div>
-              <div>
-                <label class="block text-sm font-medium">Lebar Export</label>
-                <select id="export-size" class="border rounded p-1 mt-1 w-full">
-                  <option value="6000">6000 px (print besar)</option>
-                  <option value="4000" selected>4000 px (print)</option>
-                  <option value="2048">2048 px</option>
-                  <option value="1080">1080 px</option>
-                  <option value="custom">Custom…</option>
-                </select>
-                <input id="export-custom" type="number" min="600" step="10" placeholder="Lebar px" class="hidden mt-2 w-full border rounded p-1" />
-              </div>
+              <div><label class="block text-sm font-medium">Format</label><select id="export-format" class="border rounded p-1 mt-1 w-full"><option value="jpg" selected>JPEG (foto, ukuran lebih kecil)</option><option value="png">PNG (lossless)</option></select></div>
+              <div id="qwrap"><label class="block text-sm">JPEG Quality <span id="qval" class="text-gray-500">98</span><input id="export-quality" type="range" min="80" max="100" value="98" class="w-full" /></label></div>
+              <div><label class="block text-sm font-medium">Lebar Export</label><select id="export-size" class="border rounded p-1 mt-1 w-full"><option value="6000">6000 px (print besar)</option><option value="4000" selected>4000 px (print)</option><option value="2048">2048 px</option><option value="1080">1080 px</option><option value="custom">Custom…</option></select><input id="export-custom" type="number" min="600" step="10" placeholder="Lebar px" class="hidden mt-2 w-full border rounded p-1" /></div>
             </div>
-
-            <div class="pt-3 border-t flex items-center gap-2 flex-wrap">
-              <button id="btn-arrange" class="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Arrange • Minimize Cropping</button>
-              <button id="btn-export" class="px-3 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">Download</button>
-            </div>
+            <div class="pt-3 border-t flex items-center gap-2 flex-wrap"><button id="btn-arrange" class="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Arrange • Minimize Cropping</button><button id="btn-export" class="px-3 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">Download</button></div>
           </div>
         </aside>
       </div>
-
-      <div id="album-grid" class="hidden">
-        <section class="bg-white rounded-2xl shadow p-6 min-h-[50vh] flex items-center justify-center text-gray-500">
-          <div>
-            <h3 class="text-xl font-semibold text-gray-800 mb-2">Media Album</h3>
-            <p>Area ini disiapkan untuk fitur SmartAlbums (spread, gutter/bleed, proofing). Coming soon.</p>
-          </div>
-        </section>
-      </div>`;
+      <div id="album-grid" class="hidden"><section class="bg-white rounded-2xl shadow p-6 min-h-[50vh] flex items-center justify-center text-gray-500"><div><h3 class="text-xl font-semibold text-gray-800 mb-2">Media Album</h3><p>Area ini disiapkan untuk fitur SmartAlbums (spread, gutter/bleed, proofing). Coming soon.</p></div></section></div>`;
     }
 
-    function showCollage(){
-      hub.classList.add('hidden'); app.classList.remove('hidden'); backBtn.classList.remove('hidden');
-      app.innerHTML=collageTemplate();
-      bindCollage();
-      bindTabs();
-    }
+    function showCollage(){ hub.classList.add('hidden'); app.classList.remove('hidden'); backBtn.classList.remove('hidden'); app.innerHTML=collageTemplate(); bindCollage(); bindTabs(); }
 
-    // ===== Collage Engine (HQ preview + HQ export)
     function bindCollage(){
-      const canvas = $('#canvas');
-      const ctx = canvas.getContext('2d');
-      let dpr = Math.max(1, window.devicePixelRatio || 1);
+      const canvas=$('#canvas'); const ctx=canvas.getContext('2d'); let dpr=Math.max(1, window.devicePixelRatio||1);
+      const state={ imgs:[], pattern:'mosaic', gap:4, radius:10, padding:16, bg:'#ffffff', ratio:'9:16', orientation:'portrait', seed:Date.now(), mosaicCols:null };
 
-      const state={ imgs:[], pattern:'mosaic', gap:4, radius:10, padding:16, bg:'#ffffff', ratio:'9:16', orientation:'portrait', seed:Date.now() };
-
-      function sizeGrid(){
-        const grid=$('#collage-grid');
-        const top=Math.ceil(grid.getBoundingClientRect().top);
-        const h=Math.max(300, window.innerHeight-top-16);
-        grid.style.height=h+'px';
-        $('#collage-shell').style.height='100%';
-        fitCanvas();
-      }
+      function sizeGrid(){ const grid=$('#collage-grid'); const top=Math.ceil(grid.getBoundingClientRect().top); const h=Math.max(300, window.innerHeight-top-16); grid.style.height=h+'px'; $('#collage-shell').style.height='100%'; fitCanvas(); }
       window.addEventListener('resize', ()=>{ dpr=Math.max(1, window.devicePixelRatio||1); sizeGrid(); });
 
-      function fitCanvas(){
-        const shell=$('#collage-shell');
-        const maxW=shell.clientWidth, maxH=shell.clientHeight; let [rw,rh]=state.ratio.split(':').map(Number);
-        if(state.orientation==='portrait'&&rw>rh)[rw,rh]=[rh,rw];
-        if(state.orientation==='landscape'&&rh>rw)[rw,rh]=[rh,rw];
-        let width=maxW, height=Math.round(width*rh/rw);
-        if(height>maxH){ height=maxH; width=Math.round(height*rw/rh); }
-        // set CSS size
-        canvas.style.width=width+'px'; canvas.style.height=height+'px';
-        // set real pixels for retina
-        canvas.width=Math.round(width*dpr); canvas.height=Math.round(height*dpr);
-        ctx.setTransform(dpr,0,0,dpr,0,0);
-        drawPreview();
-      }
+      function fitCanvas(){ const shell=$('#collage-shell'); const maxW=shell.clientWidth, maxH=shell.clientHeight; let [rw,rh]=state.ratio.split(':').map(Number); if(state.orientation==='portrait'&&rw>rh)[rw,rh]=[rh,rw]; if(state.orientation==='landscape'&&rh>rw)[rw,rh]=[rh,rw]; let width=maxW, height=Math.round(width*rh/rw); if(height>maxH){ height=maxH; width=Math.round(height*rw/rh); } canvas.style.width=width+'px'; canvas.style.height=height+'px'; canvas.width=Math.round(width*dpr); canvas.height=Math.round(height*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); drawPreview(); }
 
-      // ========= File I/O
-      const file=$('#file'); file.addEventListener('change',()=>loadFiles(file.files));
-      const host=$('#collage-shell');
-      ['dragenter','dragover','dragleave','drop'].forEach(ev=>host.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();}));
-      host.addEventListener('drop',e=>loadFiles(e.dataTransfer.files));
+      const file=$('#file'); file.addEventListener('change',()=>loadFiles(file.files)); const host=$('#collage-shell'); ['dragenter','dragover','dragleave','drop'].forEach(ev=>host.addEventListener(ev,e=>{e.preventDefault();e.stopPropagation();})); host.addEventListener('drop',e=>loadFiles(e.dataTransfer.files));
       function loadFiles(list){ const arr=[...list].filter(f=>f.type.startsWith('image/')); if(!arr.length) return; Promise.all(arr.map(readImage)).then(imgs=>{ state.imgs.push(...imgs); drawPreview(); }); }
       function readImage(file){ return new Promise(res=>{ const img=new Image(); img.onload=()=>res({img,w:img.naturalWidth,h:img.naturalHeight}); img.src=URL.createObjectURL(file); }); }
 
-      // ========= UI
-      $('#ratio').addEventListener('change',e=>{state.ratio=e.target.value; fitCanvas();});
-      $('#orientation').addEventListener('change',e=>{state.orientation=e.target.value; fitCanvas();});
-      $('#pattern').addEventListener('change',e=>{state.pattern=e.target.value; drawPreview();});
-      $('#gap').addEventListener('input',e=>{state.gap=+e.target.value; drawPreview();});
-      $('#radius').addEventListener('input',e=>{state.radius=+e.target.value; drawPreview();});
-      $('#padding').addEventListener('input',e=>{state.padding=+e.target.value; drawPreview();});
-      $('#bg').addEventListener('input',e=>{state.bg=e.target.value; drawPreview();});
-      $('#btn-shuffle').addEventListener('click',()=>{state.seed=Date.now(); shuffle(state.imgs); drawPreview();});
-      $('#btn-clear').addEventListener('click',()=>{state.imgs.length=0; drawPreview();});
+      $('#ratio').addEventListener('change',e=>{state.ratio=e.target.value; fitCanvas();}); $('#orientation').addEventListener('change',e=>{state.orientation=e.target.value; fitCanvas();}); $('#pattern').addEventListener('change',e=>{state.pattern=e.target.value; drawPreview();}); $('#gap').addEventListener('input',e=>{state.gap=+e.target.value; drawPreview();}); $('#radius').addEventListener('input',e=>{state.radius=+e.target.value; drawPreview();}); $('#padding').addEventListener('input',e=>{state.padding=+e.target.value; drawPreview();}); $('#bg').addEventListener('input',e=>{state.bg=e.target.value; drawPreview();}); $('#btn-shuffle').addEventListener('click',()=>{state.seed=Date.now(); shuffle(state.imgs); drawPreview();}); $('#btn-clear').addEventListener('click',()=>{state.imgs.length=0; drawPreview();});
+      const fmt=$('#export-format'); const qwrap=$('#qwrap'); const qval=$('#qval'); const qrange=$('#export-quality'); fmt.addEventListener('change',()=>{ qwrap.classList.toggle('hidden', fmt.value!=='jpg'); }); qrange.addEventListener('input',()=>{ qval.textContent=qrange.value; }); $('#export-size').addEventListener('change',e=>$('#export-custom').classList.toggle('hidden', e.target.value!=='custom')); $('#btn-export').addEventListener('click',exportHQ); $('#btn-arrange').addEventListener('click',()=>{ arrangeMinCrop(canvas.width/dpr, canvas.height/dpr); drawPreview(); });
 
-      const fmt=$('#export-format'); const qwrap=$('#qwrap'); const qval=$('#qval'); const qrange=$('#export-quality');
-      fmt.addEventListener('change',()=>{ qwrap.classList.toggle('hidden', fmt.value!=='jpg'); });
-      qrange.addEventListener('input',()=>{ qval.textContent=qrange.value; });
-      $('#export-size').addEventListener('change',e=>$('#export-custom').classList.toggle('hidden', e.target.value!=='custom'));
-      $('#btn-export').addEventListener('click',exportHQ);
-      $('#btn-arrange').addEventListener('click',()=>{ arrangeMinCrop(canvas.width/dpr, canvas.height/dpr); drawPreview(); });
-
-      // ========= Helpers
       function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
       function roundRectPath(ctx,x,y,w,h,r){ const rr=Math.min(r,Math.min(w,h)/2); ctx.beginPath(); ctx.moveTo(x+rr,y); ctx.arcTo(x+w,y,x+w,y+h,rr); ctx.arcTo(x+w,y+h,x,y+h,rr); ctx.arcTo(x,y+h,x,y,rr); ctx.arcTo(x,y,x+w,y,rr); ctx.closePath(); }
 
-      // ========= Layouts (parameterized W,H supaya bisa dipakai preview & export)
-      function computeFramesAt(W,H){ const box={x:0,y:0,w:W,h:H}; const n=state.imgs.length; switch(state.pattern){case 'grid':return layoutGrid(box,n);case 'mosaic':return layoutMosaic(box,n);case 'center':return layoutCenter(box,n);case 'zigzag':return layoutZigzag(box,n);case 'wall':return layoutWall(box,n);case 'pile':return layoutPile(box,n);case 'polaroid':return layoutPolaroid(box,n);case 'mood':return layoutMood(box,n);default:return layoutGrid(box,n);} }
+      function computeFramesAt(W,H,useStored){ const box={x:0,y:0,w:W,h:H}; const n=state.imgs.length; switch(state.pattern){case 'grid':return layoutGrid(box,n);case 'mosaic':return layoutMosaic(box,n,useStored);case 'center':return layoutCenter(box,n);case 'zigzag':return layoutZigzag(box,n);case 'wall':return layoutWall(box,n);case 'pile':return layoutPile(box,n);case 'polaroid':return layoutPolaroid(box,n);case 'mood':return layoutMood(box,n);default:return layoutGrid(box,n);} }
 
       function layoutGrid(box,n){ if(n===0) return []; const cols=Math.ceil(Math.sqrt(n)); const rows=Math.ceil(n/cols); const {gap,padding}=state; const iw=(box.w-2*padding-gap*(cols-1))/cols; const ih=(box.h-2*padding-gap*(rows-1))/rows; const frames=[]; let k=0; for(let r=0;r<rows;r++){ for(let c=0;c<cols;c++){ if(k>=n) break; const x=box.x+padding+c*(iw+gap); const y=box.y+padding+r*(ih+gap); frames.push({x,y,w:iw,h:ih}); k++; } } return frames; }
-      function layoutMosaic(box,n){ const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; if(n<=0) return []; const targetColW=280; const cols=Math.max(2,Math.min(6,Math.round(inner.w/targetColW))); const colW=(inner.w-gap*(cols-1))/cols; const heights=new Array(cols).fill(inner.y); const frames=[]; for(let i=0;i<n;i++){ let c=0; for(let k=1;k<cols;k++) if(heights[k]<heights[c]) c=k; const x=inner.x+c*(colW+gap); const src=state.imgs[i%state.imgs.length]; const ar=(src?.w&&src?.h)?src.w/src.h:3/4; const h=Math.max(80,colW/ar); frames.push({x,y:heights[c],w:colW,h}); heights[c]+=h+gap; } const maxY=Math.max(...heights), usedH=maxY-inner.y-gap; const dy=usedH<inner.h?(inner.h-usedH)/2:0; if(dy>0) frames.forEach(f=>f.y+=dy); return frames; }
+
+      function layoutMosaic(box,n,useStored){ const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; if(n<=0) return []; const minCols=2,maxCols=8; const targetW=280; let cols = useStored && state.mosaicCols ? state.mosaicCols : Math.max(minCols, Math.min(maxCols, Math.round(inner.w/targetW))||minCols);
+        function build(cols){ const colW=(inner.w-gap*(cols-1))/cols; const heights=new Array(cols).fill(inner.y); const f=[]; for(let i=0;i<n;i++){ let c=0; for(let k=1;k<cols;k++) if(heights[k]<heights[c]) c=k; const x=inner.x+c*(colW+gap); const src=state.imgs[i%state.imgs.length]; const ar=(src?.w&&src?.h)?src.w/src.h:3/4; const h=Math.max(60,colW/ar); f.push({x,y:heights[c],w:colW,h}); heights[c]+=h+gap; } const usedH=Math.max(...heights)-inner.y-gap; return {frames:f,usedH}; }
+        // adapt cols until tinggi terpakai mendekati tinggi area (semua gambar muat, minim ruang kosong)
+        let result=build(cols), tries=0; while(tries<12){ if(result.usedH>inner.h*1.08 && cols<maxCols){ cols++; result=build(cols); tries++; continue; } if(result.usedH<inner.h*0.92 && cols>minCols){ cols--; result=build(cols); tries++; continue; } break; }
+        if(!useStored) state.mosaicCols=cols; // simpan untuk konsistensi export
+        // center vertical jika masih sisa ruang
+        const dy = (inner.h - result.usedH) > 0 ? (inner.h - result.usedH)/2 : 0; if(dy>0) result.frames.forEach(f=>f.y+=dy);
+        // jika total width < inner.w (karena cols turun), center horizontal
+        const totalW = (result.frames.length? result.frames[0].w*cols + gap*(cols-1) : 0); const dx = inner.x + Math.max(0,(inner.w-totalW))/2 - inner.x; if(dx>0) result.frames.forEach(f=>f.x+=dx);
+        return result.frames;
+      }
+
       function layoutCenter(box,n){ const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; const big={x:inner.x,y:inner.y,w:inner.w*0.6-gap/2,h:inner.h*0.6-gap/2}; const right={x:big.x+big.w+gap,y:inner.y,w:inner.w-big.w-gap,h:inner.h}; const bottom={x:inner.x,y:big.y+big.h+gap,w:big.w,h:inner.h-big.h-gap}; const frames=[big]; frames.push(...layoutGrid(right,Math.ceil((n-1)/2))); frames.push(...layoutGrid(bottom,Math.floor((n-1)/2))); return frames.slice(0,n); }
       function layoutZigzag(box,n){ const {gap,padding}=state; const col=2; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; const colW=(inner.w-gap)/col; const rows=Math.ceil(n/2); const rowH=(inner.h-gap*(rows-1))/rows; const frames=[]; let i=0; for(let r=0;r<rows;r++){ const y=inner.y+r*(rowH+gap); const x1=r%2===0?inner.x:inner.x+colW+gap; const x2=r%2===0?inner.x+colW+gap:inner.x; frames.push({x:x1,y,w:colW,h:rowH}); if(++i<n) frames.push({x:x2,y,w:colW,h:rowH}); i++; } return frames.slice(0,n); }
       function layoutWall(box,n){ const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; const target=inner.h/Math.ceil(Math.sqrt(n)); let y=inner.y; const frames=[]; let i=0; while(i<n&&y<inner.y+inner.h){ let x=inner.x; const rowH=target*(.8+0.4*Math.random()); while(i<n&&x<inner.x+inner.w){ const ar=(state.imgs[i%state.imgs.length]?.w/state.imgs[i%state.imgs.length]?.h)||1; let w=rowH*ar; if(x+w>inner.x+inner.w) w=inner.x+inner.w-x; frames.push({x,y,w:w-state.gap/2,h:rowH-state.gap/2}); x+=w+state.gap; i++; } y+=rowH+state.gap; } return frames; }
@@ -283,37 +154,19 @@
       function layoutPolaroid(box,n){ return layoutPile(box,n).map(f=>({...f,polaroid:true})); }
       function layoutMood(box,n){ const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; const cells=[{x:inner.x,y:inner.y,w:inner.w*.62-gap,h:inner.h*.62-gap},{x:inner.x+inner.w*.64,y:inner.y,w:inner.w*.36-gap,h:inner.h*.36-gap},{x:inner.x+inner.w*.64,y:inner.y+inner.h*.38,w:inner.w*.36-gap,h:inner.h*.24-gap},{x:inner.x,y:inner.y+inner.h*.64,w:inner.w*.44-gap,h:inner.h*.36-gap},{x:inner.x+inner.w*.46,y:inner.y+inner.h*.64,w:inner.w*.54-gap,h:inner.h*.36-gap}]; return cells.slice(0,Math.min(n,cells.length)); }
 
-      function arrangeMinCrop(W,H){ const frames=computeFramesAt(W,H); if(frames.length===0||state.imgs.length===0) return; const imgs=[...state.imgs]; const assigned=[]; frames.forEach(f=>{ const fr=f.w/f.h; let bestIdx=0,best=Infinity; imgs.forEach((it,idx)=>{ const ar=it.w/it.h; const s=Math.abs(Math.log(ar/fr)); if(s<best){best=s;bestIdx=idx;} }); assigned.push(imgs.splice(bestIdx,1)[0]); }); assigned.push(...imgs); state.imgs=assigned; }
+      function arrangeMinCrop(W,H){ const frames=computeFramesAt(W,H,true); if(frames.length===0||state.imgs.length===0) return; const imgs=[...state.imgs]; const assigned=[]; frames.forEach(f=>{ const fr=f.w/f.h; let bestIdx=0,best=Infinity; imgs.forEach((it,idx)=>{ const ar=it.w/it.h; const s=Math.abs(Math.log(ar/fr)); if(s<best){best=s;bestIdx=idx;} }); assigned.push(imgs.splice(bestIdx,1)[0]); }); assigned.push(...imgs); state.imgs=assigned; }
 
       function drawContain(ctx,img,rect){ const iw=img.naturalWidth, ih=img.naturalHeight; const sc=Math.min(rect.w/iw, rect.h/ih); const dw=iw*sc, dh=ih*sc; const dx=rect.x+(rect.w-dw)/2, dy=rect.y+(rect.h-dh)/2; ctx.drawImage(img,dx,dy,dw,dh); }
       function drawWatermark(ctx,W,H){ const pad=14; ctx.save(); ctx.globalAlpha=.9; ctx.fillStyle='rgba(255,255,255,.95)'; ctx.font='700 '+Math.round(W*0.018)+'px Inter, system-ui, -apple-system'; const text='mediadash.id'; const tw=ctx.measureText(text).width; const x=W - tw - pad*1.2, y=H - pad; ctx.fillRect(x-pad*.6, y-Math.round(W*0.02), tw+pad*1.2, Math.round(W*0.023)); ctx.fillStyle='#111827'; ctx.fillText(text, x, y-4); ctx.restore(); }
 
-      // ======== Preview draw (retina aware)
-      function drawPreview(){ const W=canvas.width/dpr, H=canvas.height/dpr; ctx.clearRect(0,0,W,H); ctx.fillStyle=state.bg; ctx.fillRect(0,0,W,H); const frames=computeFramesAt(W,H); if(frames.length===0){ drawWatermark(ctx,W,H); return; } frames.forEach((f,i)=>{ const src=state.imgs[i%state.imgs.length]; if(!src) return; ctx.save(); if(f.rot){ ctx.translate(f.x+f.w/2,f.y+f.h/2); ctx.rotate(f.rot); ctx.translate(-f.x-f.w/2,-f.y-f.h/2); } if(f.polaroid){ const bw=Math.max(6,Math.min(f.w,f.h)*0.04), btm=bw*3; ctx.fillStyle='#fff'; roundRectPath(ctx,f.x,f.y,f.w,f.h+btm,state.radius); ctx.fill(); const inner={x:f.x+bw,y:f.y+bw,w:f.w-2*bw,h:f.h-2*bw}; drawContain(ctx,src.img,inner); } else { roundRectPath(ctx,f.x,f.y,f.w,f.h,state.radius); ctx.clip(); drawContain(ctx,src.img,{x:f.x,y:f.y,w:f.w,h:f.h}); } ctx.restore(); }); drawWatermark(ctx,W,H); }
+      function drawPreview(){ const W=canvas.width/dpr, H=canvas.height/dpr; ctx.clearRect(0,0,W,H); ctx.fillStyle=state.bg; ctx.fillRect(0,0,W,H); const frames=computeFramesAt(W,H,false); if(frames.length===0){ drawWatermark(ctx,W,H); return; } frames.forEach((f,i)=>{ const src=state.imgs[i%state.imgs.length]; if(!src) return; ctx.save(); if(f.rot){ ctx.translate(f.x+f.w/2,f.y+f.h/2); ctx.rotate(f.rot); ctx.translate(-f.x-f.w/2,-f.y-f.h/2); } if(f.polaroid){ const bw=Math.max(6,Math.min(f.w,f.h)*0.04), btm=bw*3; ctx.fillStyle='#fff'; roundRectPath(ctx,f.x,f.y,f.w,f.h+btm,state.radius); ctx.fill(); const inner={x:f.x+bw,y:f.y+bw,w:f.w-2*bw,h:f.h-2*bw}; drawContain(ctx,src.img,inner); } else { roundRectPath(ctx,f.x,f.y,f.w,f.h,state.radius); ctx.clip(); drawContain(ctx,src.img,{x:f.x,y:f.y,w:f.w,h:f.h}); } ctx.restore(); }); drawWatermark(ctx,W,H); }
 
-      // ======== Export: re-render at target resolution (tanpa upscaling dari preview)
-      function exportHQ(){
-        const fmt=$('#export-format').value; const q=parseInt($('#export-quality').value,10)/100; const sel=$('#export-size'); let width=parseInt(sel.value,10); if(sel.value==='custom'){ width=parseInt($('#export-custom').value,10)||4000; }
-        let [rw,rh]=state.ratio.split(':').map(Number); if(state.orientation==='portrait'&&rw>rh)[rw,rw]=[rh,rw]; if(state.orientation==='landscape'&&rh>rw)[rw,rh]=[rh,rw];
-        const out=document.createElement('canvas'); out.width=width; out.height=Math.round(width*rh/rw); const octx=out.getContext('2d',{alpha:false}); octx.imageSmoothingEnabled=true; octx.imageSmoothingQuality='high';
-        // background + layout + draw — same logic but pakai ukuran out
-        octx.fillStyle=state.bg; octx.fillRect(0,0,out.width,out.height);
-        const frames=computeFramesAt(out.width,out.height);
-        frames.forEach((f,i)=>{ const src=state.imgs[i%state.imgs.length]; if(!src) return; octx.save(); if(f.rot){ octx.translate(f.x+f.w/2,f.y+f.h/2); octx.rotate(f.rot); octx.translate(-f.x-f.w/2,-f.y-f.h/2);} if(f.polaroid){ const bw=Math.max(6,Math.min(f.w,f.h)*0.04), btm=bw*3; octx.fillStyle='#fff'; roundRectPath(octx,f.x,f.y,f.w,f.h+btm,state.radius); octx.fill(); const inner={x:f.x+bw,y:f.y+bw,w:f.w-2*bw,h:f.h-2*bw}; drawContain(octx,src.img,inner); } else { roundRectPath(octx,f.x,f.y,f.w,f.h,state.radius); octx.clip(); drawContain(octx,src.img,{x:f.x,y:f.y,w:f.w,h:f.h}); } octx.restore(); });
-        drawWatermark(octx,out.width,out.height);
-        const mime = fmt==='png' ? 'image/png' : 'image/jpeg';
-        const data = fmt==='png' ? out.toDataURL(mime) : out.toDataURL(mime, Math.min(1, Math.max(0.8, q)));
-        const a=document.createElement('a'); a.href=data; a.download='mediadash-collage.'+(fmt==='png'?'png':'jpg'); a.click();
-      }
+      function exportHQ(){ const fmt=$('#export-format').value; const q=parseInt($('#export-quality').value,10)/100; const sel=$('#export-size'); let width=parseInt(sel.value,10); if(sel.value==='custom'){ width=parseInt($('#export-custom').value,10)||4000; } let [rw,rh]=state.ratio.split(':').map(Number); if(state.orientation==='portrait'&&rw>rh)[rw,rh]=[rh,rw]; if(state.orientation==='landscape'&&rh>rw)[rw,rh]=[rh,rw]; const out=document.createElement('canvas'); out.width=width; out.height=Math.round(width*rh/rw); const octx=out.getContext('2d',{alpha:false}); octx.imageSmoothingEnabled=true; octx.imageSmoothingQuality='high'; octx.fillStyle=state.bg; octx.fillRect(0,0,out.width,out.height); const frames=computeFramesAt(out.width,out.height,true); frames.forEach((f,i)=>{ const src=state.imgs[i%state.imgs.length]; if(!src) return; octx.save(); if(f.rot){ octx.translate(f.x+f.w/2,f.y+f.h/2); octx.rotate(f.rot); octx.translate(-f.x-f.w/2,-f.y-f.h/2);} if(f.polaroid){ const bw=Math.max(6,Math.min(f.w,f.h)*0.04), btm=bw*3; octx.fillStyle='#fff'; roundRectPath(octx,f.x,f.y,f.w,f.h+btm,state.radius); octx.fill(); const inner={x:f.x+bw,y:f.y+bw,w:f.w-2*bw,h:f.h-2*bw}; drawContain(octx,src.img,inner); } else { roundRectPath(octx,f.x,f.y,f.w,f.h,state.radius); octx.clip(); drawContain(octx,src.img,{x:f.x,y:f.y,w:f.w,h:f.h}); } octx.restore(); }); drawWatermark(octx,out.width,out.height); const mime = fmt==='png' ? 'image/png' : 'image/jpeg'; const data = fmt==='png' ? out.toDataURL(mime) : out.toDataURL(mime, Math.min(1, Math.max(0.8, q))); const a=document.createElement('a'); a.href=data; a.download='mediadash-collage.'+(fmt==='png'?'png':'jpg'); a.click(); }
 
       sizeGrid();
     }
 
-    function bindTabs(){
-      const b1=$('#tab-collage'), b2=$('#tab-album'); const v1=$('#collage-grid'), v2=$('#album-grid');
-      function act(name){ b1.classList.toggle('active',name==='collage'); b2.classList.toggle('active',name==='album'); v1.classList.toggle('hidden',name!=='collage'); v2.classList.toggle('hidden',name!=='album'); if(name==='collage'){ const evt=new Event('resize'); window.dispatchEvent(evt);} }
-      b1.addEventListener('click',()=>act('collage')); b2.addEventListener('click',()=>act('album')); act('collage');
-    }
+    function bindTabs(){ const b1=$('#tab-collage'), b2=$('#tab-album'); const v1=$('#collage-grid'), v2=$('#album-grid'); function act(name){ b1.classList.toggle('active',name==='collage'); b2.classList.toggle('active',name==='album'); v1.classList.toggle('hidden',name!=='collage'); v2.classList.toggle('hidden',name!=='album'); if(name==='collage'){ const evt=new Event('resize'); window.dispatchEvent(evt);} } b1.addEventListener('click',()=>act('collage')); b2.addEventListener('click',()=>act('album')); act('collage'); }
   </script>
 </body>
 </html>
