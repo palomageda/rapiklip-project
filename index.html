@@ -4,93 +4,80 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MediaDash: Dasbor Konten Cerdas Anda</title>
-  <meta name="description" content="Satu tempat untuk semua kebutuhan konten Anda. Format teks, buat kolase foto, jadwalkan postingan, dan banyak lagi dengan AI." />
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="description" content="Format teks, buat kolase media, dan kelola konten Anda dengan cepat." />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body{font-family:'Inter',sans-serif;background:#f8f9fa}
     .hidden{display:none}
-    .card-hover{transition:.3s ease;}
+    .card-hover{transition:.3s ease}
     .card-hover:hover{transform:translateY(-6px);box-shadow:0 20px 25px -5px rgb(0 0 0 / 0.1),0 8px 10px -6px rgb(0 0 0 / 0.1)}
-    .btn{transition:all .2s ease}
     .tab-btn{padding:.75rem .5rem;border-bottom:2px solid transparent;transition:all .3s ease}
     .tab-btn.active{border-color:#4f46e5;color:#4f46e5;font-weight:600}
     .modal{position:fixed;inset:0;background:rgba(17,24,39,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:50;opacity:0;visibility:hidden;transition:.25s}
     .modal.visible{opacity:1;visibility:visible}
-    .modal-box{background:#fff;padding:1.25rem 1.25rem;border-radius:12px;max-width:420px;width:92%}
+    .modal-box{background:#fff;padding:1.25rem;border-radius:12px;max-width:420px;width:92%}
     .disabled-card{opacity:.6;cursor:not-allowed}
-    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
   </style>
 </head>
-<body class="bg-gray-50 text-gray-800 antialiased">
+<body class="text-gray-800 antialiased">
   <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 border-b border-gray-200">
     <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
       <div class="flex items-center gap-3">
         <h1 class="text-xl font-bold">MediaDash ✨</h1>
-        <button id="back-btn" class="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500 btn">← Kembali ke Dasbor</button>
+        <button id="back-btn" class="hidden text-sm font-semibold text-indigo-600 hover:text-indigo-500">← Kembali ke Dasbor</button>
       </div>
       <div class="flex items-center gap-2">
         <span id="user-email" class="text-sm text-gray-600 hidden"></span>
         <button id="settings-btn" class="p-2 rounded hover:bg-gray-100">⚙️</button>
-        <button id="login-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700 btn">Login / Daftar</button>
-        <button id="logout-btn" class="hidden px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600 btn">Logout</button>
+        <button id="login-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:bg-indigo-700">Login / Daftar</button>
+        <button id="logout-btn" class="hidden px-4 py-2 bg-red-500 text-white rounded-lg font-semibold hover:bg-red-600">Logout</button>
       </div>
     </nav>
   </header>
 
   <main id="main" class="px-4 py-8 sm:px-6 lg:px-8">
-    <!-- HUB VIEW -->
     <section id="hub" class="max-w-6xl mx-auto">
       <div class="text-center py-16 sm:py-24">
         <h2 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-gray-900 tracking-tight">Konten Lebih Baik, <span class="text-indigo-500">Lebih Cepat.</span></h2>
-        <p class="mt-6 max-w-2xl mx-auto text-lg text-gray-600">Hemat waktu berharga Anda. Biarkan AI membantu Anda memformat teks, membuat kolase media, dan menjangkau audiens lebih luas.</p>
+        <p class="mt-6 max-w-2xl mx-auto text-lg text-gray-600">Biarkan AI membantu Anda memformat teks dan membuat kolase media dengan mudah.</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- Formatter -->
         <div id="open-formatter" class="bg-white p-8 rounded-2xl shadow-md flex flex-col cursor-pointer card-hover">
           <div class="h-12 w-12 flex items-center justify-center bg-indigo-100 text-indigo-600 rounded-xl">📄</div>
           <div class="mt-5 flex-grow">
             <h3 class="text-xl font-bold">AI Text Formatter</h3>
-            <p class="mt-2 text-gray-600">Sempurnakan tulisan untuk WhatsApp atau platform lain dengan format cerdas dan ringkasan otomatis.</p>
+            <p class="mt-2 text-gray-600">Sempurnakan tulisan Anda dengan format rapi dan cepat.</p>
           </div>
           <div class="mt-6"><span class="font-semibold text-indigo-600">Buka Formatter →</span></div>
         </div>
-        <!-- Scheduler (disabled) -->
         <div id="open-scheduler" class="bg-white p-8 rounded-2xl shadow-md flex flex-col disabled-card">
           <div class="h-12 w-12 flex items-center justify-center bg-green-100 text-green-600 rounded-xl">📆</div>
           <div class="mt-5 flex-grow">
             <h3 class="text-xl font-bold">Social Media Scheduler</h3>
-            <p class="mt-2 text-gray-600">Tulis sekali, posting ke banyak platform. </p>
+            <p class="mt-2 text-gray-600">Segera Hadir.</p>
           </div>
           <div class="mt-6"><span class="font-semibold text-gray-500">Segera Hadir</span></div>
         </div>
-        <!-- Photo/Media Collage -->
         <div id="open-collage" class="bg-white p-8 rounded-2xl shadow-md flex flex-col cursor-pointer card-hover">
           <div class="h-12 w-12 flex items-center justify-center bg-pink-100 text-pink-600 rounded-xl">🧩</div>
           <div class="mt-5 flex-grow">
             <h3 class="text-xl font-bold">Media Collage</h3>
-            <p class="mt-2 text-gray-600">Gabungkan puluhan foto jadi kolase cantik: grid, mosaic, photo pile, polaroid, wall, mood board.</p>
+            <p class="mt-2 text-gray-600">Grid, Mosaic, Wall, Pile, Polaroid, Mood Board. Import massal & export cepat.</p>
           </div>
           <div class="mt-6"><span class="font-semibold text-pink-600">Buka Collage →</span></div>
         </div>
       </div>
     </section>
 
-    <!-- APP VIEW -->
     <section id="app" class="hidden max-w-7xl mx-auto"></section>
   </main>
 
-  <!-- Settings Modal (placeholder) -->
   <div id="settings-modal" class="modal"><div class="modal-box"><div class="flex items-center justify-between mb-4"><h3 class="text-lg font-semibold">Pengaturan</h3><button id="close-settings" class="text-gray-500">✕</button></div><p class="text-sm text-gray-600">Tidak ada pengaturan untuk saat ini.</p></div></div>
-
-  <!-- Status Modal -->
   <div id="status-modal" class="modal"><div id="status-modal-content" class="modal-box"></div></div>
 
   <script type="module">
-    // ====== Minimal auth placeholder (non-blocking) ======
-    let currentUser = null; // jika nanti pakai Firebase, onAuthStateChanged → set nilai ini
-
-    // ====== Helpers ======
+    let currentUser = null;
     const $ = (s,root=document)=>root.querySelector(s);
     const $$ = (s,root=document)=>Array.from(root.querySelectorAll(s));
     const hub = $('#hub');
@@ -104,26 +91,17 @@
     $('#settings-btn').addEventListener('click',()=>show(settingsModal));
     $('#close-settings').addEventListener('click',()=>hide(settingsModal));
     settingsModal.addEventListener('click',(e)=>{ if(e.target===settingsModal) hide(settingsModal); });
-
-    // ====== Navigation ======
     function showHub(){ hub.classList.remove('hidden'); app.classList.add('hidden'); backBtn.classList.add('hidden'); app.innerHTML=''; }
     function showApp(content){ hub.classList.add('hidden'); app.classList.remove('hidden'); backBtn.classList.remove('hidden'); app.innerHTML = content; }
     backBtn.addEventListener('click', showHub);
 
-    // Hub card actions
     $('#open-formatter').addEventListener('click',()=>{ showApp(getFormatterView()); bindFormatter(); });
-    // Scheduler disabled → info modal
-    $('#open-scheduler').addEventListener('click',()=>{ show(statusModal,'Fitur Scheduler sedang dikembangkan. Nantikan segera!'); setTimeout(()=>hide(statusModal),1600); });
+    $('#open-scheduler').addEventListener('click',()=>{ show(statusModal,'Fitur Scheduler sedang dikembangkan. Nantikan segera!'); setTimeout(()=>hide(statusModal),1400); });
     $('#open-collage').addEventListener('click',()=>{ showApp(getCollageView()); bindCollage(); });
 
-    // ====== Views ======
     function getFormatterView(){
       return `
-        <div class="mb-6 border-b border-gray-200">
-          <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-            <button class="tab-btn active" type="button">Formatter Teks</button>
-          </nav>
-        </div>
+        <div class="mb-6 border-b border-gray-200"><nav class="-mb-px flex space-x-6" aria-label="Tabs"><button class="tab-btn active" type="button">Formatter Teks</button></nav></div>
         <section class="bg-white rounded-2xl shadow p-6 md:p-8">
           <h2 class="text-2xl font-bold mb-4">AI Text Formatter</h2>
           <div class="grid md:grid-cols-2 gap-6">
@@ -145,12 +123,10 @@
           </div>
         </section>`;
     }
-
     function bindFormatter(){
       const input=$('#fmt-input'), prev=$('#fmt-preview');
       function render(v){ prev.textContent=v; }
       input.addEventListener('input',()=>render(input.value));
-      render('');
       $('#fmt-clean').addEventListener('click',()=>{input.value='';render('');});
       $('#fmt-bullet').addEventListener('click',()=>{const lines=input.value.split(/\n+/).map(s=>s.trim()).filter(Boolean).map(s=>'• '+s).join('\n');render(lines);});
       $('#fmt-quote').addEventListener('click',()=>{const lines=input.value.split(/\n+/).map(s=>s.trim()).filter(Boolean).map(s=>'❝ '+s+' ❞').join('\n');render(lines);});
@@ -158,379 +134,118 @@
       $('#fmt-copy').addEventListener('click',async()=>{await navigator.clipboard.writeText(prev.textContent||''); show(statusModal,'Tersalin!'); setTimeout(()=>hide(statusModal),800);});
     }
 
-    // ====== Collage ======
     function getCollageView(){
-  return `
-  <div class="mb-6 border-b border-gray-200">
-    <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-      <button class="tab-btn active" type="button">Media Collage</button>
-    </nav>
-  </div>
+      return `
+      <div class=\"mb-6 border-b border-gray-200\"><nav class=\"-mb-px flex space-x-6\" aria-label=\"Tabs\"><button class=\"tab-btn active\" type=\"button\">Media Collage</button></nav></div>
+      <div class=\"grid lg:grid-cols-3 gap-6\">
+        <section class=\"lg:col-span-2 bg-white rounded-2xl shadow p-4 md:p-6\">
+          <div class=\"flex items-center justify-between gap-3 mb-3 flex-wrap\">
+            <div class=\"flex items-center gap-2 text-sm text-gray-700\">
+              <label>Ratio</label>
+              <select id=\"ratio\" class=\"border rounded p-1\">
+                <option value=\"1:1\">1:1</option>
+                <option value=\"4:5\">4:5</option>
+                <option value=\"3:2\">3:2</option>
+                <option value=\"16:9\">16:9</option>
+                <option value=\"9:16\">9:16</option>
+              </select>
+              <label class=\"ml-3\">Orientation</label>
+              <select id=\"orientation\" class=\"border rounded p-1\">
+                <option value=\"auto\" selected>Auto</option>
+                <option value=\"portrait\">Portrait</option>
+                <option value=\"landscape\">Landscape</option>
+              </select>
+            </div>
+            <div class=\"flex items-center gap-2\">
+              <button id=\"btn-arrange\" class=\"px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700\">Arrange • Minimize Cropping</button>
+              <button id=\"btn-export\" class=\"px-3 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700\">Download</button>
+            </div>
+          </div>
+          <div class=\"relative w-full bg-gray-100 rounded-lg overflow-hidden\"><canvas id=\"canvas\" class=\"block w-full\"></canvas></div>
+        </section>
+        <aside class=\"bg-white rounded-2xl shadow p-4 md:p-6\">
+          <div class=\"mb-4\"><label class=\"block text-sm font-medium text-gray-700 mb-1\">Tambah Foto</label><input id=\"file\" type=\"file\" accept=\"image/*\" multiple class=\"block w-full text-sm\" /><div class=\"text-xs text-gray-500 mt-1\">Drag & drop ke area kanvas juga bisa.</div></div>
+          <div class=\"mb-4\"><label class=\"block text-sm font-medium text-gray-700 mb-2\">Pattern</label><select id=\"pattern\" class=\"w-full border rounded p-2\"><option value=\"grid\">Picture Grid (Equal)</option><option value=\"mosaic\">Picture Grid (Unequal) / Mosaic</option><option value=\"center\">Center Frame</option><option value=\"zigzag\">Zig Zag</option><option value=\"wall\">Photo Wall</option><option value=\"pile\">Advanced Pile</option><option value=\"polaroid\">Polaroid</option><option value=\"mood\">Mood Board / Gallery</option></select></div>
+          <div class=\"space-y-3\">
+            <label class=\"block text-sm\">Gap <input id=\"gap\" type=\"range\" min=\"0\" max=\"40\" value=\"8\" class=\"w-full\"></label>
+            <label class=\"block text-sm\">Radius <input id=\"radius\" type=\"range\" min=\"0\" max=\"40\" value=\"12\" class=\"w-full\"></label>
+            <label class=\"block text-sm\">Padding <input id=\"padding\" type=\"range\" min=\"0\" max=\"100\" value=\"32\" class=\"w-full\"></label>
+            <div class=\"flex items-center justify-between\"><label class=\"text-sm\">Background</label><input id=\"bg\" type=\"color\" value=\"#ffffff\" /></div>
+            <div class=\"grid grid-cols-2 gap-2\"><button id=\"btn-shuffle\" class=\"px-2 py-2 rounded bg-gray-100 hover:bg-gray-200\">Shuffle</button><button id=\"btn-clear\" class=\"px-2 py-2 rounded bg-red-50 text-red-600 hover:bg-red-100\">Bersihkan</button></div>
+            <div class=\"pt-3 border-t\"><label class=\"block text-sm font-medium\">Ukuran Export</label><select id=\"export-size\" class=\"border rounded p-1 mt-1 w-full\"><option value=\"1080\">1080 px (sosial)</option><option value=\"2048\" selected>2048 px (default)</option><option value=\"3000\">3000 px</option><option value=\"custom\">Custom…</option></select><input id=\"export-custom\" type=\"number\" min=\"600\" step=\"10\" placeholder=\"Lebar px\" class=\"hidden mt-2 w-full border rounded p-1\" /></div>
+          </div>
+        </aside>
+      </div>`;
+    }
 
-  <div class="grid lg:grid-cols-3 gap-6">
-    <!-- Canvas -->
-    <section class="lg:col-span-2 bg-white rounded-2xl shadow p-4 md:p-6">
-      <div class="flex items-center justify-between gap-3 mb-3 flex-wrap">
-        <div class="flex items-center gap-2 text-sm text-gray-700">
-          <label>Ratio</label>
-          <select id="ratio" class="border rounded p-1">
-            <option value="1:1">1:1</option>
-            <option value="4:5">4:5</option>
-            <option value="3:2">3:2</option>
-            <option value="16:9">16:9</option>
-            <option value="9:16">9:16</option>
-          </select>
-
-          <label class="ml-3">Orientation</label>
-          <select id="orientation" class="border rounded p-1">
-            <option value="auto" selected>Auto</option>
-            <option value="portrait">Portrait</option>
-            <option value="landscape">Landscape</option>
-          </select>
-        </div>
-
-        <div class="flex items-center gap-2">
-          <button id="btn-arrange" class="px-3 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Arrange • Minimize Cropping</button>
-          <button id="btn-export" class="px-3 py-2 bg-emerald-600 text-white rounded hover:bg-emerald-700">Download</button>
-        </div>
-      </div>
-
-      <div class="relative w-full bg-gray-100 rounded-lg overflow-hidden">
-        <canvas id="canvas" class="block w-full"></canvas>
-      </div>
-    </section>
-
-    <!-- Controls -->
-    <aside class="bg-white rounded-2xl shadow p-4 md:p-6">
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-1">Tambah Foto</label>
-        <input id="file" type="file" accept="image/*" multiple class="block w-full text-sm" />
-        <div class="text-xs text-gray-500 mt-1">Drag & drop ke area kanvas juga bisa.</div>
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Pattern</label>
-        <select id="pattern" class="w-full border rounded p-2">
-          <option value="grid">Picture Grid (Equal)</option>
-          <option value="mosaic">Picture Grid (Unequal) / Mosaic</option>
-          <option value="center">Center Frame</option>
-          <option value="zigzag">Zig Zag</option>
-          <option value="wall">Photo Wall</option>
-          <option value="pile">Advanced Pile</option>
-          <option value="polaroid">Polaroid</option>
-          <option value="mood">Mood Board / Gallery</option>
-        </select>
-      </div>
-
-      <div class="space-y-3">
-        <label class="block text-sm">Gap <input id="gap" type="range" min="0" max="40" value="8" class="w-full"></label>
-        <label class="block text-sm">Radius <input id="radius" type="range" min="0" max="40" value="12" class="w-full"></label>
-        <label class="block text-sm">Padding <input id="padding" type="range" min="0" max="100" value="32" class="w-full"></label>
-
-        <div class="flex items-center justify-between">
-          <label class="text-sm">Background</label>
-          <input id="bg" type="color" value="#ffffff" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-2">
-          <button id="btn-shuffle" class="px-2 py-2 rounded bg-gray-100 hover:bg-gray-200">Shuffle</button>
-          <button id="btn-clear" class="px-2 py-2 rounded bg-red-50 text-red-600 hover:bg-red-100">Bersihkan</button>
-        </div>
-
-        <div class="pt-3 border-t">
-          <label class="block text-sm font-medium">Ukuran Export</label>
-          <select id="export-size" class="border rounded p-1 mt-1 w-full">
-            <option value="1080">1080 px (sosial)</option>
-            <option value="2048" selected>2048 px (default)</option>
-            <option value="3000">3000 px</option>
-            <option value="custom">Custom…</option>
-          </select>
-          <input id="export-custom" type="number" min="600" step="10" placeholder="Lebar px" class="hidden mt-2 w-full border rounded p-1" />
-        </div>
-      </div>
-    </aside>
-  </div>`;
-}
     function bindCollage(){
-  const canvas = $('#canvas');
-  const ctx = canvas.getContext('2d');
-  const state = {
-    imgs: [],           // {img, w, h}
-    pattern: 'grid',
-    gap: 8,
-    radius: 12,
-    padding: 32,
-    bg: '#ffffff',
-    ratio: '1:1',
-    orientation: 'auto',   // auto | portrait | landscape
-    seed: Date.now()
-  };
+      const canvas = $('#canvas');
+      const ctx = canvas.getContext('2d');
+      const state = { imgs: [], pattern: 'grid', gap: 8, radius: 12, padding: 32, bg: '#ffffff', ratio: '1:1', orientation: 'auto', seed: Date.now() };
 
-  // --- Responsive canvas
-  function fitCanvas(){
-    const box = canvas.parentElement.getBoundingClientRect();
-    let [rw,rh] = state.ratio.split(':').map(Number);
-
-    if(state.orientation==='portrait' && rw>rh) [rw,rh] = [rh,rw];
-    if(state.orientation==='landscape' && rh>rw) [rw,rh] = [rh,rw];
-
-    const width = Math.floor(box.width);
-    const height = Math.floor(width*rh/rw);
-    canvas.width = width; canvas.height = height;
-    draw();
-  }
-  window.addEventListener('resize', fitCanvas);
-
-  // --- Controls
-  $('#ratio').addEventListener('change', e => { state.ratio = e.target.value; fitCanvas(); });
-  $('#orientation').addEventListener('change', e => { state.orientation = e.target.value; fitCanvas(); });
-  $('#pattern').addEventListener('change', e => { state.pattern = e.target.value; draw(); });
-  $('#gap').addEventListener('input', e => { state.gap = +e.target.value; draw(); });
-  $('#radius').addEventListener('input', e => { state.radius = +e.target.value; draw(); });
-  $('#padding').addEventListener('input', e => { state.padding = +e.target.value; draw(); });
-  $('#bg').addEventListener('input', e => { state.bg = e.target.value; draw(); });
-  $('#btn-shuffle').addEventListener('click', ()=>{ state.seed=Date.now(); shuffle(state.imgs); draw(); });
-  $('#btn-clear').addEventListener('click', ()=>{ state.imgs.length=0; draw(); });
-  $('#export-size').addEventListener('change', e => { $('#export-custom').classList.toggle('hidden', e.target.value!=='custom'); });
-  $('#btn-export').addEventListener('click', exportImage);
-
-  // NEW: Arrange → Minimize Cropping
-  $('#btn-arrange').addEventListener('click', () => {
-    arrangeMinCrop();
-    draw();
-  });
-
-  // --- Files & DnD
-  const file = $('#file');
-  file.addEventListener('change', ()=>loadFiles(file.files));
-
-  const dropHost = canvas.parentElement.parentElement;
-  ['dragenter','dragover','dragleave','drop'].forEach(ev =>
-    dropHost.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); })
-  );
-  dropHost.addEventListener('drop', e => loadFiles(e.dataTransfer.files));
-
-  function loadFiles(list){
-    const arr = [...list].filter(f => f.type.startsWith('image/'));
-    Promise.all(arr.map(readImage)).then(imgs => { state.imgs.push(...imgs); draw(); });
-  }
-  function readImage(file){
-    return new Promise(res => {
-      const img = new Image();
-      img.onload = () => res({ img, w: img.naturalWidth, h: img.naturalHeight });
-      img.src = URL.createObjectURL(file);
-    });
-  }
-
-  // --- Utils
-  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=(Math.abs(hash(state.seed+i))%(i+1)); [a[i],a[j]]=[a[j],a[i]]; } }
-  function hash(n){ let x=Math.sin(n)*10000; return x-Math.floor(x); }
-  function roundRect(ctx,x,y,w,h,r){ const rr=Math.min(r,Math.min(w,h)/2); ctx.beginPath(); ctx.moveTo(x+rr,y); ctx.arcTo(x+w,y,x+w,y+h,rr); ctx.arcTo(x+w,y+h,x,y+h,rr); ctx.arcTo(x,y+h,x,y,rr); ctx.arcTo(x,y,x+w,y,rr); ctx.closePath(); }
-
-  // --- Layout engines
-  function layoutGrid(box, n){
-    if(n===0) return [];
-    const cols = Math.ceil(Math.sqrt(n));
-    const rows = Math.ceil(n/cols);
-    const {gap,padding} = state;
-    const iw=(box.w - padding*2 - gap*(cols-1))/cols;
-    const ih=(box.h - padding*2 - gap*(rows-1))/rows;
-    const frames=[];
-    let k=0;
-    for(let r=0;r<rows;r++){
-      for(let c=0;c<cols;c++){
-        if(k>=n) break;
-        const x=box.x+padding+c*(iw+gap);
-        const y=box.y+padding+r*(ih+gap);
-        frames.push({x,y,w:iw,h:ih});
-        k++;
+      function fitCanvas(){
+        const box = canvas.parentElement.getBoundingClientRect();
+        let [rw,rh] = state.ratio.split(':').map(Number);
+        if(state.orientation==='portrait' && rw>rh) [rw,rh] = [rh,rw];
+        if(state.orientation==='landscape' && rh>rw) [rw,rh] = [rh,rw];
+        const width = Math.max(320, Math.floor(box.width));
+        const height = Math.max(180, Math.floor(width*rh/rw));
+        canvas.width = width; canvas.height = height; draw();
       }
-    }
-    return frames;
-  }
-  function layoutMosaic(box, n){
-    const frames=[]; const {gap,padding}=state;
-    const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding};
-    function split(rect, items){
-      if(items<=1){ frames.push(rect); return; }
-      const horiz = rect.w>rect.h;
-      const left = Math.max(1, Math.floor(items/2));
-      const g=gap;
-      if(horiz){
-        const w1=Math.round(rect.w*(left/items));
-        const r1={x:rect.x, y:rect.y, w:w1-g/2, h:rect.h};
-        const r2={x:rect.x+w1+g/2, y:rect.y, w:rect.w-w1-g/2, h:rect.h};
-        split(r1,left); split(r2,items-left);
-      }else{
-        const h1=Math.round(rect.h*(left/items));
-        const r1={x:rect.x, y:rect.y, w:rect.w, h:h1-g/2};
-        const r2={x:rect.x, y:rect.y+h1+g/2, w:rect.w, h:rect.h-h1-g/2};
-        split(r1,left); split(r2,items-left);
+      window.addEventListener('resize', fitCanvas);
+
+      $('#ratio').addEventListener('change', e => { state.ratio = e.target.value; fitCanvas(); });
+      $('#orientation').addEventListener('change', e => { state.orientation = e.target.value; fitCanvas(); });
+      $('#pattern').addEventListener('change', e => { state.pattern = e.target.value; draw(); });
+      $('#gap').addEventListener('input', e => { state.gap = +e.target.value; draw(); });
+      $('#radius').addEventListener('input', e => { state.radius = +e.target.value; draw(); });
+      $('#padding').addEventListener('input', e => { state.padding = +e.target.value; draw(); });
+      $('#bg').addEventListener('input', e => { state.bg = e.target.value; draw(); });
+      $('#btn-shuffle').addEventListener('click', ()=>{ state.seed=Date.now(); shuffle(state.imgs); draw(); });
+      $('#btn-clear').addEventListener('click', ()=>{ state.imgs.length=0; draw(); });
+      $('#export-size').addEventListener('change', e => { $('#export-custom').classList.toggle('hidden', e.target.value!=='custom'); });
+      $('#btn-export').addEventListener('click', exportImage);
+      $('#btn-arrange').addEventListener('click', () => { arrangeMinCrop(); draw(); });
+
+      const file = $('#file');
+      file.addEventListener('change', ()=>loadFiles(file.files));
+      const dropHost = canvas.parentElement.parentElement;
+      ;['dragenter','dragover','dragleave','drop'].forEach(ev => dropHost.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); }));
+      dropHost.addEventListener('drop', e => loadFiles(e.dataTransfer.files));
+
+      function loadFiles(list){
+        const arr = [...list].filter(f => f.type.startsWith('image/'));
+        if(!arr.length) return; Promise.all(arr.map(readImage)).then(imgs => { state.imgs.push(...imgs); draw(); });
       }
+      function readImage(file){ return new Promise(res => { const img = new Image(); img.onload = () => res({ img, w: img.naturalWidth, h: img.naturalHeight }); img.src = URL.createObjectURL(file); }); }
+
+      function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.abs(hash(state.seed+i))*(i+1)); const tmp=a[i]; a[i]=a[j]; a[j]=tmp; } }
+      function hash(n){ let x=Math.sin(n)*10000; return x-Math.floor(x); }
+      function roundRect(ctx,x,y,w,h,r){ const rr=Math.min(r,Math.min(w,h)/2); ctx.beginPath(); ctx.moveTo(x+rr,y); ctx.arcTo(x+w,y,x+w,y+h,rr); ctx.arcTo(x+w,y+h,x,y+h,rr); ctx.arcTo(x,y+h,x,y,rr); ctx.arcTo(x,y,x+w,y,rr); ctx.closePath(); }
+
+      function layoutGrid(box, n){ if(n===0) return []; const cols=Math.ceil(Math.sqrt(n)); const rows=Math.ceil(n/cols); const {gap,padding}=state; const iw=(box.w - padding*2 - gap*(cols-1))/cols; const ih=(box.h - padding*2 - gap*(rows-1))/rows; const frames=[]; let k=0; for(let r=0;r<rows;r++){ for(let c=0;c<cols;c++){ if(k>=n) break; const x=box.x+padding+c*(iw+gap); const y=box.y+padding+r*(ih+gap); frames.push({x,y,w:iw,h:ih}); k++; }} return frames; }
+      function layoutMosaic(box, n){ const frames=[]; const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; function split(rect, items){ if(items<=1){ frames.push(rect); return; } const horiz = rect.w>rect.h; const left = Math.max(1, Math.floor(items/2)); const g=gap; if(horiz){ const w1=Math.round(rect.w*(left/items)); const r1={x:rect.x, y:rect.y, w:w1-g/2, h:rect.h}; const r2={x:rect.x+w1+g/2, y:rect.y, w:rect.w-w1-g/2, h:rect.h}; split(r1,left); split(r2,items-left);} else { const h1=Math.round(rect.h*(left/items)); const r1={x:rect.x, y:rect.y, w:rect.w, h:h1-g/2}; const r2={x:rect.x, y:rect.y+h1+g/2, w:rect.w, h:rect.h-h1-g/2}; split(r1,left); split(r2,items-left);} } split(inner, Math.min(n, 12)); return frames; }
+      function layoutCenter(box,n){ const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; const big={x:inner.x, y:inner.y, w:inner.w*0.6-gap/2, h:inner.h*0.6-gap/2}; const right={x:big.x+big.w+gap, y:inner.y, w:inner.w-big.w-gap, h:inner.h}; const bottom={x:inner.x, y:big.y+big.h+gap, w:big.w, h:inner.h-big.h-gap}; const frames=[big]; frames.push(...layoutGrid(right, Math.ceil((n-1)/2))); frames.push(...layoutGrid(bottom, Math.floor((n-1)/2))); return frames.slice(0,n); }
+      function layoutZigzag(box,n){ const {gap,padding}=state; const col=2; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; const colW=(inner.w-gap)/col; const rows=Math.ceil(n/2); const rowH=(inner.h - gap*(rows-1)) / rows; const frames=[]; let i=0; for(let r=0;r<rows;r++){ const y=inner.y + r*(rowH+gap); const x1 = r%2===0 ? inner.x : inner.x+colW+gap; const x2 = r%2===0 ? inner.x+colW+gap : inner.x; frames.push({x:x1,y,w:colW,h:rowH}); if(++i<n) frames.push({x:x2,y,w:colW,h:rowH}); i++; } return frames.slice(0,n); }
+      function layoutWall(box,n){ const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; const target=inner.h/Math.ceil(Math.sqrt(n)); let y=inner.y; const frames=[]; let i=0; while(i<n && y<inner.y+inner.h){ let x=inner.x; const rowH=target*(.8+hash(state.seed*7+i)*.4); while(i<n && x<inner.x+inner.w){ const ar = state.imgs[i%state.imgs.length]?.w / state.imgs[i%state.imgs.length]?.h || 1; let w=rowH*ar; if(x+w>inner.x+inner.w) w=inner.x+inner.w-x; frames.push({x,y,w:w-state.gap/2,h:rowH-state.gap/2}); x+=w+state.gap; i++; } y+=rowH+state.gap; } return frames; }
+      function layoutPile(box,n){ const {padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; const frames=[]; for(let i=0;i<n;i++){ const sc=.55+.45*hash(state.seed*31+i); const w=inner.w*sc*0.6, h=inner.h*sc*0.6; const x=inner.x+hash(state.seed*17+i)*(inner.w-w); const y=inner.y+hash(state.seed*29+i)*(inner.h-h); const rot=(hash(state.seed*13+i)-.5)*0.35; frames.push({x,y,w,h,rot}); } return frames; }
+      function layoutPolaroid(box,n){ return layoutPile(box,n).map(f=>({...f,polaroid:true})); }
+      function layoutMood(box,n){ const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding}; const cells=[{x:inner.x,y:inner.y,w:inner.w*.62-gap,h:inner.h*.62-gap},{x:inner.x+inner.w*.64,y:inner.y,w:inner.w*.36-gap,h:inner.h*.36-gap},{x:inner.x+inner.w*.64,y:inner.y+inner.h*.38,w:inner.w*.36-gap,h:inner.h*.24-gap},{x:inner.x,y:inner.y+inner.h*.64,w:inner.w*.44-gap,h:inner.h*.36-gap},{x:inner.x+inner.w*.46,y:inner.y+inner.h*.64,w:inner.w*.54-gap,h:inner.h*.36-gap}]; return cells.slice(0,Math.min(n,cells.length)); }
+
+      function arrangeMinCrop(){ const frames = computeFrames(state.imgs.length); if(frames.length===0 || state.imgs.length===0) return; const imgs = [...state.imgs]; const assigned = []; frames.forEach((f) => { const fr = f.w / f.h; let bestIdx = 0, bestScore = Infinity; imgs.forEach((it,idx) => { const ar = it.w / it.h; const score = Math.abs(Math.log(ar/fr)); if(score < bestScore){ bestScore = score; bestIdx = idx; } }); assigned.push(imgs.splice(bestIdx,1)[0]); }); assigned.push(...imgs); state.imgs = assigned; }
+
+      function computeFrames(n){ const W=canvas.width,H=canvas.height; const box={x:0,y:0,w:W,h:H}; switch(state.pattern){ case 'grid': return layoutGrid(box,n); case 'mosaic': return layoutMosaic(box,n); case 'center': return layoutCenter(box,n); case 'zigzag': return layoutZigzag(box,n); case 'wall': return layoutWall(box,n); case 'pile': return layoutPile(box,n); case 'polaroid': return layoutPolaroid(box,n); case 'mood': return layoutMood(box,n); default: return layoutGrid(box,n); } }
+
+      function draw(){ const W=canvas.width,H=canvas.height; ctx.clearRect(0,0,W,H); ctx.fillStyle = state.bg; ctx.fillRect(0,0,W,H); const frames = computeFrames(state.imgs.length); if(frames.length===0){ drawWatermark(); return; } frames.forEach((f,i)=>{ const src = state.imgs[i % state.imgs.length]; if(!src) return; ctx.save(); if(f.rot){ ctx.translate(f.x+f.w/2, f.y+f.h/2); ctx.rotate(f.rot); ctx.translate(-f.x-f.w/2, -f.y-f.h/2); } if(f.polaroid){ const bw=Math.max(6,Math.min(f.w,f.h)*0.04); const btm=bw*3; ctx.fillStyle='#fff'; roundRect(ctx,f.x,f.y,f.w,f.h+btm,state.radius); ctx.fill(); const inner={x:f.x+bw,y:f.y+bw,w:f.w-2*bw,h:f.h-2*bw}; drawImageCover(src.img, inner); } else { ctx.beginPath(); roundRect(ctx,f.x,f.y,f.w,f.h,state.radius); ctx.clip(); drawImageCover(src.img,{x:f.x,y:f.y,w:f.w,h:f.h}); } ctx.restore(); }); drawWatermark(); }
+
+      function drawImageCover(img, rect){ const iw=img.naturalWidth, ih=img.naturalHeight; const rw=rect.w, rh=rect.h; const ir=iw/ih, rr=rw/rh; let sx=0, sy=0, sw=iw, sh=ih; if(ir>rr){ const newW=ih*rr; sx=(iw-newW)/2; sw=newW; } else { const newH=iw/rr; sy=(ih-newH)/2; sh=newH; } ctx.drawImage(img, sx,sy,sw,sh, rect.x,rect.y,rw,rh); }
+
+      function drawWatermark(){ if(currentUser) return; const pad=12; ctx.save(); ctx.globalAlpha=.85; ctx.fillStyle='rgba(255,255,255,.9)'; ctx.font='700 14px Inter, system-ui, -apple-system'; const text='mediadash.id'; const tw=ctx.measureText(text).width; const x=canvas.width - tw - pad*1.5; const y=canvas.height - pad; ctx.fillRect(x-pad*.75, y-18, tw+pad*1.5, 20); ctx.fillStyle='#111827'; ctx.fillText(text, x, y-3); ctx.restore(); }
+
+      function exportImage(){ const sel=$('#export-size'); let width=parseInt(sel.value,10); if(sel.value==='custom'){ width=parseInt($('#export-custom').value,10)||2048; } const scale=width/canvas.width; const out=document.createElement('canvas'); out.width=width; out.height=Math.round(canvas.height*scale); const octx=out.getContext('2d'); octx.fillStyle=state.bg; octx.fillRect(0,0,out.width,out.height); octx.drawImage(canvas,0,0,out.width,out.height); const a=document.createElement('a'); a.href=out.toDataURL('image/jpeg',0.92); a.download='mediadash-collage.jpg'; a.click(); }
+
+      fitCanvas(); draw();
     }
-    split(inner, Math.min(n, 12)); // batasi frame agar tidak terlalu kecil
-    return frames;
-  }
-  function layoutCenter(box, n){
-    // satu frame besar pusat + sisanya grid di sisi
-    const {gap,padding}=state;
-    const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding};
-    const big={x:inner.x, y:inner.y, w:inner.w*0.6-gap/2, h:inner.h*0.6-gap/2};
-    const right={x:big.x+big.w+gap, y:inner.y, w:inner.w-big.w-gap, h:inner.h};
-    const bottom={x:inner.x, y:big.y+big.h+gap, w:big.w, h:inner.h-big.h-gap};
-    const frames=[big];
-    frames.push(...layoutGrid(right, Math.ceil((n-1)/2)));
-    frames.push(...layoutGrid(bottom, Math.floor((n-1)/2)));
-    return frames.slice(0,n);
-  }
-  function layoutZigzag(box, n){
-    const {gap,padding}=state; const col=2;
-    const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding};
-    const colW=(inner.w-gap)/col; const rowH=(inner.h - gap*(Math.ceil(n/2)-1)) / Math.ceil(n/2);
-    const frames=[]; let i=0;
-    for(let r=0;r<Math.ceil(n/2);r++){
-      const y=inner.y + r*(rowH+gap);
-      const x1 = r%2===0 ? inner.x : inner.x+colW+gap;
-      const x2 = r%2===0 ? inner.x+colW+gap : inner.x;
-      frames.push({x:x1,y,w:colW,h:rowH});
-      if(++i<n) frames.push({x:x2,y,w:colW,h:rowH});
-      i++;
-    }
-    return frames.slice(0,n);
-  }
-  function layoutWall(box,n){
-    const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding};
-    const target=inner.h/Math.ceil(Math.sqrt(n)); let y=inner.y; const frames=[]; let i=0;
-    while(i<n && y<inner.y+inner.h){
-      let x=inner.x; const rowH=target*(.8+hash(state.seed*7+i)*.4);
-      while(i<n && x<inner.x+inner.w){
-        const ar = state.imgs[i%state.imgs.length]?.w / state.imgs[i%state.imgs.length]?.h || 1;
-        let w=rowH*ar; if(x+w>inner.x+inner.w) w=inner.x+inner.w-x;
-        frames.push({x,y,w:w-state.gap/2,h:rowH-state.gap/2}); x+=w+state.gap; i++;
-      }
-      y+=rowH+state.gap;
-    }
-    return frames;
-  }
-  function layoutPile(box,n){
-    const {padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding};
-    const frames=[]; for(let i=0;i<n;i++){ const sc=.55+.45*hash(state.seed*31+i); const w=inner.w*sc*0.6, h=inner.h*sc*0.6; const x=inner.x+hash(state.seed*17+i)*(inner.w-w); const y=inner.y+hash(state.seed*29+i)*(inner.h-h); const rot=(hash(state.seed*13+i)-.5)*0.35; frames.push({x,y,w,h,rot}); } return frames;
-  }
-  function layoutPolaroid(box,n){ return layoutPile(box,n).map(f=>({...f,polaroid:true})); }
-  function layoutMood(box,n){
-    const {gap,padding}=state; const inner={x:box.x+padding,y:box.y+padding,w:box.w-2*padding,h:box.h-2*padding};
-    const cells=[{x:inner.x,y:inner.y,w:inner.w*.62-gap,h:inner.h*.62-gap},{x:inner.x+inner.w*.64,y:inner.y,w:inner.w*.36-gap,h:inner.h*.36-gap},{x:inner.x+inner.w*.64,y:inner.y+inner.h*.38,w:inner.w*.36-gap,h:inner.h*.24-gap},{x:inner.x,y:inner.y+inner.h*.64,w:inner.w*.44-gap,h:inner.h*.36-gap},{x:inner.x+inner.w*.46,y:inner.y+inner.h*.64,w:inner.w*.54-gap,h:inner.h*.36-gap}];
-    return cells.slice(0,Math.min(n,cells.length));
-  }
-
-  // --- Arrange: minimize cropping
-  // Greedy assignment: cocokkan tiap frame dengan foto yang rasio aspeknya paling dekat
-  function arrangeMinCrop(){
-    const frames = computeFrames(state.imgs.length);
-    if(frames.length===0 || state.imgs.length===0) return;
-
-    const imgs = [...state.imgs];
-    const assigned = [];
-    frames.forEach((f) => {
-      const fr = f.w / f.h;
-      // pilih foto dengan |log(ar_img/ar_frame)| terkecil
-      let bestIdx = 0, bestScore = Infinity;
-      imgs.forEach((it,idx) => {
-        const ar = it.w / it.h;
-        const score = Math.abs(Math.log(ar/fr));
-        if(score < bestScore){ bestScore = score; bestIdx = idx; }
-      });
-      assigned.push(imgs.splice(bestIdx,1)[0]);
-    });
-    // sisanya (kalau frame < foto) tambahkan di belakang
-    assigned.push(...imgs);
-    state.imgs = assigned;
-  }
-
-  // --- Draw
-  function computeFrames(n){
-    const W=canvas.width,H=canvas.height; const box={x:0,y:0,w:W,h:H};
-    switch(state.pattern){
-      case 'grid':    return layoutGrid(box,n);
-      case 'mosaic':  return layoutMosaic(box,n);
-      case 'center':  return layoutCenter(box,n);
-      case 'zigzag':  return layoutZigzag(box,n);
-      case 'wall':    return layoutWall(box,n);
-      case 'pile':    return layoutPile(box,n);
-      case 'polaroid':return layoutPolaroid(box,n);
-      case 'mood':    return layoutMood(box,n);
-      default:        return layoutGrid(box,n);
-    }
-  }
-
-  function draw(){
-    const W=canvas.width,H=canvas.height;
-    ctx.clearRect(0,0,W,H);
-    ctx.fillStyle = state.bg; ctx.fillRect(0,0,W,H);
-
-    const frames = computeFrames(state.imgs.length);
-    if(frames.length===0){ drawWatermark(); return; }
-
-    frames.forEach((f,i)=>{
-      const src = state.imgs[i % state.imgs.length]; if(!src) return;
-      ctx.save();
-      if(f.rot){ ctx.translate(f.x+f.w/2, f.y+f.h/2); ctx.rotate(f.rot); ctx.translate(-f.x-f.w/2, -f.y-f.h/2); }
-      if(f.polaroid){
-        const bw=Math.max(6,Math.min(f.w,f.h)*0.04); const btm=bw*3;
-        ctx.fillStyle='#fff'; roundRect(ctx,f.x,f.y,f.w,f.h+btm,state.radius); ctx.fill();
-        const inner={x:f.x+bw,y:f.y+bw,w:f.w-2*bw,h:f.h-2*bw};
-        drawImageCover(src.img, inner);
-      }else{
-        ctx.beginPath(); roundRect(ctx,f.x,f.y,f.w,f.h,state.radius); ctx.clip();
-        drawImageCover(src.img,{x:f.x,y:f.y,w:f.w,h:f.h});
-      }
-      ctx.restore();
-    });
-
-    drawWatermark();
-  }
-
-  function drawImageCover(img, rect){
-    const iw=img.naturalWidth, ih=img.naturalHeight;
-    const rw=rect.w, rh=rect.h; const ir=iw/ih, rr=rw/rh;
-    let sx=0, sy=0, sw=iw, sh=ih;
-    if(ir>rr){ const newW=ih*rr; sx=(iw-newW)/2; sw=newW; }
-    else { const newH=iw/rr; sy=(ih-newH)/2; sh=newH; }
-    ctx.drawImage(img, sx,sy,sw,sh, rect.x,rect.y,rw,rh);
-  }
-
-  function drawWatermark(){
-    if(currentUser) return; // login/berlangganan → watermark mati
-    const pad=12; ctx.save(); ctx.globalAlpha=.85;
-    ctx.fillStyle='rgba(255,255,255,.9)';
-    ctx.font='700 14px Inter, system-ui, -apple-system';
-    const text='mediadash.id'; const tw=ctx.measureText(text).width;
-    const x=canvas.width - tw - pad*1.5; const y=canvas.height - pad;
-    ctx.fillRect(x-pad*.75, y-18, tw+pad*1.5, 20);
-    ctx.fillStyle='#111827'; ctx.fillText(text, x, y-3);
-    ctx.restore();
-  }
-
-  function exportImage(){
-    const sel=$('#export-size');
-    let width=parseInt(sel.value,10);
-    if(sel.value==='custom'){ width=parseInt($('#export-custom').value,10)||2048; }
-    const scale=width/canvas.width;
-    const out=document.createElement('canvas');
-    out.width=width; out.height=Math.round(canvas.height*scale);
-    const octx=out.getContext('2d');
-    octx.fillStyle=state.bg; octx.fillRect(0,0,out.width,out.height);
-    octx.drawImage(canvas,0,0,out.width,out.height);
-    const a=document.createElement('a');
-    a.href=out.toDataURL('image/jpeg',0.92);
-    a.download='mediadash-collage.jpg';
-    a.click();
-  }
-
-  // init
-  fitCanvas(); draw();
-}
   </script>
 </body>
 </html>
-
