@@ -1,1 +1,331 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MediaDash ✨ — Media Collage</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body{font-family:'Inter',system-ui,Arial,sans-serif}
+    .panel{height:calc(100vh - 5rem)}
+    .scroll-snap{scroll-snap-type:y proximity}
+    .scroll-snap > *{scroll-snap-align:start}
+    canvas{image-rendering:auto}
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
+    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4">
+      <a href="/" class="text-sm font-semibold text-violet-600">← Kembali ke Dasbor</a>
+      <div class="font-bold">Media Collage</div>
+    </div>
+  </header>
 
+  <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-[1fr,420px] gap-6">
+    <!-- PREVIEW -->
+    <section class="bg-white border border-gray-100 rounded-xl p-4 lg:p-6 shadow-sm panel overflow-auto scroll-snap">
+      <div id="dropzone" class="w-full grid place-items-center rounded-lg border-2 border-dashed border-gray-200 bg-gray-50/60 aspect-[9/16]">
+        <canvas id="preview" class="max-w-full h-auto rounded-lg"></canvas>
+      </div>
+    </section>
+
+    <!-- TOOLS -->
+    <aside class="bg-white border border-gray-100 rounded-xl p-4 lg:p-6 shadow-sm panel overflow-y-auto">
+      <div class="space-y-5">
+        <div>
+          <label class="block text-sm font-semibold mb-2">Tambah Foto</label>
+          <input id="file-input" type="file" accept="image/*" multiple class="block w-full text-sm" />
+          <p class="text-xs text-gray-500 mt-1">Drag & drop ke area kanvas juga bisa.</p>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Pattern</label>
+          <select id="pattern" class="w-full rounded-md border-gray-300">
+            <option value="mosaic">Picture Grid (Unequal) / Mosaic</option>
+            <option value="equal">Picture Grid (Equal)</option>
+            <option value="photohive">Photohive</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-sm font-semibold mb-2">Rasio</label>
+            <select id="ratio" class="w-full rounded-md border-gray-300">
+              <option value="auto">Auto‑fit</option>
+              <option value="9:16">9:16</option>
+              <option value="4:5">4:5</option>
+              <option value="3:4">3:4</option>
+              <option value="1:1">1:1</option>
+              <option value="2:3">2:3</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-semibold mb-2">Orientation</label>
+            <select id="orientation" class="w-full rounded-md border-gray-300">
+              <option value="portrait">Portrait</option>
+              <option value="landscape">Landscape</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Gap</label>
+          <input id="gap" type="range" min="0" max="32" value="8" class="w-full" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Radius</label>
+          <input id="radius" type="range" min="0" max="24" value="8" class="w-full" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Padding</label>
+          <input id="padding" type="range" min="0" max="64" value="16" class="w-full" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Background</label>
+          <input id="bg" type="color" value="#ffffff" class="w-24 h-10 border rounded" />
+        </div>
+        <div class="flex gap-3">
+          <button id="shuffle" class="px-4 py-2 rounded-md bg-gray-900 text-white font-semibold">Shuffle</button>
+          <button id="clear" class="px-4 py-2 rounded-md bg-gray-100 text-gray-800 font-semibold">Bersihkan</button>
+        </div>
+        <hr class="my-4" />
+        <div>
+          <label class="block text-sm font-semibold mb-2">Format</label>
+          <select id="format" class="w-full rounded-md border-gray-300">
+            <option value="png">PNG (tajam, transparan)</option>
+            <option value="jpeg">JPEG (foto)</option>
+            <option value="pdf">PDF (cetak)</option>
+          </select>
+        </div>
+        <div id="jpegq-wrap" class="hidden">
+          <label class="block text-sm font-semibold mb-2">JPEG Quality</label>
+          <input id="jpegq" type="range" min="50" max="100" value="96" class="w-full" />
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Ukuran Ekspor</label>
+          <select id="export-size" class="w-full rounded-md border-gray-300">
+            <option value="4096">4096 px (tinggi)</option>
+            <option value="6144">6144 px</option>
+            <option value="8192" selected>8192 px (maks, sangat tajam)</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-semibold mb-2">Preset Ukuran Cetak</label>
+          <select id="print-preset" class="w-full rounded-md border-gray-300">
+            <option value="">— Pilih preset (300 DPI) —</option>
+            <option value="210x297">A4 (210×297 mm)</option>
+            <option value="297x420">A3 (297×420 mm)</option>
+            <option value="329x483">A3+ (329×483 mm)</option>
+            <option value="406x508">16×20 in</option>
+            <option value="457x610">18×24 in</option>
+            <option value="508x762">20×30 in</option>
+          </select>
+        </div>
+        <button id="download" class="w-full mt-2 px-4 py-2 rounded-md bg-emerald-600 text-white font-semibold">Download</button>
+        <p class="text-xs text-gray-500 mt-2">Pengguna belum login akan ditandai watermark <strong>mediadash.id</strong>.</p>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+  // ——— State
+  const state = {
+    files: [],
+    imgs: [],
+    pattern: 'mosaic',
+    ratio: 'auto',
+    orientation: 'portrait',
+    gap: 8,
+    radius: 8,
+    padding: 16,
+    bg: '#ffffff'
+  };
+
+  // ——— Elements
+  const cvs = document.getElementById('preview');
+  const ctx = cvs.getContext('2d');
+  const dropzone = document.getElementById('dropzone');
+
+  const el = id => document.getElementById(id);
+  const controls = ['pattern','ratio','orientation','gap','radius','padding','bg'];
+  controls.forEach(k=> el(k).addEventListener('input', e=>{ state[k]= (k==='gap'||k==='radius'||k==='padding')? +e.target.value : e.target.value; if(k==='pattern' && state.pattern!=='equal') state.ratio = state.ratio||'auto'; render(); }));
+
+  el('file-input').addEventListener('change', e=> loadFiles([...e.target.files]));
+  ;['dragover','dragenter'].forEach(t=> dropzone.addEventListener(t, e=>{e.preventDefault();dropzone.classList.add('ring-2','ring-violet-400')}));
+  ;['dragleave','drop'].forEach(t=> dropzone.addEventListener(t, e=>{e.preventDefault();dropzone.classList.remove('ring-2','ring-violet-400')}));
+  dropzone.addEventListener('drop', e=> loadFiles([...e.dataTransfer.files]));
+
+  el('shuffle').addEventListener('click', ()=>{ state.imgs.sort(()=>Math.random()-0.5); render(); });
+  el('clear').addEventListener('click', ()=>{ state.files=[]; state.imgs=[]; render(); });
+
+  el('format').addEventListener('change', e=>{ el('jpegq-wrap').classList.toggle('hidden', e.target.value!=='jpeg'); });
+  el('export-size').addEventListener('change', ()=>{});
+  el('print-preset').addEventListener('change', e=> applyPrintPreset(e.target.value));
+  el('download').addEventListener('click', downloadHighRes);
+
+  function applyPrintPreset(v){
+    if(!v) return;
+    const [wmm,hmm]=v.split('x').map(Number);
+    const dpi=300; const mmPerIn=25.4;
+    const wpx=Math.round((wmm/mmPerIn)*dpi), hpx=Math.round((hmm/mmPerIn)*dpi);
+    // gunakan sisi terpanjang sbg export target
+    el('export-size').value = String(Math.max(wpx,hpx));
+    render();
+  }
+
+  async function loadFiles(files){
+    const imgs = [];
+    for(const f of files){ if(!f.type.startsWith('image/')) continue; const url = URL.createObjectURL(f); const img = new Image(); img.decoding='async'; img.loading='eager'; img.src=url; await img.decode().catch(()=>{}); imgs.push(img); }
+    state.files.push(...files); state.imgs.push(...imgs); render();
+  }
+
+  function chooseAutoColumns(count){
+    // Kolom untuk portrait: 2..4 berdasarkan jumlah foto
+    if(count<=3) return 2; if(count<=6) return 3; return 4;
+  }
+
+  function fitCanvas(){
+    // Tentukan rasio kanvas. Jika auto: gunakan estimasi dari total rasio gambar agar semua muat.
+    const container = dropzone.getBoundingClientRect();
+    let ratio = state.ratio;
+    if(ratio==='auto'){
+      // Estimasi tinggi/ lebar untuk portrait mosaic
+      const cols = chooseAutoColumns(state.imgs.length||2);
+      let totalH=0,totalW=0; for(const im of state.imgs){ totalH += im.naturalHeight; totalW += im.naturalWidth; }
+      const avgAR = totalW && totalH ? (totalW/totalH) : (9/16); // w/h
+      const est = state.orientation==='portrait' ? (1/avgAR) * (cols/ (cols-1+1)) : avgAR;
+      ratio = state.orientation==='portrait' ? 9/16 : 16/9;
+      // gunakan rasio portrait default tapi canvas akan memanjang dinamis saat render
+    }
+    const [rw,rh] = typeof ratio==='string' && ratio.includes(':') ? ratio.split(':').map(Number) : [9,16];
+    // Ikuti lebar container, jaga tinggi berdasarkan rasio orientasi
+    const targetW = Math.min(container.width-16, 1024);
+    const targetH = Math.round(targetW * (rh/rw));
+    cvs.width = targetW*2; // retina preview
+    cvs.height = targetH*2;
+    cvs.style.width = targetW+'px';
+    cvs.style.height = targetH+'px';
+  }
+
+  function drawRoundedImage(img,x,y,w,h,r){
+    const rr = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+rr,y);
+    ctx.arcTo(x+w,y,x+w,y+h,rr);
+    ctx.arcTo(x+w,y+h,x,y+h,rr);
+    ctx.arcTo(x,y+h,x,y,rr);
+    ctx.arcTo(x,y,x+w,y,rr);
+    ctx.closePath();
+    ctx.save();
+    ctx.clip();
+    // contain (tanpa crop): hitung scale agar seluruh foto terlihat
+    const scale = Math.min(w/img.naturalWidth, h/img.naturalHeight);
+    const dw = img.naturalWidth*scale, dh = img.naturalHeight*scale;
+    const dx = x + (w - dw)/2, dy = y + (h - dh)/2;
+    ctx.drawImage(img, dx, dy, dw, dh);
+    ctx.restore();
+  }
+
+  function render(){
+    fitCanvas();
+    const {gap,radius,padding,bg} = state;
+    // Clear
+    ctx.fillStyle = bg; ctx.fillRect(0,0,cvs.width,cvs.height);
+    if(state.imgs.length===0){ return; }
+
+    // Tentukan kolom & area kerja
+    const cols = state.pattern==='equal' ? Math.ceil(Math.sqrt(state.imgs.length)) : chooseAutoColumns(state.imgs.length);
+    const cw = (cvs.width - padding*2 - gap*(cols-1)) / cols;
+
+    const colHeights = Array(cols).fill(0);
+    const slots = [];
+    for(const img of state.imgs){
+      // cari kolom terpendek (masonry)
+      let ci = 0; for(let i=1;i<cols;i++){ if(colHeights[i]<colHeights[ci]) ci=i; }
+      const w = cw; // width fixed per kolom
+      // tinggi berdasarkan contain di dalam frame; gunakan tinggi proporsional agar variasi natural
+      const targetH = w * (img.naturalHeight/img.naturalWidth); // no-crop
+      const h = targetH;
+      const x = padding + ci*(cw + gap);
+      const y = padding + colHeights[ci];
+      slots.push({img,x,y,w,h});
+      colHeights[ci] += h + gap;
+    }
+    const usedH = Math.max(...colHeights) - gap + padding;
+
+    // Jika tinggi melebihi canvas -> scale down seluruh layout agar tidak terpotong
+    let scale = 1;
+    if(usedH > cvs.height){ scale = cvs.height / usedH; }
+    ctx.save();
+    ctx.scale(scale, scale);
+
+    for(const s of slots){ drawRoundedImage(s.img, s.x, s.y, s.w, s.h, radius); }
+
+    ctx.restore();
+  }
+
+  async function downloadHighRes(){
+    const format = el('format').value; const jpegq = +el('jpegq').value/100; const exportLong = +el('export-size').value;
+    if(state.imgs.length===0) return;
+
+    // Hitung layout sekali lagi tapi di kanvas offscreen beresolusi tinggi
+    const cols = state.pattern==='equal' ? Math.ceil(Math.sqrt(state.imgs.length)) : chooseAutoColumns(state.imgs.length);
+    const longSide = exportLong; const shortSide = Math.round(exportLong * (9/16));
+    const off = document.createElement('canvas');
+    off.width = state.orientation==='portrait' ? shortSide : longSide;
+    off.height = state.orientation==='portrait' ? longSide : shortSide;
+    const octx = off.getContext('2d');
+
+    const gap = state.gap*2, radius = state.radius*2, padding = state.padding*2;
+    octx.fillStyle = state.bg; octx.fillRect(0,0,off.width,off.height);
+
+    const cw = (off.width - padding*2 - gap*(cols-1)) / cols;
+    const colHeights = Array(cols).fill(0);
+    const slots = [];
+    for(const img of state.imgs){
+      let ci = 0; for(let i=1;i<cols;i++){ if(colHeights[i]<colHeights[ci]) ci=i; }
+      const w = cw; const h = w * (img.naturalHeight/img.naturalWidth);
+      const x = padding + ci*(cw + gap); const y = padding + colHeights[ci];
+      slots.push({img,x,y,w,h}); colHeights[ci]+=h+gap;
+    }
+    const usedH = Math.max(...colHeights) - gap + padding;
+    let scale = 1; if(usedH>off.height){ scale = off.height/usedH; }
+    octx.save(); octx.scale(scale, scale);
+    // draw rounded
+    function drawRounded(octx,img,x,y,w,h,r){
+      const rr = Math.min(r,w/2,h/2);
+      octx.beginPath(); octx.moveTo(x+rr,y);
+      octx.arcTo(x+w,y,x+w,y+h,rr); octx.arcTo(x+w,y+h,x,y+h,rr);
+      octx.arcTo(x,y+h,x,y,rr); octx.arcTo(x,y,x+w,y,rr); octx.closePath();
+      octx.save(); octx.clip();
+      const scale = Math.min(w/img.naturalWidth, h/img.naturalHeight);
+      const dw = img.naturalWidth*scale, dh = img.naturalHeight*scale;
+      const dx = x + (w-dw)/2, dy = y + (h-dh)/2;
+      octx.drawImage(img, dx, dy, dw, dh);
+      octx.restore();
+    }
+    for(const s of slots){ drawRounded(octx, s.img, s.x, s.y, s.w, s.h, radius); }
+    octx.restore();
+
+    // watermark jika belum login (placeholder: selalu on)
+    octx.save();
+    octx.globalAlpha = 0.8; octx.fillStyle = '#111827';
+    octx.font = Math.floor(off.width*0.04)+'px Inter, system-ui, Arial';
+    const text = 'mediadash.id';
+    const tw = octx.measureText(text).width; octx.fillText(text, off.width - tw - 36, off.height - 36);
+    octx.restore();
+
+    if(format==='pdf'){
+      const dataUrl = off.toDataURL('image/png');
+      // ringan: bungkus PNG ke PDF via canvas-to-PDF poly (tanpa lib eksternal kita simpan PNG langsung)
+      const a = document.createElement('a'); a.href = dataUrl; a.download='collage.png'; a.click(); return;
+    }
+
+    const mime = format==='jpeg' ? 'image/jpeg' : 'image/png';
+    const dataUrl = off.toDataURL(mime, format==='jpeg'?jpegq:1.0);
+    const a = document.createElement('a'); a.href=dataUrl; a.download = `collage.${format==='jpeg'?'jpg':'png'}`; a.click();
+  }
+
+  // Initial
+  render();
+  </script>
+</body>
+</html>
