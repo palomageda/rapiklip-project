@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MediaDash • PDF Tools</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto} .btn{ @apply px-4 py-2 rounded-lg font-semibold shadow-sm transition; } .btn-primary{ @apply bg-indigo-600 text-white hover:bg-indigo-700; } .btn-gray{ @apply bg-gray-600 text-white hover:bg-gray-700; } .btn-outline{ @apply border border-gray-300 bg-white hover:bg-gray-50; } .card{ @apply bg-white rounded-2xl shadow-lg p-5 md:p-7; }</style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/" class="text-lg font-bold">MediaDash ✨</a>
+        <a href="/" class="text-sm text-indigo-600 hover:underline">← Kembali ke Dasbor</a>
+      </div>
+      <div class="text-sm text-gray-500">PDF Studio</div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="mb-6">
+      <h1 class="text-2xl md:text-3xl font-extrabold">PDF Studio</h1>
+      <p class="text-gray-600 mt-2">Ubah PDF → gambar, gambar → PDF, gabung, atau ekstrak halaman. Semua proses dilakukan di browser Anda.</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <section class="card lg:col-span-2">
+        <nav class="flex gap-2 mb-4 flex-wrap" id="tabs">
+          <button data-tab="pdf2img" class="tab btn btn-outline">PDF → Images</button>
+          <button data-tab="img2pdf" class="tab btn btn-outline">Images → PDF</button>
+          <button data-tab="merge" class="tab btn btn-outline">Gabung PDF</button>
+          <button data-tab="extract" class="tab btn btn-outline">Ekstrak Halaman</button>
+        </nav>
+
+        <div id="views">
+          <!-- PDF → IMG -->
+          <div data-view="pdf2img" class="space-y-4 hidden">
+            <div class="flex items-center gap-3 flex-wrap">
+              <input id="pdf2img-file" type="file" accept="application/pdf" class="block" />
+              <label class="inline-flex items-center gap-2 text-sm"><span>DPI</span> <input id="pdf2img-dpi" type="range" min="72" max="300" step="4" value="200" /> <span id="dpi-val" class="font-medium">200</span></label>
+              <label class="inline-flex items-center gap-2 text-sm"><input id="pdf2img-watermark" type="checkbox" checked /> <span>Watermark mediadash.id</span></label>
+              <button id="pdf2img-run" class="btn btn-primary">Konversi & Unduh (ZIP)</button>
+            </div>
+            <div id="pdf2img-preview" class="grid grid-cols-2 md:grid-cols-3 gap-3"></div>
+          </div>
+
+          <!-- IMG → PDF -->
+          <div data-view="img2pdf" class="space-y-4 hidden">
+            <div class="flex items-center gap-3 flex-wrap">
+              <input id="img2pdf-files" type="file" accept="image/*" multiple class="block" />
+              <select id="img2pdf-size" class="border rounded-md p-2 text-sm">
+                <option value="a4">A4 (210×297 mm)</option>
+                <option value="a3">A3 (297×420 mm)</option>
+                <option value="letter">Letter (8.5×11 in)</option>
+                <option value="fit">Ukuran mengikuti gambar</option>
+              </select>
+              <select id="img2pdf-orient" class="border rounded-md p-2 text-sm">
+                <option value="p">Portrait</option>
+                <option value="l">Landscape</option>
+              </select>
+              <label class="inline-flex items-center gap-2 text-sm"><span>Margin (mm)</span> <input id="img2pdf-margin" type="number" class="w-20 border rounded-md p-1" value="8" min="0" /></label>
+              <select id="img2pdf-fit" class="border rounded-md p-2 text-sm">
+                <option value="contain">Fit (tanpa crop)</option>
+                <option value="cover">Cover (penuhi halaman)</option>
+              </select>
+              <label class="inline-flex items-center gap-2 text-sm"><input id="img2pdf-watermark" type="checkbox" checked /> <span>Watermark mediadash.id</span></label>
+              <button id="img2pdf-run" class="btn btn-primary">Buat & Unduh PDF</button>
+            </div>
+            <div id="img2pdf-list" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+          </div>
+
+          <!-- Merge PDF -->
+          <div data-view="merge" class="space-y-4 hidden">
+            <div class="flex items-center gap-3 flex-wrap">
+              <input id="merge-files" type="file" accept="application/pdf" multiple />
+              <button id="merge-run" class="btn btn-primary">Gabungkan & Unduh</button>
+            </div>
+            <ol id="merge-list" class="list-decimal pl-6 text-sm text-gray-600"></ol>
+          </div>
+
+          <!-- Extract PDF -->
+          <div data-view="extract" class="space-y-4 hidden">
+            <div class="flex items-center gap-3 flex-wrap">
+              <input id="extract-file" type="file" accept="application/pdf" />
+              <label class="inline-flex items-center gap-2 text-sm">Dari <input id="extract-from" type="number" min="1" value="1" class="w-20 border rounded-md p-1"></label>
+              <label class="inline-flex items-center gap-2 text-sm">Sampai <input id="extract-to" type="number" min="1" value="1" class="w-20 border rounded-md p-1"></label>
+              <button id="extract-run" class="btn btn-primary">Ekstrak & Unduh</button>
+            </div>
+            <p class="text-sm text-gray-600">Tips: Kosongkan "Sampai" untuk mengekstrak hanya 1 halaman.</p>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card space-y-4">
+        <h3 class="text-lg font-semibold">Catatan</h3>
+        <ul class="list-disc pl-5 text-sm text-gray-600 space-y-2">
+          <li>Semua proses berjalan lokal di browser—file Anda tidak diunggah.</li>
+          <li>Hasil gambar PNG diekspor dalam ZIP. Gunakan DPI lebih tinggi untuk cetak.</li>
+          <li>Watermark <b>mediadash.id</b> dapat dimatikan setelah login/berlangganan.</li>
+        </ul>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Dependencies -->
+  <script src="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+  <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js';</script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+
+  <script type="module">
+    const $ = s=>document.querySelector(s);
+    const $all = s=>Array.from(document.querySelectorAll(s));
+
+    // Tabs
+    const tabs = $all('#tabs .tab');
+    const views = $all('#views [data-view]');
+    function show(name){
+      views.forEach(v=>v.classList.toggle('hidden', v.dataset.view!==name));
+      tabs.forEach(t=>t.classList.toggle('btn-primary', t.dataset.tab===name));
+      tabs.forEach(t=>t.classList.toggle('text-white', t.dataset.tab===name));
+      tabs.forEach(t=>t.classList.toggle('btn-outline', t.dataset.tab!==name));
+      localStorage.setItem('md_pdf_tab', name);
+    }
+    tabs.forEach(t=>t.addEventListener('click',()=>show(t.dataset.tab)));
+    show(localStorage.getItem('md_pdf_tab')||'pdf2img');
+
+    // ===== PDF → Images =====
+    const dpiEl = $('#pdf2img-dpi');
+    const dpiVal = $('#dpi-val');
+    dpiEl.addEventListener('input', ()=> dpiVal.textContent = dpiEl.value);
+
+    $('#pdf2img-run').addEventListener('click', async ()=>{
+      const file = $('#pdf2img-file').files[0];
+      if(!file) return alert('Pilih file PDF terlebih dahulu');
+      const zip = new JSZip();
+      const arrayBuf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({data:arrayBuf}).promise;
+      const pages = pdf.numPages;
+      const container = $('#pdf2img-preview');
+      container.innerHTML = '';
+      const dpi = parseInt(dpiEl.value,10);
+      const useWm = $('#pdf2img-watermark').checked;
+
+      for(let p=1;p<=pages;p++){
+        const page = await pdf.getPage(p);
+        const viewport = page.getViewport({ scale: dpi/72 });
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = viewport.width; canvas.height = viewport.height;
+        await page.render({canvasContext:ctx, viewport}).promise;
+        if(useWm){ drawWatermark(ctx, canvas.width, canvas.height); }
+        const dataUrl = canvas.toDataURL('image/png');
+        const base64 = dataUrl.split(',')[1];
+        zip.file(`page-${String(p).padStart(3,'0')}.png`, base64, {base64:true});
+        const img = new Image(); img.src = dataUrl; img.className='w-full rounded-md shadow';
+        container.appendChild(img);
+      }
+      const blob = await zip.generateAsync({type:'blob'});
+      downloadBlob(blob, file.name.replace(/\.pdf$/i,'')+`-images.zip`);
+    });
+
+    // ===== Images → PDF =====
+    const imgList = $('#img2pdf-list');
+    $('#img2pdf-files').addEventListener('change', (e)=>{
+      imgList.innerHTML='';
+      [...e.target.files].forEach((f,i)=>{
+        const url = URL.createObjectURL(f);
+        const card = document.createElement('div');
+        card.className='bg-white rounded-lg shadow p-2 space-y-2';
+        card.innerHTML = `<img class="w-full h-32 object-cover rounded" src="${url}"><div class="flex items-center justify-between text-sm"><span>${f.name}</span><div class="flex gap-1"><button data-move="up" class="px-2 py-1 border rounded">↑</button><button data-move="down" class="px-2 py-1 border rounded">↓</button></div></div>`;
+        card.dataset.idx=i;
+        imgList.appendChild(card);
+      });
+      imgList.addEventListener('click', (ev)=>{
+        const btn=ev.target.closest('button'); if(!btn) return;
+        const card=ev.target.closest('[data-idx]');
+        if(btn.dataset.move==='up' && card.previousElementSibling){ card.parentNode.insertBefore(card, card.previousElementSibling); }
+        if(btn.dataset.move==='down' && card.nextElementSibling){ card.parentNode.insertBefore(card.nextElementSibling, card); }
+      }, {once:true});
+    });
+
+    $('#img2pdf-run').addEventListener('click', async ()=>{
+      const files = $('#img2pdf-files').files; if(!files.length) return alert('Pilih gambar');
+      const { jsPDF } = window.jspdf;
+      const sizeSel=$('#img2pdf-size').value; const orient=$('#img2pdf-orient').value; const margin=parseFloat($('#img2pdf-margin').value)||0; const fit=$('#img2pdf-fit').value; const useWm=$('#img2pdf-watermark').checked;
+
+      const order = Array.from(imgList.children).map((c,i)=>files[c.dataset.idx]);
+
+      // Determine page size in mm
+      let pageW=210, pageH=297; // A4 portrait
+      if(sizeSel==='a3'){pageW=297; pageH=420}
+      if(sizeSel==='letter'){pageW=216; pageH=279}
+      if(orient==='l'){ [pageW,pageH]=[pageH,pageW] }
+
+      let doc = new jsPDF({orientation: orient==='l'?'landscape':'portrait', unit:'mm', format: [pageW, pageH]});
+
+      for(let i=0;i<order.length;i++){
+        const f = order[i]; const img = await fileToImage(f);
+        // If fit size, resize page to image aspect for first page
+        if(sizeSel==='fit'){
+          const mm = pxToMm( img.width, img.height );
+          doc = i? doc : new jsPDF({orientation: mm.w>mm.h?'landscape':'portrait', unit:'mm', format:[mm.w, mm.h]});
+        }
+        if(i>0) doc.addPage();
+        const pw = doc.internal.pageSize.getWidth();
+        const ph = doc.internal.pageSize.getHeight();
+        const box = placeRect(pw-margin*2, ph-margin*2, img.width, img.height, fit);
+        const x = (pw - box.w)/2; const y = (ph - box.h)/2;
+        doc.addImage(img, 'JPEG', x, y, box.w, box.h, undefined, 'FAST');
+        if(useWm){ drawPdfWatermark(doc); }
+      }
+      doc.save('mediadash-images.pdf');
+    });
+
+    // ===== Merge PDFs =====
+    $('#merge-files').addEventListener('change', (e)=>{
+      const list=$('#merge-list'); list.innerHTML='';
+      [...e.target.files].forEach(f=>{ const li=document.createElement('li'); li.textContent=f.name; list.appendChild(li); });
+    });
+
+    $('#merge-run').addEventListener('click', async ()=>{
+      const files = $('#merge-files').files; if(!files.length) return alert('Pilih beberapa PDF');
+      const { PDFDocument } = PDFLib;
+      const out = await PDFDocument.create();
+      for(const f of files){
+        const bytes = new Uint8Array(await f.arrayBuffer());
+        const src = await PDFDocument.load(bytes);
+        const copied = await out.copyPages(src, src.getPageIndices());
+        copied.forEach(p=>out.addPage(p));
+      }
+      const pdfBytes = await out.save();
+      downloadBlob(new Blob([pdfBytes], {type:'application/pdf'}), 'merged.pdf');
+    });
+
+    // ===== Extract Pages =====
+    $('#extract-run').addEventListener('click', async ()=>{
+      const file = $('#extract-file').files[0]; if(!file) return alert('Pilih PDF');
+      const from = Math.max(1, parseInt($('#extract-from').value,10)||1);
+      let to = parseInt($('#extract-to').value,10);
+      const { PDFDocument } = PDFLib;
+      const srcBytes = new Uint8Array(await file.arrayBuffer());
+      const src = await PDFDocument.load(srcBytes);
+      const last = src.getPageCount();
+      if(!to || to<from) to=from; if(to>last) to=last;
+      const out = await PDFDocument.create();
+      const pages = await out.copyPages(src, Array.from({length:(to-from+1)}, (_,i)=>from-1+i));
+      pages.forEach(p=>out.addPage(p));
+      const pdfBytes = await out.save();
+      downloadBlob(new Blob([pdfBytes], {type:'application/pdf'}), `extract-${from}-${to}.pdf`);
+    });
+
+    // ===== Helpers =====
+    function drawWatermark(ctx, w, h){
+      ctx.save();
+      ctx.globalAlpha = 0.15;
+      ctx.translate(w/2, h/2); ctx.rotate(-Math.PI/6);
+      ctx.textAlign='center'; ctx.fillStyle='#1f2937';
+      ctx.font = `${Math.floor(Math.max(w,h)/12)}px Inter, sans-serif`;
+      ctx.fillText('mediadash.id', 0, 0);
+      ctx.restore();
+    }
+    function drawPdfWatermark(doc){
+      const pw = doc.internal.pageSize.getWidth();
+      const ph = doc.internal.pageSize.getHeight();
+      doc.setGState(new doc.GState({opacity:0.15}));
+      doc.setFontSize(Math.max(pw,ph)/8);
+      doc.setTextColor(31,41,55);
+      doc.text('mediadash.id', pw/2, ph/2, {angle: -30, align:'center'});
+      doc.setGState(new doc.GState({opacity:1}));
+    }
+    async function fileToImage(file){
+      const url = URL.createObjectURL(file);
+      const img = new Image(); img.src = url; await img.decode();
+      return img;
+    }
+    function pxToMm(w,h){ const k=25.4/96; return {w:w*k, h:h*k}; }
+    function placeRect(boxW, boxH, w, h, mode='contain'){
+      const r = w/h; let outW, outH;
+      if(mode==='cover'){ outW = Math.max(boxW, boxH*r); outH = outW / r; if(outH < boxH){ outH = boxH; outW = outH*r; } }
+      else { outW = Math.min(boxW, boxH*r); outH = outW / r; if(outH > boxH){ outH = boxH; outW = outH*r; } }
+      return {w: outW, h: outH};
+    }
+    function downloadBlob(blob, filename){
+      const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=filename; a.click(); setTimeout(()=>URL.revokeObjectURL(url), 1500);
+    }
+  </script>
+</body>
+</html>
