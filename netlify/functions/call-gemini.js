@@ -1,94 +1,87 @@
 // netlify/functions/call-gemini.js
 export async function handler(event) {
-  if (event.httpMethod === "OPTIONS") {
+  // CORS preflight
+  if (event.httpMethod === 'OPTIONS') {
     return {
       statusCode: 204,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Access-Control-Allow-Methods": "POST, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-      body: "",
+      headers: cors(),
     };
   }
 
-  if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ error: "Method not allowed" }),
-    };
-  }
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    return {
-      statusCode: 500,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ error: "Missing GEMINI_API_KEY" }),
-    };
+  if (event.httpMethod !== 'POST') {
+    return json({ ok: false, error: 'METHOD_NOT_ALLOWED' }, 405);
   }
 
   try {
-    const { prompt, base64Data, mimeType } = JSON.parse(event.body || "{}");
-    if (!prompt) {
-      return {
-        statusCode: 400,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ error: "Missing prompt" }),
-      };
+    const key =
+      process.env.GOOGLE_API_KEY ||
+      process.env.GEMINI_API_KEY ||
+      process.env.GOOGLE_GENAI_API_KEY;
+
+    if (!key) {
+      return json({ ok: false, error: 'MISSING_API_KEY' }, 500);
     }
 
-    const genUrl = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+    const body = JSON.parse(event.body || '{}');
+    const { prompt, base64Data, mimeType } = body;
+
+    if (!prompt || typeof prompt !== 'string') {
+      return json({ ok: false, error: 'PROMPT_REQUIRED' }, 400);
+    }
+
+    const model = 'gemini-1.5-flash';
+    const url =
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
 
     const parts = [{ text: prompt }];
     if (base64Data && mimeType) {
-      parts.push({ inline_data: { data: base64Data, mime_type: mimeType } });
+      parts.push({ inline_data: { mime_type: mimeType, data: base64Data } });
     }
 
-    const res = await fetch(`${genUrl}?key=${apiKey}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ role: "user", parts }] }),
+    const upstream = await fetch(url, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts }],
+        generationConfig: { temperature: 0.6 },
+      }),
     });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      return {
-        statusCode: res.status,
-        headers: { "Access-Control-Allow-Origin": "*" },
-        body: JSON.stringify({ error: errText }),
-      };
+    const upstreamJson = await upstream.json().catch(() => ({}));
+
+    if (!upstream.ok) {
+      return json(
+        { ok: false, error: 'UPSTREAM_ERROR', details: upstreamJson },
+        upstream.status
+      );
     }
 
-    const data = await res.json();
-    const text = data?.candidates?.[0]?.content?.parts?.map(p => p.text).join("\n") || "";
+    const text =
+      upstreamJson?.candidates?.[0]?.content?.parts
+        ?.map((p) => p.text)
+        ?.join('') ?? '';
 
-    return {
-      statusCode: 200,
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ response: text }),
-    };
-  } catch (e) {
-    return {
-      statusCode: 500,
-      headers: { "Access-Control-Allow-Origin": "*" },
-      body: JSON.stringify({ error: e.message || String(e) }),
-    };
+    return json({ ok: true, response: text });
+  } catch (err) {
+    console.error('call-gemini error:', err);
+    return json({ ok: false, error: 'INTERNAL_ERROR' }, 500);
   }
 }
 
-/* netlify.toml (place at repo root)
-[build]
-  command = "npm run build --if-present"
-  publish = "."
-[functions]
-  directory = "netlify/functions"
-  node_bundler = "esbuild"
-  included_files = []
-[functions.call-gemini]
-  timeout = 20
-*/
+function cors() {
+  return {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'POST,OPTIONS',
+    // cegah SW/caching iseng
+    'Cache-Control': 'no-store',
+  };
+}
+
+function json(body, statusCode = 200) {
+  return {
+    statusCode,
+    headers: cors(),
+    body: JSON.stringify(body),
+  };
+}
