@@ -3,480 +3,309 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MediaDash ✨ — AI Text Formatter</title>
+  <title>AI Text Formatter — MediaDash</title>
+  <meta name="description" content="Format teks untuk WhatsApp/medsos, perbaiki style dengan AI, dan pratinjau instan." />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <style>body{font-family:'Inter',system-ui,Arial,sans-serif}</style>
+  <style>
+    html, body { height: 100%; }
+    body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji'; }
+    .wa-bg {
+      background-image: radial-gradient(#0000000d 1px, transparent 1px);
+      background-size: 12px 12px;
+    }
+    .wa-bubble {
+      background: #e7ffd8;
+      border-radius: 16px;
+      border-top-left-radius: 16px;
+      border-top-right-radius: 16px;
+      border-bottom-right-radius: 4px;
+      box-shadow: 0 1px 1px rgb(0 0 0 / .05), 0 2px 4px rgb(0 0 0 / .04);
+    }
+    .kbd {
+      border: 1px solid #e5e7eb; border-bottom-width: 2px;
+      border-radius: .375rem; padding: .125rem .375rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: .75rem;
+      background: #fff;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-100">
-    <div class="max-w-7xl mx-auto px-4 h-14 flex items-center gap-4"><a href="/" class="text-sm font-semibold text-violet-600">← Kembali ke Dasbor</a><div class="font-bold">AI Text Formatter</div></div>
+<body class="bg-gray-50 min-h-full text-gray-800">
+  <!-- Navbar -->
+  <header class="sticky top-0 z-40 bg-white/80 backdrop-blur border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <a href="/" class="text-lg font-extrabold tracking-tight">MediaDash <span class="text-indigo-600">✨</span></a>
+        <a href="/" class="text-sm text-gray-500 hover:text-gray-700">&larr; Kembali ke Dasbor</a>
+      </div>
+      <div class="flex items-center gap-2">
+        <a href="#" class="px-3 py-1.5 rounded-md text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-700">Login / Daftar</a>
+      </div>
+    </div>
   </header>
-    <!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MediaDash: AI Content Suite</title>
-    <meta name="description" content="Format, ringkas, dan sempurnakan konten Anda untuk media sosial dengan bantuan AI. MediaDash adalah dasbor konten cerdas Anda.">
-    <meta name="keywords" content="mediadash, content formatter, text formatter, format wa, ai content suite, gemini api">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.7/firebase-firestore-compat.js"></script>
 
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .hidden { display: none; }
-        textarea::selection { background-color: #a5b4fc; color: black; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0, 0, 0, 0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s, visibility 0.3s; }
-        .modal-overlay.visible { opacity: 1; visibility: visible; }
-        .modal-content { background: white; padding: 2rem; border-radius: 0.5rem; text-align: center; max-width: 90%; width: 400px; }
-        .whatsapp-preview { background-color: #e5ddd5; background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #d1d5db; }
-        .whatsapp-chat-bubble { background-color: #dcf8c6; padding: 0.5rem 0.75rem; border-radius: 0.5rem; max-width: 80%; margin-left: auto; box-shadow: 0 1px 1px rgba(0,0,0,0.1); word-wrap: break-word; white-space: pre-wrap; }
-        
-        /* New Progress Bar Styles */
-        .progress-bar-container {
-            width: 100%;
-            background-color: #e5e7eb;
-            border-radius: 9999px;
-            overflow: hidden;
-        }
-        .progress-bar {
-            height: 1.5rem;
-            width: 0%;
-            background-color: #4f46e5;
-            transition: width 0.3s ease-in-out;
-            text-align: center;
-            line-height: 1.5rem;
-            color: white;
-            font-weight: 600;
-        }
-    </style>
-</head>
-<body class="bg-gray-100 text-gray-800">
-
-    <!-- Navbar -->
-    <nav class="bg-white shadow-md p-4 flex justify-between items-center sticky top-0 z-50">
-        <h1 class="text-2xl font-bold text-gray-900">MediaDash ✨</h1>
-        <div>
-            <div id="guest-view">
-                <button id="login-btn" class="px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700">Login / Daftar</button>
-            </div>
-            <div id="user-view" class="hidden items-center gap-4">
-                <span id="user-email" class="text-gray-700 text-sm hidden sm:inline"></span>
-                <button id="logout-btn" class="px-4 py-2 bg-red-500 text-white rounded-md font-semibold hover:bg-red-600">Logout</button>
-            </div>
-        </div>
-    </nav>
-
-    <main class="p-4 md:p-8">
-        <div class="w-full max-w-5xl mx-auto">
-            <!-- Notifikasi untuk pengguna tamu -->
-            <div id="guest-notification" class="hidden mb-6 bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded-md">
-                <p>Anda menggunakan mode tamu. <button id="login-link" class="font-bold underline">Login atau daftar</button> untuk mendapatkan akses tak terbatas.</p>
-                <p class="mt-2">Sisa penggunaan hari ini: <span id="usage-count" class="font-bold">5</span></p>
-            </div>
-
-            <!-- Konten Aplikasi Utama -->
-            <div class="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                <div class="border border-gray-200 rounded-lg p-4 mb-6">
-                    <h2 class="text-xl font-semibold text-indigo-800 mb-4">Fitur Bantuan AI</h2>
-                    <div id="ai-features-panel">
-                        <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 mb-4">
-                            <h3 class="font-semibold text-lg text-indigo-700 mb-2">1. Format Berdasarkan Contoh</h3>
-                            <p class="text-sm text-gray-600 mb-3">Punya format laporan yang Anda sukai? AI akan meniru gaya format dari teks contoh dan menerapkannya pada teks baru Anda.</p>
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label for="example-text" class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Contoh (dengan format)</label>
-                                    <textarea id="example-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
-                                </div>
-                                <div>
-                                    <label for="target-text" class="block text-sm font-medium text-gray-700 mb-1">Tempel Teks Baru (tanpa format)</label>
-                                    <textarea id="target-text" rows="5" class="w-full p-2 border border-gray-300 rounded-md"></textarea>
-                                </div>
-                            </div>
-                            <button id="format-by-example-btn" class="mt-3 w-full px-4 py-2 bg-indigo-600 text-white rounded-md font-semibold hover:bg-indigo-700 transition-colors">🤖 Tiru Format</button>
-                        </div>
-                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                            <h3 class="font-semibold text-lg text-purple-700 mb-2">2. Format Cerdas & Ringkas</h3>
-                            <p class="text-sm text-gray-600 mb-3">Biarkan AI bekerja untuk Anda. Tempel teks di editor di bawah, lalu pilih salah satu fungsi otomatis ini.</p>
-                            <div class="flex flex-col sm:flex-row gap-2">
-                                <button id="smart-format-btn" class="w-full px-4 py-2 bg-purple-500 text-white rounded-md font-semibold hover:bg-purple-600 transition-colors">🧠 Format Cerdas</button>
-                                <button id="summarize-btn" class="w-full px-4 py-2 bg-green-500 text-white rounded-md font-semibold hover:bg-green-600 transition-colors">📚 Ringkas Teks</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label for="editor" class="block text-lg font-semibold text-gray-800 mb-2">Editor Utama & Hasil</label>
-                    <textarea id="editor" rows="10" class="w-full p-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Hasil dari AI akan muncul di sini."></textarea>
-                </div>
-
-                <div class="mt-2 bg-gray-50 border border-gray-200 rounded-lg p-2 flex flex-wrap items-center gap-2">
-                    <span class="text-sm font-medium text-gray-600 mr-2">Format Manual:</span>
-                    <button id="bold-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md font-bold text-gray-700 hover:bg-gray-100">B</button>
-                    <button id="italic-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md italic font-serif text-gray-700 hover:bg-gray-100">I</button>
-                    <button id="strike-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md line-through text-gray-700 hover:bg-gray-100">S</button>
-                    <button id="mono-btn" class="px-3 py-1 bg-white border border-gray-300 rounded-md font-mono text-xs text-gray-700 hover:bg-gray-100">Monospace</button>
-                </div>
-
-                <div class="mt-6">
-                    <h3 class="text-lg font-semibold text-gray-800 mb-2">Tampilan di WhatsApp</h3>
-                    <div class="whatsapp-preview">
-                        <div class="whatsapp-chat-bubble" id="whatsapp-output">Tampilan teks Anda akan muncul di sini...</div>
-                    </div>
-                </div>
-
-                <div class="mt-6 flex flex-wrap gap-2 justify-end">
-                     <button id="copy-btn" class="w-full sm:w-auto px-5 py-2 bg-gray-700 text-white rounded-md font-semibold hover:bg-gray-800">Salin Hasil</button>
-                     <button id="clear-btn" class="w-full sm:w-auto px-5 py-2 bg-red-500 text-white rounded-md font-semibold hover:bg-red-600">Bersihkan Semua</button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal untuk Login/Registrasi -->
-    <div id="auth-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-        <div class="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Selamat Datang di MediaDash</h3>
-                <div class="mt-2 px-7 py-3">
-                    <input type="email" id="email-input" placeholder="Email" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none mb-3">
-                    <input type="password" id="password-input" placeholder="Password" type="password" class="w-full px-3 py-2 text-gray-700 border rounded-lg focus:outline-none">
-                </div>
-                <div class="items-center px-4 py-3">
-                    <button id="register-btn" class="px-4 py-2 bg-green-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-green-600">Daftar dengan Email</button>
-                    <button id="email-login-btn" class="mt-2 px-4 py-2 bg-indigo-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-indigo-600">Login dengan Email</button>
-                    <p class="my-2 text-gray-500">atau</p>
-                    <button id="google-login-btn" class="px-4 py-2 bg-white border border-gray-300 text-gray-700 text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-50 flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
-                        Login dengan Google
-                    </button>
-                </div>
-                 <button id="close-modal-btn" class="mt-4 text-sm text-gray-500 underline">Tutup</button>
-            </div>
-        </div>
+  <!-- Main -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <div class="mb-6">
+      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900">AI Text Formatter</h1>
+      <p class="text-gray-600 mt-1">Tulis atau tempel teks, format manual, atau minta AI merapikan untuk WhatsApp & media sosial. Pratinjau akan muncul di sebelah kanan.</p>
     </div>
 
-    <!-- Modal untuk Loading & Error -->
-    <div id="modal" class="modal-overlay"><div id="modal-content-area"></div></div>
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <!-- Editor card -->
+      <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-4 sm:px-6 py-4 border-b border-gray-200 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2">
+            <button id="btn-bold"   class="px-3 py-1.5 rounded-md border text-sm font-semibold hover:bg-gray-50">B</button>
+            <button id="btn-italic" class="px-3 py-1.5 rounded-md border text-sm font-semibold hover:bg-gray-50 italic">I</button>
+            <button id="btn-strike" class="px-3 py-1.5 rounded-md border text-sm font-semibold hover:bg-gray-50 line-through">S</button>
+            <button id="btn-mono"   class="px-3 py-1.5 rounded-md border text-sm font-semibold hover:bg-gray-50"><span class="kbd">mono</span></button>
+            <span class="hidden sm:inline-block text-gray-300 select-none">|</span>
+            <button id="btn-bullets" class="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50">• Bullet</button>
+            <button id="btn-numbers" class="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50">1. Number</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <select id="tone" class="text-sm border-gray-300 rounded-md">
+              <option value="netral" selected>Nada: Netral</option>
+              <option value="santai">Nada: Santai</option>
+              <option value="profesional">Nada: Profesional</option>
+              <option value="persuasif">Nada: Persuasif</option>
+            </select>
+            <select id="length" class="text-sm border-gray-300 rounded-md">
+              <option value="ringkas" selected>Panjang: Ringkas</option>
+              <option value="sedang">Sedang</option>
+              <option value="lengkap">Lengkap</option>
+            </select>
+            <button id="btn-ai" class="px-3 py-1.5 rounded-md bg-indigo-600 text-white text-sm font-semibold hover:bg-indigo-700">✨ Format dengan AI</button>
+          </div>
+        </div>
 
-    <script>
-        // --- KONFIGURASI FIREBASE ANDA ---
-        const firebaseConfig = {
-          apiKey: "MASUKKAN_FIREBASE_API_KEY_ANDA_DI_SINI",
-          authDomain: "mediadash-app.firebaseapp.com",
-          projectId: "mediadash-app",
-          storageBucket: "mediadash-app.appspot.com",
-          messagingSenderId: "832563611731",
-          appId: "1:832563611731:web:cb069bc4eab1014fabdea6"
-        };
+        <div class="p-4 sm:p-6">
+          <textarea id="editor" rows="10" placeholder="Tulis atau tempel teks di sini..."
+            class="w-full resize-y min-h-[220px] rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 p-3"></textarea>
 
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-        const googleProvider = new firebase.auth.GoogleAuthProvider();
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <button id="btn-clear" class="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50">Bersihkan</button>
+            <button id="btn-copy"  class="px-3 py-1.5 rounded-md border text-sm hover:bg-gray-50">Salin</button>
+            <span class="text-xs text-gray-500 ml-auto" id="counter">0 karakter</span>
+          </div>
 
-        // --- DOM Elements ---
-        const guestView = document.getElementById('guest-view');
-        const userView = document.getElementById('user-view');
-        const userEmail = document.getElementById('user-email');
-        const guestNotification = document.getElementById('guest-notification');
-        const usageCount = document.getElementById('usage-count');
-        
-        const loginBtn = document.getElementById('login-btn');
-        const loginLink = document.getElementById('login-link');
-        const logoutBtn = document.getElementById('logout-btn');
+          <div id="note" class="mt-3 hidden text-sm"></div>
+        </div>
+      </section>
 
-        const authModal = document.getElementById('auth-modal');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const emailInput = document.getElementById('email-input');
-        const passwordInput = document.getElementById('password-input');
-        const registerBtn = document.getElementById('register-btn');
-        const emailLoginBtn = document.getElementById('email-login-btn');
-        const googleLoginBtn = document.getElementById('google-login-btn');
+      <!-- Preview card -->
+      <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-4 sm:px-6 py-4 border-b border-gray-200">
+          <h2 class="font-semibold">Pratinjau WhatsApp</h2>
+        </div>
+        <div class="p-4 sm:p-6 wa-bg">
+          <div class="max-w-md">
+            <div class="wa-bubble p-4">
+              <div id="preview" class="prose prose-sm max-w-none">
+                <p class="text-gray-500">Teks Anda akan tampil di sini…</p>
+              </div>
+            </div>
+            <div class="text-[10px] text-gray-400 mt-2">mediadash.id</div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
 
-        const editor = document.getElementById('editor');
-        const copyBtn = document.getElementById('copy-btn');
-        const clearBtn = document.getElementById('clear-btn');
-        const modal = document.getElementById('modal');
-        const modalContentArea = document.getElementById('modal-content-area');
-        const whatsappOutput = document.getElementById('whatsapp-output');
-        const boldBtn = document.getElementById('bold-btn');
-        const italicBtn = document.getElementById('italic-btn');
-        const strikeBtn = document.getElementById('strike-btn');
-        const monoBtn = document.getElementById('mono-btn');
+  <script>
+    // ====== Utilities ======
+    const $ = (sel) => document.querySelector(sel);
 
-        // --- UI Logic ---
-        const openModal = () => authModal.classList.remove('hidden');
-        const closeModal = () => authModal.classList.add('hidden');
-        
-        loginBtn.addEventListener('click', openModal);
-        loginLink.addEventListener('click', openModal);
-        closeModalBtn.addEventListener('click', closeModal);
+    function escapeHTML(str) {
+      return str
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+    }
 
-        let progressInterval;
-        function showProgressBar() {
-            modalContentArea.innerHTML = `
-                <div class="modal-content">
-                    <h3 class="text-lg font-medium text-gray-900 mb-4">AI sedang bekerja...</h3>
-                    <div class="progress-bar-container">
-                        <div id="progress-bar" class="progress-bar">0%</div>
-                    </div>
-                </div>
-            `;
-            modal.classList.add('visible');
-            
-            const progressBar = document.getElementById('progress-bar');
-            let width = 0;
-            // Animate the progress bar to 90% and hold
-            progressInterval = setInterval(() => {
-                if (width >= 90) {
-                    clearInterval(progressInterval);
-                } else {
-                    width++;
-                    progressBar.style.width = width + '%';
-                    progressBar.textContent = width + '%';
-                }
-            }, 30); // Adjust timing for smoother animation
-        }
+    // Convert WA markdown (*bold* _italic_ ~strike~ ```mono```) to HTML for preview only
+    function waToHTML(src) {
+      // Escape HTML first
+      let s = escapeHTML(src);
 
-        function hideProgressBar() {
-            clearInterval(progressInterval);
-            const progressBar = document.getElementById('progress-bar');
-            if (progressBar) {
-                progressBar.style.width = '100%';
-                progressBar.textContent = '100%';
-            }
-            setTimeout(() => {
-                modal.classList.remove('visible');
-                modalContentArea.innerHTML = '';
-            }, 500);
-        }
+      // Protect triple backticks blocks
+      s = s.replace(/```([\s\S]*?)```/g, (_m, p1) => {
+        return `<pre class="whitespace-pre-wrap bg-gray-100 rounded px-2 py-1 text-[.9em]">${escapeHTML(p1)}</pre>`;
+      });
 
-        function showError(message) {
-            modal.classList.add('visible');
-            modalContentArea.innerHTML = `<div class="modal-content"><h3 class="text-xl font-bold text-red-600 mb-2">Terjadi Kesalahan</h3><p class="text-gray-700">${message}</p><button id="close-error-modal-btn" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-md">Tutup</button></div>`;
-            document.getElementById('close-error-modal-btn').addEventListener('click', () => modal.classList.remove('visible'));
-        }
+      // Inline monospace using single backtick
+      s = s.replace(/`([^`]+?)`/g, (_m, p1) => `<code class="bg-gray-100 rounded px-1">${p1}</code>`);
 
-        // --- Auth State Management ---
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                guestView.classList.add('hidden');
-                userView.classList.remove('hidden');
-                userEmail.textContent = user.email;
-                guestNotification.classList.add('hidden');
-                closeModal();
-            } else {
-                guestView.classList.remove('hidden');
-                userView.classList.add('hidden');
-                userEmail.textContent = '';
-                guestNotification.classList.remove('hidden');
-                updateGuestUsageUI();
-            }
-        });
+      // Bold / Italic / Strike
+      s = s.replace(/\*([^\*\n]+)\*/g, '<strong>$1</strong>');
+      s = s.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+      s = s.replace(/~([^~\n]+)~/g, '<del>$1</del>');
 
-        // --- Guest Usage Logic ---
-        const USAGE_LIMIT = 5;
-        function getGuestUsage() {
-            const usageData = JSON.parse(localStorage.getItem('mediaDashGuestUsage')) || { count: 0, date: '' };
-            const today = new Date().toISOString().split('T')[0];
-            if (usageData.date !== today) {
-                const newUsageData = { count: 0, date: today };
-                localStorage.setItem('mediaDashGuestUsage', JSON.stringify(newUsageData));
-                return newUsageData;
-            }
-            return usageData;
-        }
+      // Newlines to <br>
+      s = s.replace(/\n/g, '<br/>');
+      return s;
+    }
 
-        function updateGuestUsage(usageData) {
-            localStorage.setItem('mediaDashGuestUsage', JSON.stringify(usageData));
-            updateGuestUsageUI();
-        }
-        
-        function updateGuestUsageUI() {
-            const usageData = getGuestUsage();
-            const remaining = USAGE_LIMIT - usageData.count;
-            usageCount.textContent = remaining > 0 ? remaining : 0;
-        }
+    function updateCounter() {
+      const len = $('#editor').value.length;
+      $('#counter').textContent = `${len} karakter`;
+    }
 
-        // --- Firebase Auth Functions ---
-        registerBtn.addEventListener('click', () => {
-            auth.createUserWithEmailAndPassword(emailInput.value, passwordInput.value)
-                .catch(error => alert(error.message));
-        });
+    function updatePreview() {
+      const txt = $('#editor').value.trim();
+      $('#preview').innerHTML = txt ? waToHTML(txt) : '<p class="text-gray-500">Teks Anda akan tampil di sini…</p>';
+      updateCounter();
+    }
 
-        emailLoginBtn.addEventListener('click', () => {
-            auth.signInWithEmailAndPassword(emailInput.value, passwordInput.value)
-                .catch(error => alert(error.message));
-        });
-        
-        googleLoginBtn.addEventListener('click', () => {
-            auth.signInWithPopup(googleProvider)
-                .catch(error => alert(error.message));
-        });
+    // ====== Formatting actions ======
+    function wrapSelection(textarea, left, right = left) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const val = textarea.value;
+      const hasSel = start !== end;
+      const before = val.slice(0, start);
+      const sel = val.slice(start, end);
+      const after = val.slice(end);
+      const insert = hasSel ? left + sel + right : left + right;
+      const pos = hasSel ? start + left.length + sel.length + right.length : start + left.length;
+      textarea.value = before + insert + after;
+      textarea.focus();
+      textarea.setSelectionRange(pos, pos);
+      updatePreview();
+    }
 
-        logoutBtn.addEventListener('click', () => {
-            auth.signOut();
-        });
+    function prefixLines(textarea, prefix) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const val = textarea.value;
+      const before = val.slice(0, start);
+      const sel = val.slice(start, end) || '';
+      const after = val.slice(end);
+      const lines = (sel || '\n').split('\n');
+      const transformed = lines.map(l => l.trim() ? `${prefix}${l}` : l).join('\n');
+      const result = before + transformed + after;
+      textarea.value = result;
+      const newEnd = before.length + transformed.length;
+      textarea.focus();
+      textarea.setSelectionRange(newEnd, newEnd);
+      updatePreview();
+    }
 
-        // --- Core Application Logic ---
-        function updatePreview(text) {
-            if (!text) {
-                whatsappOutput.innerHTML = 'Tampilan teks Anda akan muncul di sini...';
-                return;
-            }
-            let html = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-            html = html.replace(/\*(.*?)\*/g, '<b>$1</b>');
-            html = html.replace(/_(.*?)_/g, '<i>$1</i>');
-            html = html.replace(/~(.*?)~/g, '<s>$1</s>');
-            html = html.replace(/```(.*?)```/g, '<tt>$1</tt>');
-            whatsappOutput.innerHTML = html;
-        }
-        
-        editor.addEventListener('input', (e) => updatePreview(e.target.value));
+    // ====== AI Integration ======
+    async function callGeminiAPI(prompt, base64Data, mimeType) {
+      const res = await fetch('/.netlify/functions/call-gemini', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt, base64Data, mimeType })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data?.ok) {
+        const msg = data?.error || `HTTP_${res.status}`;
+        throw new Error(msg);
+      }
+      return data.response || '';
+    }
 
-        function cleanupAIResponse(text) {
-            const lines = text.split('\n');
-            if (lines.length > 1 && !lines[0].includes('*') && !lines[0].includes('_')) {
-               const firstLineLower = lines[0].toLowerCase();
-               if (firstLineLower.includes('berikut') || firstLineLower.includes('ini adalah') || firstLineLower.includes('tentu')) {
-                   text = lines.slice(1).join('\n').trim();
-               }
-            }
-            text = text.replace(/\*\*+/g, '*').replace(/__+/g, '_');
-            return text.trim();
-        }
+    function setNote(msg, type='info') {
+      const el = $('#note');
+      el.classList.remove('hidden', 'text-red-600', 'text-amber-600', 'text-green-600');
+      el.classList.add(type === 'error' ? 'text-red-600' : type === 'warn' ? 'text-amber-600' : 'text-green-600');
+      el.textContent = msg;
+    }
 
-        function formatText(openChar, closeChar) {
-            const start = editor.selectionStart;
-            const end = editor.selectionEnd;
-            const selectedText = editor.value.substring(start, end);
-            const beforeText = editor.value.substring(0, start);
-            const afterText = editor.value.substring(end);
+    function clearNote() {
+      const el = $('#note');
+      el.classList.add('hidden');
+      el.textContent = '';
+    }
 
-            if (start === end) {
-                editor.value = `${beforeText}${openChar}${closeChar}${afterText}`;
-                editor.focus();
-                editor.selectionStart = editor.selectionEnd = start + openChar.length;
-            } else {
-                editor.value = `${beforeText}${openChar}${selectedText}${closeChar}${afterText}`;
-                editor.focus();
-                editor.selectionStart = start;
-                editor.selectionEnd = end + openChar.length + closeChar.length;
-            }
-            updatePreview(editor.value);
-        }
+    async function aiFormat() {
+      clearNote();
+      const input = $('#editor').value.trim();
+      if (!input) { setNote('Tolong isi teks terlebih dahulu.', 'warn'); return; }
 
-        async function callGeminiAPI(prompt, base64Data, mimeType) {
-  const res = await fetch('/.netlify/functions/call-gemini', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, base64Data, mimeType }),
-  });
+      const tone = $('#tone').value;      // santai / profesional / persuasif / netral
+      const length = $('#length').value;  // ringkas / sedang / lengkap
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok || !data.ok) {
-    const msg = data?.error || `HTTP_${res.status}`;
-    throw new Error(`AI error: ${msg}`);
-  }
-  return data.response;
-}
-            showProgressBar();
-            try {
-                const response = await fetch('/.netlify/functions/call-gemini', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: prompt })
-                });
+      const btn = $('#btn-ai');
+      const originalHTML = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '⏳ Memformat…';
 
-                if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`Server error: ${response.status}. ${errorText}`);
-                }
+      try {
+        const prompt = [
+          'Tolong format teks berikut agar siap kirim di WhatsApp:',
+          '- Pertahankan makna asli, hilangkan pengulangan/typo.',
+          '- Gunakan markdown WhatsApp: *bold*, _italic_, ~strikethrough~, ```monospace``` bila perlu.',
+          `- Nada: ${tone}. Panjang: ${length}.`,
+          '- Jika cocok, jadikan poin/bullet, tambahkan paragraf yang rapi.',
+          '- Jangan tambahkan pembuka/penutup bertele-tele.',
+          '- Balas hanya teks hasil akhir (tanpa penjelasan).',
+          '',
+          input
+        ].join('\n');
 
-                const result = await response.json();
-                if (result.candidates && result.candidates[0].content.parts.length > 0) {
-                    let rawText = result.candidates[0].content.parts[0].text;
-                    return cleanupAIResponse(rawText);
-                } else {
-                    const blockReason = result.candidates?.[0]?.finishReason;
-                    throw new Error(blockReason === 'SAFETY' ? "Permintaan diblokir karena alasan keamanan." : "Gagal mendapatkan respons dari AI.");
-                }
-            } finally {
-                hideProgressBar();
-            }
-        }
-        
-        function addAiFeatureListeners() {
-            document.getElementById('format-by-example-btn').addEventListener('click', async () => {
-                const example = document.getElementById('example-text').value.trim();
-                const target = document.getElementById('target-text').value.trim();
-                if (!example || !target) { showError("Mohon isi 'Teks Contoh' dan 'Teks Baru'."); return; }
-                try {
-                    const prompt = `Anda adalah AI ahli format. Analisis gaya format dari "CONTOH" dan terapkan gaya yang sama persis ke "TEKS BARU".\n\n---\nCONTOH:\n${example}\n---\nTEKS BARU:\n${target}\n---\n\nHASIL FORMAT (hanya berikan teks yang sudah diformat, tanpa kalimat pembuka):`;
-                    const result = await callGeminiAPI(prompt);
-                    editor.value = result;
-                    updatePreview(result);
-                } catch (error) { showError(error.message); }
-            });
+        const out = await callGeminiAPI(prompt);
+        if (!out) throw new Error('AI tidak mengembalikan teks.');
+        $('#editor').value = out.trim();
+        updatePreview();
+        setNote('Teks berhasil diformat oleh AI.', 'info');
+      } catch (err) {
+        console.error(err);
+        setNote(`Gagal memanggil AI: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+      }
+    }
 
-            document.getElementById('smart-format-btn').addEventListener('click', async () => {
-                const textToFormat = editor.value.trim();
-                if (!textToFormat) { showError("Tidak ada teks di editor untuk diformat."); return; }
-                try {
-                    const prompt = `Tugas Anda adalah memformat teks berikut untuk WhatsApp dengan aturan yang SANGAT KETAT. ATURAN UTAMA: 1. **JAGA STRUKTUR ASLI:** Jika input adalah satu paragraf, output HARUS tetap satu paragraf. Jangan menambahkan baris baru. 2. **CETAK MIRING (_teks_):** Gunakan HANYA untuk istilah dalam bahasa asing (contoh: _monitoring_, _digital_). 3. **CETAK TEBAL (*teks*):** Gunakan untuk frasa kunci yang paling menonjolkan tujuan atau kesimpulan utama dari teks. Beri perhatian khusus pada bagian awal (tujuan) dan akhir (kesimpulan) dari paragraf untuk menemukan kandidat cetak tebal. 4. **JANGAN MENAMBAHKAN TEKS APAPUN:** Jangan memberi kalimat pembuka/penutup. CONTOH YANG DIINGINKAN: Input: "Pemerintah pusat dan daerah disarankan memperkuat edukasi dan sosialisasi CKG, khususnya di wilayah dengan kerawanan tinggi dan akses digital terbatas. Optimalisasi pemanfaatan teknologi digital, pelibatan aktif tenaga kesehatan, serta pemberdayaan tokoh masyarakat sangat penting untuk meningkatkan monitoring berkelanjutan dan memastikan keberlanjutan serta dampak jangka panjang program CKG." Output yang Diinginkan: "Pemerintah pusat dan daerah disarankan *memperkuat edukasi dan sosialisasi CKG*, khususnya di wilayah dengan kerawanan tinggi dan *akses digital terbatas*. Optimalisasi pemanfaatan teknologi _digital_, pelibatan aktif tenaga kesehatan, serta pemberdayaan tokoh masyarakat sangat penting untuk meningkatkan _monitoring_ berkelanjutan dan *memastikan keberlanjutan serta dampak jangka panjang program CKG*." Sekarang, format narasi di bawah ini dengan aturan yang sama: """ ${textToFormat} """`;
-                    const result = await callGeminiAPI(prompt);
-                    editor.value = result;
-                    updatePreview(result);
-                } catch (error) { showError(error.message); }
-            });
+    // ====== Bindings ======
+    window.addEventListener('DOMContentLoaded', () => {
+      // Persist kecil via sessionStorage
+      const saved = sessionStorage.getItem('md_formatter_text');
+      if (saved) $('#editor').value = saved;
+      updatePreview();
 
-            document.getElementById('summarize-btn').addEventListener('click', async () => {
-                const textToSummarize = editor.value.trim();
-                if (!textToSummarize) { showError("Tidak ada teks di editor untuk diringkas."); return; }
-                try {
-                    const prompt = `Anda adalah seorang *copyeditor* profesional yang sangat ahli dalam *conciseness* (keringkasan). Tugas Anda adalah menulis ulang paragraf di bawah ini menjadi versi yang jauh lebih singkat dan padat, tetapi dengan **ATURAN MUTLAK: 100% informasi dan makna asli harus tetap utuh.** Caranya: - Ganti frasa panjang dengan kata yang lebih singkat. - Hilangkan semua kata-kata yang tidak perlu. - Gabungkan kalimat untuk efisiensi. - Hasil akhir HARUS dalam satu paragraf tunggal. - Setelah diringkas, terapkan format WhatsApp dengan ATURAN SANGAT KETAT: - **Cetak Tebal (*teks*):** Gunakan untuk menyorot informasi paling krusial. Ini biasanya mencakup **subjek utama atau rekomendasi di awal kalimat**, dan juga **tujuan atau dampak di akhir kalimat**. Anda boleh menebalkan lebih dari satu frasa jika keduanya sama-sama penting. - **Cetak Miring (_teks*):** ATURAN PALING PENTING: Gunakan HANYA dan EKSKLUSIF untuk kata dalam BAHASA ASING (contoh: Bahasa Inggris seperti _monitoring_, _digital_). JANGAN PERNAH, dalam kondisi apapun, gunakan cetak miring untuk kata dalam Bahasa Indonesia. Tulis ulang teks berikut menjadi versi yang paling efisien dan padat tanpa kehilangan makna sedikit pun: """ ${textToSummarize} """`;
-                    const result = await callGeminiAPI(prompt);
-                    editor.value = result;
-                    updatePreview(result);
-                } catch (error) { showError(error.message); }
-            });
-        }
+      $('#editor').addEventListener('input', () => {
+        updatePreview();
+        sessionStorage.setItem('md_formatter_text', $('#editor').value);
+      });
 
-        function addManualFormatListeners() {
-            boldBtn.addEventListener('click', () => formatText('*', '*'));
-            italicBtn.addEventListener('click', () => formatText('_', '_'));
-            strikeBtn.addEventListener('click', () => formatText('~', '~'));
-            monoBtn.addEventListener('click', () => formatText('```', '```'));
-        }
+      $('#btn-bold').addEventListener('click',  () => wrapSelection($('#editor'), '*'));
+      $('#btn-italic').addEventListener('click', () => wrapSelection($('#editor'), '_'));
+      $('#btn-strike').addEventListener('click', () => wrapSelection($('#editor'), '~'));
+      $('#btn-mono').addEventListener('click',   () => wrapSelection($('#editor'), '```', '```'));
 
-        copyBtn.addEventListener('click', () => {
-            if (!editor.value) return;
-            editor.select();
-            document.execCommand('copy');
-            alert('Teks berhasil disalin!');
-        });
-        clearBtn.addEventListener('click', () => {
-            editor.value = '';
-            document.getElementById('example-text').value = '';
-            document.getElementById('target-text').value = '';
-            updatePreview('');
-            editor.focus();
-        });
+      $('#btn-bullets').addEventListener('click', () => prefixLines($('#editor'), '• '));
+      $('#btn-numbers').addEventListener('click', () => {
+        const ta = $('#editor');
+        const start = ta.selectionStart;
+        const end = ta.selectionEnd;
+        const val = ta.value;
+        const before = val.slice(0, start);
+        const sel = val.slice(start, end) || '';
+        const after = val.slice(end);
+        const lines = (sel || '\n').split('\n');
+        let n = 1;
+        const transformed = lines.map(l => l.trim() ? `${n++}. ${l}` : l).join('\n');
+        ta.value = before + transformed + after;
+        const newEnd = before.length + transformed.length;
+        ta.focus(); ta.setSelectionRange(newEnd, newEnd);
+        updatePreview();
+      });
 
-        document.addEventListener('DOMContentLoaded', () => {
-            addAiFeatureListeners();
-            addManualFormatListeners();
-            updatePreview(editor.value);
-        });
-    </script>
+      $('#btn-clear').addEventListener('click', () => { $('#editor').value=''; updatePreview(); clearNote(); });
+      $('#btn-copy').addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText($('#editor').value); setNote('Teks disalin ke clipboard.', 'info'); }
+        catch { setNote('Gagal menyalin. Salin manual saja.', 'warn'); }
+      });
+
+      $('#btn-ai').addEventListener('click', aiFormat);
+    });
+  </script>
 </body>
 </html>
