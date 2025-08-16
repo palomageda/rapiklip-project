@@ -1,253 +1,241 @@
-<!-- =============================================
-FILE: features/formatter.html  (single-file page)
-Put this anywhere in your repo and link to it from your home page nav.
-Requires a Netlify function at /.netlify/functions/call-gemini (see below).
-============================================= -->
 <!doctype html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>AI Text Formatter • MediaDash</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>AI Text Formatter · MediaDash</title>
+<style>
+  :root{
+    --bg:#0b0c0f; --card:#111318; --muted:#99a0ae; --accent:#6d5ef6;
+    --green:#22c55e; --amber:#f59e0b; --red:#ef4444; --ring:#2a2f3a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#0b0c0f;color:#e7ebf3;font:16px/1.5 ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;}
+  a{color:#9aa4ff;text-decoration:none}
+  .wrap{max-width:1200px;margin:auto;padding:24px}
+  .topbar{display:flex;gap:12px;align-items:center;margin-bottom:20px}
+  .btn-link{color:#cbd5e1}
+  .title{font-size:28px;font-weight:700}
+  .grid{display:grid;grid-template-columns:1fr 380px;gap:24px}
+  @media(max-width:1020px){.grid{grid-template-columns:1fr}}
+  .section{background:var(--card);border:1px solid #1c2029;border-radius:16px;padding:16px}
+  .section h3{margin:0 0 12px;font-size:18px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:720px){.row{grid-template-columns:1fr}}
+  textarea{
+    width:100%;min-height:160px;background:#0f1116;border:1px solid #1f2530;color:#e8ecf6;
+    border-radius:12px;padding:12px;outline:none;resize:vertical;line-height:1.6;
+  }
+  textarea:focus{border-color:#2e3750;box-shadow:0 0 0 3px rgba(109,94,246,.15)}
+  .toolbar{display:flex;gap:12px;align-items:center;margin-top:10px}
+  .pill{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:999px;border:1px solid #273043;background:#121420;color:#e6ebf6;font-weight:600;cursor:pointer}
+  .pill.green{background:#0e1a14;border-color:#1f3b2a;color:#b7f3c6}
+  .pill.amber{background:#171308;border-color:#3b2f12;color:#ffe1a6}
+  .pill:disabled{opacity:.5;cursor:not-allowed}
+  .err{margin-left:8px;color:#ffb4b4;font-size:12px}
+  .editor{min-height:260px}
+  .row-actions{display:flex;gap:10px;align-items:center;margin-top:8px}
+  .ghost{border:1px dashed #2b3340;background:#0f1219;color:#b7c0d1}
+  .ghost:hover{border-color:#3a4352}
+
+  /* WhatsApp preview card */
+  .wa-card{background:#e7ddd2;border-radius:24px;border:1px solid #cbbbae;overflow:hidden}
+  .wa-head{background:#075E54;color:#fff;padding:10px 14px;display:flex;align-items:center;gap:10px}
+  .wa-badge{background:#1a8f79;width:32px;height:32px;border-radius:999px;display:flex;align-items:center;justify-content:center;font-weight:700}
+  .wa-name{font-weight:700}
+  .wa-online{margin-left:auto;font-size:12px;opacity:.9}
+  .wa-body{background:#efeae2;padding:16px;height:520px;overflow:auto;position:relative}
+  .wa-bubble{
+    max-width:78%;background:#dcf8c6;color:#0b141a;margin:8px 0 8px auto;border-radius:16px 16px 4px 16px;
+    padding:10px 12px;box-shadow:0 1px 0 rgba(0,0,0,.08)
+  }
+  .wa-meta{display:flex;gap:6px;align-items:center;justify-content:flex-end;font-size:12px;color:#667781;margin-top:6px}
+  .wa-meta .tick{width:14px;height:14px;border-radius:2px;background:
+      linear-gradient(90deg,#34b7f1 0 50%,#34b7f1 50% 100%);}
+  .note{color:var(--muted);font-size:12px;margin-top:6px}
+</style>
 </head>
-<body class="bg-gray-50 text-gray-800">
-  <header class="sticky top-0 z-30 bg-white/80 backdrop-blur border-b">
-    <div class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between">
-      <a href="/" class="font-semibold">← Kembali</a>
-      <h1 class="text-xl font-semibold">AI Text Formatter</h1>
-      <a href="/" class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-sm">Dasbor</a>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <a class="btn-link" href="/">← Kembali</a>
+      <div class="title">AI Text Formatter</div>
+      <span class="note">Semua proses dilakukan lewat function <code>/call-gemini</code>.</span>
     </div>
-  </header>
 
-  <main class="mx-auto max-w-7xl px-4 py-8 grid grid-cols-12 gap-6">
-    <!-- Left column: tools -->
-    <section class="col-span-12 lg:col-span-7 space-y-6">
-      <!-- 1. Tiru Format -->
-      <div class="bg-white rounded-2xl shadow-sm border">
-        <div class="px-5 py-4 border-b flex items-center justify-between">
-          <h2 class="text-lg font-semibold">1. Format Berdasarkan Contoh</h2>
-        </div>
-        <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1">Tempel Teks Contoh (dengan format)</label>
-            <textarea id="ex-text" class="w-full h-44 resize-y rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500"></textarea>
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-600 mb-1">Tempel Teks Baru (tanpa format)</label>
-            <textarea id="new-text" class="w-full h-44 resize-y rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500"></textarea>
-          </div>
-        </div>
-        <div class="px-5 pb-5">
-          <button id="btn-mimic" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M12 6v6h6"/><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            Tiru Format
-          </button>
-          <span id="mimic-msg" class="ml-3 text-sm text-rose-600"></span>
-        </div>
-      </div>
+    <div class="grid">
+      <!-- LEFT -->
+      <div style="display:flex;flex-direction:column;gap:16px">
 
-      <!-- 2. Format Cerdas & Ringkas -->
-      <div class="bg-white rounded-2xl shadow-sm border">
-        <div class="px-5 py-4 border-b">
-          <h2 class="text-lg font-semibold">2. Format Cerdas & Ringkas</h2>
-          <p class="text-sm text-gray-500">Biarkan AI bekerja pada isi editor utama di bawah. Klik salah satu fungsi.</p>
-        </div>
-        <div class="p-5 flex flex-wrap gap-3">
-          <button id="btn-format" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 text-white font-medium hover:bg-emerald-700">
-            <span>🧠</span> Format Cerdas
-          </button>
-          <button id="btn-summary" class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-500 text-white font-medium hover:bg-amber-600">
-            <span>✂️</span> Ringkas Teks
-          </button>
-          <span id="smart-msg" class="text-sm text-rose-600"></span>
-        </div>
-      </div>
-
-      <!-- Editor utama -->
-      <div class="bg-white rounded-2xl shadow-sm border">
-        <div class="px-5 py-4 border-b flex items-center justify-between">
-          <h3 class="text-lg font-semibold">Editor Utama & Hasil</h3>
-          <div class="flex gap-2">
-            <button id="btn-bold" class="px-2.5 py-1.5 rounded-lg border">B</button>
-            <button id="btn-italic" class="px-2.5 py-1.5 rounded-lg border">I</button>
-            <button id="btn-mono" class="px-2.5 py-1.5 rounded-lg border text-xs">Monospace</button>
-          </div>
-        </div>
-        <div class="p-5">
-          <textarea id="editor" class="w-full h-80 resize-y rounded-xl border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500"></textarea>
-          <div class="mt-4 flex flex-wrap gap-3">
-            <button id="btn-copy" class="px-4 py-2 rounded-xl bg-gray-900 text-white">Salin Hasil</button>
-            <button id="btn-clear" class="px-4 py-2 rounded-xl bg-rose-600 text-white">Bersihkan Semua</button>
-            <span id="editor-msg" class="text-sm text-rose-600"></span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Right column: WhatsApp preview -->
-    <aside class="col-span-12 lg:col-span-5">
-      <div class="lg:sticky lg:top-20 bg-white rounded-2xl shadow-sm border overflow-hidden">
-        <div class="px-5 py-4 border-b flex items-center justify-between">
-          <h3 class="text-lg font-semibold">Pratinjau WhatsApp</h3>
-          <span class="text-xs text-gray-500">simulasi</span>
-        </div>
-        <div class="p-0">
-          <div class="mx-auto max-w-sm border-x bg-[#0b141a]">
-            <!-- WA header -->
-            <div class="h-12 bg-[#202c33] text-white flex items-center gap-3 px-3">
-              <div class="w-8 h-8 rounded-full bg-[#00a884] flex items-center justify-center font-semibold">MI</div>
-              <div class="flex-1">
-                <div class="text-sm leading-4">MediaDash</div>
-                <div class="text-[11px] text-emerald-400">online</div>
-              </div>
+        <div class="section">
+          <h3>1. Format Berdasarkan Contoh</h3>
+          <div class="row">
+            <div>
+              <div class="note" style="margin-bottom:6px">Tempel Teks Contoh (dengan format)</div>
+              <textarea id="example" placeholder="Contoh teks yang formatnya ingin ditiru..."></textarea>
             </div>
-            <!-- WA chat area -->
-            <div class="bg-[url('https://i.imgur.com/8w3t8xU.png')] bg-repeat p-3 min-h-[520px]">
-              <div class="max-w-[85%] ml-auto bg-[#e1ffc7] text-[#111b21] rounded-2xl rounded-tr-sm shadow px-3 py-2">
-                <div id="wa-bubble" class="whitespace-pre-wrap text-[15px] leading-6">Tampilan teks Anda akan muncul di sini…</div>
-                <div class="mt-1 text-[11px] text-right text-gray-500">10:58 PM ✓✓</div>
-              </div>
+            <div>
+              <div class="note" style="margin-bottom:6px">Tempel Teks Baru (tanpa format)</div>
+              <textarea id="newtext" placeholder="Konten baru yang ingin diformat mengikuti contoh..."></textarea>
+            </div>
+          </div>
+          <div class="toolbar">
+            <button id="btnMimic" class="pill">📐 Tiru Format</button>
+            <small id="errMimic" class="err"></small>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>2. Format Cerdas & Ringkas</h3>
+          <div class="toolbar">
+            <button id="btnFormat" class="pill green">🧠 Format Cerdas</button>
+            <button id="btnSumm" class="pill amber">✂️ Ringkas Teks</button>
+            <small id="errSmart" class="err"></small>
+          </div>
+
+          <h3 style="margin-top:16px">Editor Utama & Hasil</h3>
+          <textarea id="editor" class="editor" placeholder="Tulis atau tempel teks di sini..."></textarea>
+          <div class="row-actions">
+            <button id="btnCopy" class="pill ghost">Salin Hasil</button>
+            <button id="btnClear" class="pill ghost">Bersihkan Semua</button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT -->
+      <div class="section">
+        <h3>Pratinjau WhatsApp <span class="note">simulasi</span></h3>
+        <div class="wa-card">
+          <div class="wa-head">
+            <div class="wa-badge">MI</div>
+            <div class="wa-name">MediaDash</div>
+            <div class="wa-online">online</div>
+          </div>
+          <div class="wa-body">
+            <div id="waBubble" class="wa-bubble">
+              <div id="waText">Tampilan teks Anda akan muncul di sini…</div>
+              <div class="wa-meta"><span id="waTime"></span><span class="tick"></span></div>
             </div>
           </div>
         </div>
       </div>
-    </aside>
-  </main>
 
-  <script>
-    const FN_URL = '/.netlify/functions/call-gemini';
+    </div>
+  </div>
 
-    const exText = document.getElementById('ex-text');
-    const newText = document.getElementById('new-text');
-    const editor = document.getElementById('editor');
-    const waBubble = document.getElementById('wa-bubble');
+<script>
+(function(){
+  const $ = (q)=>document.querySelector(q);
+  const ex = $('#example'), nw = $('#newtext'), ed = $('#editor');
+  const errMimic = $('#errMimic'), errSmart = $('#errSmart');
+  const waText = $('#waText'), waTime = $('#waTime');
 
-    const btnMimic = document.getElementById('btn-mimic');
-    const btnFormat = document.getElementById('btn-format');
-    const btnSummary = document.getElementById('btn-summary');
+  const FN = `${location.origin}/.netlify/functions/call-gemini`;
 
-    const msgMimic = document.getElementById('mimic-msg');
-    const msgSmart = document.getElementById('smart-msg');
-    const msgEditor = document.getElementById('editor-msg');
+  function timeNow(){
+    const d = new Date();
+    let hh = d.getHours(), mm = d.getMinutes();
+    const ampm = hh >= 12 ? 'PM':'AM';
+    hh = ((hh+11)%12+1);
+    mm = (mm<10? '0'+mm:mm);
+    return `${hh}:${mm} ${ampm}`;
+  }
+  waTime.textContent = timeNow();
+  setInterval(()=>waTime.textContent=timeNow(), 30_000);
 
-    function setBusy(btn, busy){
-      btn.disabled = busy;
-      btn.classList.toggle('opacity-60', busy);
+  function setLoading(btn, loading){
+    if(loading){
+      btn.dataset.prev = btn.textContent;
+      btn.textContent = '… memproses';
+      btn.disabled = true;
+    }else{
+      btn.textContent = btn.dataset.prev || btn.textContent;
+      btn.disabled = false;
     }
-    function showBubble(){ waBubble.textContent = editor.value || ' '; }
-    editor.addEventListener('input', showBubble);
+  }
 
-    async function callAI(payload, btn, msgEl){
-      try{
-        msgEl.textContent = '';
-        setBusy(btn, true);
-        const res = await fetch(FN_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
-        const data = await res.json();
-        if(!res.ok || !data.ok){ throw new Error(data.error || ('HTTP ' + res.status)); }
-        return data.text || '';
-      }catch(e){ msgEl.textContent = e.message; return null; }
-      finally{ setBusy(btn, false); }
+  async function callAI(action, payload){
+    const res = await fetch(FN, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ action, ...payload })
+    });
+    const j = await res.json().catch(()=>({ok:false,error:'INVALID_JSON'}));
+    return {status:res.status, ...j};
+  }
+
+  function updatePreview(text){
+    waText.textContent = text && text.trim() ? text : 'Tampilan teks Anda akan muncul di sini…';
+  }
+
+  ed.addEventListener('input', ()=>updatePreview(ed.value));
+
+  // Actions
+  $('#btnMimic').addEventListener('click', async ()=>{
+    errMimic.textContent='';
+    const exampleText = ex.value.trim();
+    const newText = nw.value.trim();
+    if(!exampleText || !newText){
+      errMimic.textContent='PROMPT_REQUIRED: isi contoh & teks baru.';
+      return;
     }
+    setLoading(this,event.currentTarget);
+  });
 
-    btnMimic.addEventListener('click', async ()=>{
-      const t = await callAI({ action: 'mimic', exampleText: exText.value.trim(), newText: newText.value.trim() }, btnMimic, msgMimic);
-      if(t!=null){ editor.value = t; showBubble(); }
-    });
-    btnFormat.addEventListener('click', async ()=>{
-      const t = await callAI({ action: 'format', editorText: editor.value.trim() }, btnFormat, msgSmart);
-      if(t!=null){ editor.value = t; showBubble(); }
-    });
-    btnSummary.addEventListener('click', async ()=>{
-      const t = await callAI({ action: 'summarize', editorText: editor.value.trim() }, btnSummary, msgSmart);
-      if(t!=null){ editor.value = t; showBubble(); }
-    });
-
-    document.getElementById('btn-copy').addEventListener('click', async ()=>{
-      await navigator.clipboard.writeText(editor.value||'');
-      msgEditor.textContent = 'Disalin.';
-      setTimeout(()=> msgEditor.textContent='', 1600);
-    });
-    document.getElementById('btn-clear').addEventListener('click', ()=>{ exText.value=''; newText.value=''; editor.value=''; showBubble(); });
-
-    // simple format helpers
-    function wrapSelection(before, after){
-      const ta = editor; const start = ta.selectionStart; const end = ta.selectionEnd; const v = ta.value;
-      ta.value = v.slice(0,start) + before + v.slice(start,end) + (after ?? before) + v.slice(end);
-      ta.focus(); ta.selectionStart = start + before.length; ta.selectionEnd = end + before.length; showBubble();
+  // Fix: assign correct handler with setLoading
+  const btnMimic = $('#btnMimic');
+  btnMimic.addEventListener('click', async (ev)=>{
+    errMimic.textContent='';
+    const exampleText = ex.value.trim();
+    const newText = nw.value.trim();
+    if(!exampleText || !newText){
+      errMimic.textContent='PROMPT_REQUIRED: isi contoh & teks baru.';
+      return;
     }
-    document.getElementById('btn-bold').addEventListener('click', ()=>wrapSelection('**','**'));
-    document.getElementById('btn-italic').addEventListener('click', ()=>wrapSelection('_','_'));
-    document.getElementById('btn-mono').addEventListener('click', ()=>wrapSelection('`','`'));
+    setLoading(btnMimic,true);
+    const r = await callAI('mimic',{exampleText,newText});
+    setLoading(btnMimic,false);
+    if(!r.ok){ errMimic.textContent = r.error || `HTTP_${r.status}`; return; }
+    ed.value = (r.text||'').trim(); updatePreview(ed.value);
+  });
 
-    showBubble();
-  </script>
+  const btnFormat = $('#btnFormat');
+  btnFormat.addEventListener('click', async ()=>{
+    errSmart.textContent='';
+    const editorText = ed.value.trim();
+    if(!editorText){ errSmart.textContent='PROMPT_REQUIRED: isi editor dahulu.'; return; }
+    setLoading(btnFormat,true);
+    const r = await callAI('format',{editorText});
+    setLoading(btnFormat,false);
+    if(!r.ok){ errSmart.textContent = r.error || `HTTP_${r.status}`; return; }
+    ed.value = (r.text||'').trim(); updatePreview(ed.value);
+  });
+
+  const btnSumm = $('#btnSumm');
+  btnSumm.addEventListener('click', async ()=>{
+    errSmart.textContent='';
+    const editorText = ed.value.trim();
+    if(!editorText){ errSmart.textContent='PROMPT_REQUIRED: isi editor dahulu.'; return; }
+    setLoading(btnSumm,true);
+    const r = await callAI('summarize',{editorText});
+    setLoading(btnSumm,false);
+    if(!r.ok){ errSmart.textContent = r.error || `HTTP_${r.status}`; return; }
+    ed.value = (r.text||'').trim(); updatePreview(ed.value);
+  });
+
+  $('#btnCopy').addEventListener('click', async ()=>{
+    const txt = ed.value.trim();
+    if(!txt) return;
+    await navigator.clipboard.writeText(txt);
+    const b = $('#btnCopy'); const prev=b.textContent; b.textContent='Disalin ✓';
+    setTimeout(()=>b.textContent=prev,900);
+  });
+  $('#btnClear').addEventListener('click', ()=>{
+    ex.value=''; nw.value=''; ed.value=''; updatePreview('');
+  });
+
+})();
+</script>
 </body>
 </html>
-
-
-<!-- =============================================
-FILE: netlify/functions/call-gemini.js
-Place this file under netlify/functions/ in your repo.
-Environment: set GOOGLE_API_KEY (or GEMINI_API_KEY) in Netlify Env Vars.
-============================================= -->
-<script type="text/plain" data-filename="netlify/functions/call-gemini.js">import { Buffer } from 'node:buffer';
-
-const cors = () => ({
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type'
-});
-const bad = (m) => ({ statusCode: 400, headers: cors(), body: JSON.stringify({ ok: false, error: m }) });
-
-export async function handler(event) {
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 204, headers: cors() };
-  }
-  try {
-    const body = JSON.parse(event.body || '{}');
-    const action = body.action;
-    const exampleText = (body.exampleText || '').trim();
-    const newText = (body.newText || '').trim();
-    const editorText = (body.editorText || '').trim();
-
-    let prompt = '';
-    if (action === 'mimic') {
-      if (!exampleText || !newText) return bad('exampleText and newText required');
-      prompt = `Tugas Anda: tiru format dan gaya dari TEKS CONTOH (heading, penomoran, bullets, jarak baris) dan terapkan pada TEKS BARU. Jangan menambah konten baru. Hanya ubah struktur/format agar rapi, gunakan bahasa Indonesia yang baik.
-
-TEKS CONTOH:\n${exampleText}\n\n---\nTEKS BARU:\n${newText}\n\n---\nKELUARAN (hanya teks terformat):`;
-    } else if (action === 'format') {
-      if (!editorText) return bad('editorText required');
-      prompt = `Rapikan teks berikut menjadi dokumen rapi: gunakan heading yang wajar, bullet/nomor bila perlu, perataan baris konsisten, ejaan BI, tanpa menambah fakta baru. Hasilkan teks final.
-
-TEKS:\n${editorText}\n\n---\nKELUARAN:`;
-    } else if (action === 'summarize') {
-      if (!editorText) return bad('editorText required');
-      prompt = `Ringkas teks berikut menjadi poin-poin WhatsApp singkat (maks 8 poin, tiap poin satu baris, tetap akurat, tidak ada tambahan baru).
-
-TEKS:\n${editorText}\n\n---\nRINGKASAN:`;
-    } else {
-      return bad('Unknown action');
-    }
-
-    const apiKey = process.env.GOOGLE_API_KEY || process.env.GEMINI_API_KEY;
-    if (!apiKey) return { statusCode: 500, headers: cors(), body: JSON.stringify({ ok: false, error: 'MISSING_API_KEY' }) };
-
-    const payload = {
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.25, topP: 0.95, maxOutputTokens: 2048 }
-    };
-
-    const url = `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-    const resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-    const json = await resp.json();
-    if (!resp.ok) {
-      return { statusCode: resp.status, headers: cors(), body: JSON.stringify({ ok: false, error: json?.error?.message || 'GENERATION_FAILED', raw: json }) };
-    }
-    const text = json.candidates?.[0]?.content?.parts?.map(p => p.text).join('') || '';
-    return { statusCode: 200, headers: cors(), body: JSON.stringify({ ok: true, text }) };
-  } catch (e) {
-    return { statusCode: 500, headers: cors(), body: JSON.stringify({ ok: false, error: e.message }) };
-  }
-}
-</script>
