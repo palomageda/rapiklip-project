@@ -375,18 +375,20 @@
             updatePreview(editor.value);
         }
 
-        async function callGeminiAPI(prompt) {
-            const user = auth.currentUser;
-            if (!user) {
-                let usageData = getGuestUsage();
-                if (usageData.count >= USAGE_LIMIT) {
-                    openModal();
-                    throw new Error("Batas penggunaan harian tercapai. Silakan login.");
-                }
-                usageData.count++;
-                updateGuestUsage(usageData);
-            }
-            
+        async function callGeminiAPI(prompt, base64Data, mimeType) {
+  const res = await fetch('/.netlify/functions/call-gemini', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, base64Data, mimeType }),
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || !data.ok) {
+    const msg = data?.error || `HTTP_${res.status}`;
+    throw new Error(`AI error: ${msg}`);
+  }
+  return data.response;
+}
             showProgressBar();
             try {
                 const response = await fetch('/.netlify/functions/call-gemini', {
